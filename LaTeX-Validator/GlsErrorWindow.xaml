@@ -21,7 +21,7 @@
                         <GridView>
                             <GridViewColumn Header="Wort" Width="220" DisplayMemberBinding="{Binding WordContent}" />
                             <GridViewColumn Header="Aktuelle Form" Width="200" DisplayMemberBinding="{Binding ActualForm}" />
-                            <GridViewColumn Header="Problem" Width="300" DisplayMemberBinding="{Binding ErrorType}" />
+                            <GridViewColumn Header="Problem" Width="300" DisplayMemberBinding="{Binding ErrorText}" />
                             <GridViewColumn Header="Datei" Width="840" DisplayMemberBinding="{Binding File}" />
                             <GridViewColumn Header="Zeile" Width="80" DisplayMemberBinding="{Binding Line}" />
                             <GridViewColumn Header="Auswahl" Width="110">

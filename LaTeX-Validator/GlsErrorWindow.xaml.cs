@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
+using LaTeX_Validator.Extensions;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using Path = System.IO.Path;
 
@@ -29,7 +30,7 @@ namespace LaTeX_Validator
             this.allErrors = new ObservableCollection<GlsError>();
             this.InitializeComponent();
             this.lvGlsError.ItemsSource = this.allErrors;
-            this.LatexDirectoryBox.Text = this.configuration.latexDirectoryAbsolute;
+            this.LatexDirectoryBox.Text = Settings.Default.RootDirectoryPath;
         }
 
         private void ButtonStart_Click(object sender, RoutedEventArgs e)

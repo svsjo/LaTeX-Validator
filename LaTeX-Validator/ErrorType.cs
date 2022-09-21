@@ -5,11 +5,16 @@
 // <author>Jonas Weis</author>
 // --------------------------------------------------------------------------------------------------------------------
 
+using LaTeX_Validator.Extensions;
+
 namespace LaTeX_Validator;
 
 public enum ErrorType
 {
+    [EnumExtension("GLS fehlt")]
     MissingGls,
+    [EnumExtension("Sollte AcrLong sein")]
     ShouldBeAcrLong,
+    [EnumExtension("Autoref Fehlt")]
     MissingAutoref
 }
