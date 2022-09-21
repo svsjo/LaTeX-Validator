@@ -16,10 +16,13 @@ namespace LaTeX_Validator
     partial class GlsErrorWindow : Window
     {
         private readonly ObservableCollection<GlsError> AllErrors;
-        private readonly ConfigurationGlossary Configuration = new();
+        private readonly ConfigurationGlossary Configuration;
+        private readonly FileExtractor FileExtractor;
 
         public GlsErrorWindow()
         {
+            this.Configuration = new ConfigurationGlossary();
+            this.FileExtractor = new FileExtractor();
             this.AllErrors = new ObservableCollection<GlsError>();
             this.InitializeComponent();
             this.lvGlsError.ItemsSource = this.AllErrors;
@@ -65,8 +68,9 @@ namespace LaTeX_Validator
                 Path.Combine(this.Configuration.latexDirectoryAbsolute, this.Configuration.beforeDirectoryRelative), "*.tex",
                 SearchOption.AllDirectories).ToList();
 
-            var allAcronymEntries = this.GetAcronymEntries().ToList();
-            var allGlossaryEntries = this.GetGlossaryEntries();
+            var path = Path.Combine(this.Configuration.latexDirectoryAbsolute, this.Configuration.beforeDirectoryRelative, this.Configuration.glossaryName);
+            var allAcronymEntries = this.FileExtractor.GetAcronymEntries(path).ToList();
+            var allGlossaryEntries = this.FileExtractor.GetGlossaryEntries(path);
 
             var glossaryPath = Path.Combine(this.Configuration.latexDirectoryAbsolute, this.Configuration.beforeDirectoryRelative, this.Configuration.glossaryName);
             allFiles.Remove(glossaryPath);
@@ -76,67 +80,6 @@ namespace LaTeX_Validator
             this.FindMissingGlsErrors(allFiles, allAcronymEntries, allGlossaryEntries.ToList());
             this.FindTablesErrors(allFiles, allAcronymEntries);
             this.FindMissingReferencesErrors(allFiles);
-        }
-
-        private IEnumerable<AcronymEntry> GetAcronymEntries()
-        {
-            var path = Path.Combine(this.Configuration.latexDirectoryAbsolute, this.Configuration.beforeDirectoryRelative, this.Configuration.glossaryName);
-            var allLines = this.GetAllLinesFromFile(path);
-            const string regexAcronymPattern = @"newacronym{(.*)}{(.*)}{(.*)}"; // Group 0=all, 1=label, 2=short, 3=long
-            var regex = new Regex(regexAcronymPattern, RegexOptions.Compiled);
-
-            foreach (var line in allLines)
-            {
-                var matched = regex.Matches(line.Content);
-
-                foreach (var match in matched)
-                {
-                    var actualMatch = match as Match;
-                    var groups = actualMatch?.Groups;
-                    if (groups == null || groups.Count < 4) continue;
-
-                    yield return new AcronymEntry
-                    {
-                        Label = groups[1].ToString(),
-                        Short = groups[2].ToString(),
-                        Long = groups[3].ToString()
-                    };
-                }
-            }
-        }
-
-        private IEnumerable<string> GetGlossaryEntries()
-        {
-            var path = Path.Combine(this.Configuration.latexDirectoryAbsolute, this.Configuration.beforeDirectoryRelative, this.Configuration.glossaryName);
-            var allLines = this.GetAllLinesFromFile(path);
-            const string regexGlossaryPattern = @"newglossaryentry{.*}{name={(.*)},.*}}"; // Group 1 = name
-            var regex = new Regex(regexGlossaryPattern, RegexOptions.Compiled);
-
-            foreach (var line in allLines)
-            {
-                var matched = regex.Matches(line.Content);
-
-                foreach (var match in matched)
-                {
-                    var actualMatch = match as Match;
-                    var groups = actualMatch?.Groups;
-                    if (groups == null || groups.Count < 2) continue;
-
-                    yield return groups[1].ToString();
-                }
-            }
-        }
-
-        private IEnumerable<Line> GetAllLinesFromFile(string path)
-        {
-            var fileReader = new StreamReader(path);
-            var counter = 1;
-            while (fileReader.ReadLine() is { } actualLine)
-            {
-                yield return new Line { Content = actualLine, Number = counter };
-                counter++;
-            }
-
         }
 
 
@@ -149,7 +92,7 @@ namespace LaTeX_Validator
         {
             foreach (var file in files)
             {
-                var allLines = this.GetAllLinesFromFile(file);
+                var allLines = this.FileExtractor.GetAllLinesFromFile(file);
                 var affectedLines = allLines
                     .Where(line => allAcronymEntries
                                .Any(entry => line.Content.Contains($"{{{entry.Label}}}")))
@@ -196,7 +139,7 @@ namespace LaTeX_Validator
         {
             foreach (var file in files)
             {
-                var allLines = this.GetAllLinesFromFile(file);
+                var allLines = this.FileExtractor.GetAllLinesFromFile(file);
                 var allEntriesConcatinated = allGlossaryEntries
                     .Concat(allAcronymEntries
                             .Select(x => x.Long)
@@ -242,7 +185,7 @@ namespace LaTeX_Validator
 
             foreach (var file in files)
             {
-                var allLines = this.GetAllLinesFromFile(file).ToList();
+                var allLines = this.FileExtractor.GetAllLinesFromFile(file).ToList();
                 var linesWithCaption = this.GetAllLinesWithCaption(allLines, regex);
                 var affectedLines = linesWithCaption
                     .Where(line => line.Content.Contains(@"\gls") && allAcronymEntries
@@ -303,7 +246,7 @@ namespace LaTeX_Validator
 
             foreach (var file in files)
             {
-                var allLines = this.GetAllLinesFromFile(file);
+                var allLines = this.FileExtractor.GetAllLinesFromFile(file);
                 foreach (var line in allLines)
                 {
                     var labelMatches = regexLabel.Match(line.Content);
@@ -348,45 +291,5 @@ namespace LaTeX_Validator
         {
             // TODO
         }
-    }
-
-    // acrshort
-
-    public class GlsError
-    {
-        public string WordContent { get; set; }
-        public GlsType ActualForm { get; set; }
-        public ErrorType ErrorType { get; set; }
-        public string File { get; set; }
-        public int Line { get; set; }
-    }
-
-    public enum GlsType
-    {
-        acrshort,
-        acrlong,
-        gls,
-        none,
-        label
-    }
-
-    public enum ErrorType
-    {
-        MissingGls,
-        ShouldBeAcrLong,
-        MissingAutoref
-    }
-
-    public class AcronymEntry
-    {
-        public string Label { get; set; }
-        public string Short { get; set; }
-        public string Long { get; set; }
-    }
-
-    public class Line
-    {
-        public string Content { get; set; }
-        public int Number { get; set; }
     }
 }
