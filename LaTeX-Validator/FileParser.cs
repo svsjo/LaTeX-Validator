@@ -93,7 +93,7 @@ public class FileParser
 
             foreach (var element in possiblyMissingWords)
             {
-                var regexPatternLabel = "label({|=)(.*?)" + element.word + "(.*?)(}|])";
+                var regexPatternLabel = @"\\.*({|=)(.*?)" + element.word + "(.*?)(}|])";
                 var regex = new Regex(regexPatternLabel, RegexOptions.Compiled);
 
                 foreach (var line in element.lines.Where(line => !regex.IsMatch(line.Content)))
@@ -157,7 +157,7 @@ public class FileParser
     public IEnumerable<GlsError> FindMissingReferencesErrors(List<string> files, bool ignoreSections)
     {
         var allLabels = this.GetAllLabels(files).ToList();
-        var allRefs = this.GetAllRefs(files);
+        var allRefs = this.GetAllRefs(files).ToList();
 
         var haveReference = allLabels
                             .Where(entry => allRefs
@@ -235,12 +235,15 @@ public class FileParser
 
             foreach (var line in allLines)
             {
-                var refMatches = regexRef.Match(line.Content);
-                var refGroups = refMatches.Groups;
+                var refMatches = regexRef.Matches(line.Content);
+                foreach (Match refMatch in refMatches)
+                {
+                    var refGroups = refMatch.Groups;
 
-                if (refGroups.Count < 2) continue;
+                    if (refGroups.Count < 2) continue;
 
-                yield return refGroups[1].Value;
+                    yield return refGroups[1].Value;
+                }
             }
         }
     }
