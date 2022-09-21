@@ -29,8 +29,14 @@ namespace LaTeX_Validator
             this.fileParser = new FileParser(this.fileExtractor);
             this.allErrors = new ObservableCollection<GlsError>();
             this.InitializeComponent();
+            this.InitializeUiData();
+        }
+
+        private void InitializeUiData()
+        {
             this.lvGlsError.ItemsSource = this.allErrors;
             this.LatexDirectoryBox.Text = Settings.Default.RootDirectoryPath;
+            this.RefOptionPicker.IsChecked = this.configuration.ignoreSectionLabels;
         }
 
         private void ButtonStart_Click(object sender, RoutedEventArgs e)
@@ -40,6 +46,13 @@ namespace LaTeX_Validator
             if (latexDict != this.configuration.latexDirectoryAbsolute) this.configuration.latexDirectoryAbsolute = latexDict;
             this.StartAnalysis();
         }
+
+        private void PickerRefOption_Clicked(object sender, RoutedEventArgs e)
+        {
+            var checkBox = sender as CheckBox;
+            this.configuration.ignoreSectionLabels = checkBox?.IsChecked ?? false;
+        }
+
         private void ButtonJump_Clicked(object sender, RoutedEventArgs e)
         {
             var button = sender as Button;
