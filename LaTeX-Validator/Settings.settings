@@ -3,7 +3,7 @@
   <Profiles />
   <Settings>
     <Setting Name="RootDirectoryPath" Type="System.String" Scope="User">
-      <Value Profile="(Default)" />
+      <Value Profile="(Default)">C:\Users\entep04\Desktop\Infos\EigeneProjektarbeiten\T2000\T2000_Latex</Value>
     </Setting>
   </Settings>
 </SettingsFile>

@@ -49,7 +49,6 @@ namespace LaTeX_Validator
 
         private void JumpToError(string path, int line)
         {
-            //  Aufbau: "code --goto {path}:{line}"
             var process = new Process
                           {
                               StartInfo = new ProcessStartInfo
@@ -83,7 +82,7 @@ namespace LaTeX_Validator
             this.allErrors.AddRange(this.fileParser.FindAcrLongErrors(beforeFiles, allAcronymEntries));
             this.allErrors.AddRange(this.fileParser.FindMissingGlsErrors(allFiles, allAcronymEntries, allGlossaryEntries.ToList()));
             this.allErrors.AddRange(this.fileParser.FindTablesErrors(allFiles, allAcronymEntries));
-            this.allErrors.AddRange(this.fileParser.FindMissingReferencesErrors(allFiles));
+            this.allErrors.AddRange(this.fileParser.FindMissingReferencesErrors(allFiles, this.configuration.ignoreSectionLabels));
         }
 
 

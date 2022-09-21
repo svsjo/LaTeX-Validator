@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Windows.Shapes;
 
 namespace LaTeX_Validator;
 
@@ -76,21 +77,26 @@ public class FileParser
                         .Concat(allAcronymEntries
                                     .Select(x => x.Short)));
 
-            var missingWords = allEntriesConcatinated
+
+
+            var possiblyMissingWords = allEntriesConcatinated
                                .Where(entry => allLines
-                                          .Any(line => line.Content.Contains(entry))) // && !line.Content.Contains("{"+entry+"}")
+                                          .Any(line => line.Content.Contains(entry)))
                                .Select(entry => new
                                                 {
                                                     word = entry,
                                                     lines = allLines
                                                             .Where(line => line.Content.Contains(entry))
-                                                            .Select(line => line.Number)
                                                             .ToList()
                                                 });
 
-            foreach (var element in missingWords)
+
+            foreach (var element in possiblyMissingWords)
             {
-                foreach (var line in element.lines)
+                var regexPatternLabel = "label({|=)(.*?)" + element.word + "(.*?)(}|])";
+                var regex = new Regex(regexPatternLabel, RegexOptions.Compiled);
+
+                foreach (var line in element.lines.Where(line => !regex.IsMatch(line.Content)))
                 {
                     yield return (new GlsError
                                   {
@@ -98,7 +104,7 @@ public class FileParser
                                       ActualForm = GlsType.none,
                                       ErrorType = ErrorType.MissingGls,
                                       File = file,
-                                      Line = line
+                                      Line = line.Number
                                   });
                 }
             }
@@ -144,6 +150,43 @@ public class FileParser
         }
     }
 
+
+    /// <summary>
+    /// Wird auf alle Label von Tabellen, Quellcode und Bildern verwiesen?
+    /// </summary>
+    public IEnumerable<GlsError> FindMissingReferencesErrors(List<string> files, bool ignoreSections)
+    {
+        var allLabels = this.GetAllLabels(files).ToList();
+        var allRefs = this.GetAllRefs(files);
+
+        var haveReference = allLabels
+                            .Where(entry => allRefs
+                                       .Any(referencedLabel => referencedLabel == entry.label))
+                            .ToList();
+
+        var notReferenced = allLabels.Except(haveReference);
+
+        foreach (var element in notReferenced)
+        {
+            if (ignoreSections)
+            {
+                if(element.label.Contains("sec:") || element.label.Contains("chap:") || element.label.Contains("subsec:")) continue;
+            }
+
+            yield return (new GlsError
+                              {
+                                  WordContent = element.label,
+                                  ActualForm = GlsType.label,
+                                  ErrorType = ErrorType.MissingAutoref,
+                                  File = element.file,
+                                  Line = element.line
+                              });
+        }
+    }
+
+
+    #region HelperMethods
+
     private IEnumerable<Line> GetAllLinesWithCaption(List<Line> allLines, Regex regex)
     {
         var linesWithCaption = new List<Line>();
@@ -160,19 +203,10 @@ public class FileParser
         return linesWithCaption;
     }
 
-    /// <summary>
-    /// Wird auf alle Label von Tabellen, Quellcode und Bildern verwiesen?
-    /// </summary>
-    public IEnumerable<GlsError> FindMissingReferencesErrors(List<string> files)
+    private IEnumerable<(string label, string file, int line)> GetAllLabels(List<string> files)
     {
-        const string regexPatternLabel = @".*label({|=)(.*?)(}|])";
-        const string regexPatternRef = @"autoref{(.*?)}";
-
+        const string regexPatternLabel = @"label({|=)(.*?)(}|])";
         var regexLabel = new Regex(regexPatternLabel, RegexOptions.Compiled);
-        var regexRef = new Regex(regexPatternRef, RegexOptions.Compiled);
-
-        var allLabels = new List<(string label, string file, int line)>();
-        var allRefs = new List<string>();
 
         foreach (var file in files)
         {
@@ -184,36 +218,32 @@ public class FileParser
 
                 if (labelGroups is { Count: > 2 })
                 {
-                    allLabels.Add((labelGroups[2].Value, file, line.Number));
-                }
-                else
-                {
-                    var refMatches = regexRef.Match(line.Content);
-                    var refGroups = refMatches.Groups;
-
-                    if (refGroups.Count < 2) continue;
-                    allRefs.Add(refGroups[1].Value);
+                    yield return (labelGroups[2].Value, file, line.Number);
                 }
             }
         }
+    }
 
-        var haveReference = allLabels
-                            .Where(entry => allRefs
-                                       .Any(referencedLabel => referencedLabel == entry.label))
-                            .ToList();
+    private IEnumerable<string> GetAllRefs(List<string> files)
+    {
+        const string regexPatternRef = @"autoref{(.*?)}";
+        var regexRef = new Regex(regexPatternRef, RegexOptions.Compiled);
 
-        var notReferenced = allLabels.Except(haveReference);
-
-        foreach (var element in notReferenced)
+        foreach (var file in files)
         {
-            yield return (new GlsError
-                          {
-                              WordContent = element.label,
-                              ActualForm = GlsType.label,
-                              ErrorType = ErrorType.MissingAutoref,
-                              File = element.file,
-                              Line = element.line
-                          });
+            var allLines = this.fileExtractor.GetAllLinesFromFile(file);
+
+            foreach (var line in allLines)
+            {
+                var refMatches = regexRef.Match(line.Content);
+                var refGroups = refMatches.Groups;
+
+                if (refGroups.Count < 2) continue;
+
+                yield return refGroups[1].Value;
+            }
         }
     }
+
+    #endregion
 }

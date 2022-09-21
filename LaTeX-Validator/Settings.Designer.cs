@@ -25,7 +25,7 @@ namespace LaTeX_Validator {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        [global::System.Configuration.DefaultSettingValueAttribute("C:\\Users\\entep04\\Desktop\\Infos\\EigeneProjektarbeiten\\T2000\\T2000_Latex")]
         public string RootDirectoryPath {
             get {
                 return ((string)(this["RootDirectoryPath"]));
