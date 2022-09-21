@@ -1,7 +1,8 @@
-﻿using LaTeX_Validator;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+
+namespace LaTeX_Validator;
 
 public class FileParser
 {
@@ -23,14 +24,14 @@ public class FileParser
         {
             var allLines = this.fileExtractor.GetAllLinesFromFile(file);
             var affectedLines = allLines
-                .Where(line => allAcronymEntries
-                           .Any(entry => line.Content.Contains($"{{{entry.Label}}}")))
-                .Select(line => new
-                {
-                    number = line.Number,
-                    label = allAcronymEntries.First(entry => line.Content.Contains(entry.Label)).Label,
-                    content = line.Content
-                });
+                                .Where(line => allAcronymEntries
+                                           .Any(entry => line.Content.Contains($"{{{entry.Label}}}")))
+                                .Select(line => new
+                                                {
+                                                    number = line.Number,
+                                                    label = allAcronymEntries.First(entry => line.Content.Contains(entry.Label)).Label,
+                                                    content = line.Content
+                                                });
 
 
             foreach (var line in affectedLines)
@@ -49,13 +50,13 @@ public class FileParser
                     if (type != "gls") continue;
 
                     yield return (new GlsError
-                    {
-                        WordContent = line.label,
-                        ActualForm = GlsType.gls,
-                        ErrorType = ErrorType.ShouldBeAcrLong,
-                        File = file,
-                        Line = line.number
-                    });
+                                  {
+                                      WordContent = line.label,
+                                      ActualForm = GlsType.gls,
+                                      ErrorType = ErrorType.ShouldBeAcrLong,
+                                      File = file,
+                                      Line = line.number
+                                  });
                 }
             }
         }
@@ -76,29 +77,29 @@ public class FileParser
                                     .Select(x => x.Short)));
 
             var missingWords = allEntriesConcatinated
-                .Where(entry => allLines
-                           .Any(line => line.Content.Contains(entry))) // && !line.Content.Contains("{"+entry+"}")
-                .Select(entry => new
-                {
-                    word = entry,
-                    lines = allLines
-                                         .Where(line => line.Content.Contains(entry))
-                                         .Select(line => line.Number)
-                                         .ToList()
-                });
+                               .Where(entry => allLines
+                                          .Any(line => line.Content.Contains(entry))) // && !line.Content.Contains("{"+entry+"}")
+                               .Select(entry => new
+                                                {
+                                                    word = entry,
+                                                    lines = allLines
+                                                            .Where(line => line.Content.Contains(entry))
+                                                            .Select(line => line.Number)
+                                                            .ToList()
+                                                });
 
             foreach (var element in missingWords)
             {
                 foreach (var line in element.lines)
                 {
                     yield return (new GlsError
-                    {
-                        WordContent = element.word,
-                        ActualForm = GlsType.none,
-                        ErrorType = ErrorType.MissingGls,
-                        File = file,
-                        Line = line
-                    });
+                                  {
+                                      WordContent = element.word,
+                                      ActualForm = GlsType.none,
+                                      ErrorType = ErrorType.MissingGls,
+                                      File = file,
+                                      Line = line
+                                  });
                 }
             }
         }
@@ -117,28 +118,28 @@ public class FileParser
             var allLines = this.fileExtractor.GetAllLinesFromFile(file).ToList();
             var linesWithCaption = this.GetAllLinesWithCaption(allLines, regex);
             var affectedLines = linesWithCaption
-                .Where(line => line.Content.Contains(@"\gls") && allAcronymEntries
-                                                                 .Select(entry => entry.Label)
-                                                                 .Any(entry => line.Content.Contains(entry)))
-                .Select(line => new
-                {
-                    number = line.Number,
-                    content = allAcronymEntries
-                                              .Select(entry => entry.Label)
-                                              .First(entry => line.Content.Contains(entry)),
-                    type = line.Content.Contains("acrlong") ? GlsType.acrlong : GlsType.acrshort
-                });
+                                .Where(line => line.Content.Contains(@"\gls") && allAcronymEntries
+                                                                                 .Select(entry => entry.Label)
+                                                                                 .Any(entry => line.Content.Contains(entry)))
+                                .Select(line => new
+                                                {
+                                                    number = line.Number,
+                                                    content = allAcronymEntries
+                                                              .Select(entry => entry.Label)
+                                                              .First(entry => line.Content.Contains(entry)),
+                                                    type = line.Content.Contains("acrlong") ? GlsType.acrlong : GlsType.acrshort
+                                                });
 
             foreach (var line in affectedLines)
             {
                 yield return (new GlsError
-                {
-                    WordContent = line.content,
-                    ActualForm = line.type,
-                    ErrorType = ErrorType.ShouldBeAcrLong,
-                    File = file,
-                    Line = line.number
-                });
+                              {
+                                  WordContent = line.content,
+                                  ActualForm = line.type,
+                                  ErrorType = ErrorType.ShouldBeAcrLong,
+                                  File = file,
+                                  Line = line.number
+                              });
             }
         }
     }
@@ -206,13 +207,13 @@ public class FileParser
         foreach (var element in notReferenced)
         {
             yield return (new GlsError
-            {
-                WordContent = element.label,
-                ActualForm = GlsType.label,
-                ErrorType = ErrorType.MissingAutoref,
-                File = element.file,
-                Line = element.line
-            });
+                          {
+                              WordContent = element.label,
+                              ActualForm = GlsType.label,
+                              ErrorType = ErrorType.MissingAutoref,
+                              File = element.file,
+                              Line = element.line
+                          });
         }
     }
 }

@@ -80,10 +80,10 @@ namespace LaTeX_Validator
             allFiles.Remove(glossaryPath);
             beforeFiles.Remove(glossaryPath);
 
-            var findAcrLongErrors = this.fileParser.FindAcrLongErrors(beforeFiles, allAcronymEntries);
-            var findMissingGlsErrors = this.fileParser.FindMissingGlsErrors(allFiles, allAcronymEntries, allGlossaryEntries.ToList());
-            var findTablesErrors = this.fileParser.FindTablesErrors(allFiles, allAcronymEntries);
-            var findMissingReferencesErrors = this.fileParser.FindMissingReferencesErrors(allFiles);
+            this.allErrors.AddRange(this.fileParser.FindAcrLongErrors(beforeFiles, allAcronymEntries));
+            this.allErrors.AddRange(this.fileParser.FindMissingGlsErrors(allFiles, allAcronymEntries, allGlossaryEntries.ToList()));
+            this.allErrors.AddRange(this.fileParser.FindTablesErrors(allFiles, allAcronymEntries));
+            this.allErrors.AddRange(this.fileParser.FindMissingReferencesErrors(allFiles));
         }
 
 
