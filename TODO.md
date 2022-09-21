@@ -38,6 +38,7 @@ von Jonas Weis und Jonathan Schwab
 - TODO:
   - Selektierbar machen, dass verschiedene Label(Chapter, Section, ...) ignoriert werden (togglebar)
   - Anzeige der Verwendung von \ref statt \autoref
+  - Dateien ignorierbar machen, z.B. Anhang (togglebar)
   
 # Nacharbeit
 - Alle Fehler angezeigt inklusive Datei und Zeile
