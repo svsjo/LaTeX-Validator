@@ -1,22 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using Path = System.IO.Path;
 
 namespace LaTeX_Validator
@@ -28,8 +17,6 @@ namespace LaTeX_Validator
     {
         private readonly ObservableCollection<GlsError> AllErrors;
         private readonly ConfigurationGlossary Configuration = new();
-        private const string regexAcronymPattern = @"newacronym{(.*)}{(.*)}{(.*)}"; // Group 2&3
-        private const string regexGlossaryPattern = @"newglossaryentry{.*}{name={(.*)},.*}}"; // Group 1
 
         public GlsErrorWindow()
         {
@@ -55,10 +42,10 @@ namespace LaTeX_Validator
 
         private void JumpToError(string path, int line)
         {
-            var command = $"code {path}:{line}";
-            var process = new Process()
+            //  Aufbau: "code --goto {path}:{line}"
+            var process = new Process
                           {
-                              StartInfo = new ProcessStartInfo()
+                              StartInfo = new ProcessStartInfo
                                           {
                                               FileName = "code",
                                               Arguments = $"--goto {path}:{line}",
@@ -75,13 +62,13 @@ namespace LaTeX_Validator
             var allFiles = Directory.GetFiles(
                 this.Configuration.latexDirectoryAbsolute, "*.tex", SearchOption.AllDirectories).ToList();
             var beforeFiles = Directory.GetFiles(
-                Path.Combine(this.Configuration.latexDirectoryAbsolute, this.Configuration.acrLongDirectoryRelative), "*.tex",
+                Path.Combine(this.Configuration.latexDirectoryAbsolute, this.Configuration.beforeDirectoryRelative), "*.tex",
                 SearchOption.AllDirectories).ToList();
 
             var allAcronymEntries = this.GetAcronymEntries().ToList();
             var allGlossaryEntries = this.GetGlossaryEntries();
 
-            var glossaryPath = Path.Combine(this.Configuration.latexDirectoryAbsolute, this.Configuration.acrLongDirectoryRelative, this.Configuration.glossaryPathRelative);
+            var glossaryPath = Path.Combine(this.Configuration.latexDirectoryAbsolute, this.Configuration.beforeDirectoryRelative, this.Configuration.glossaryName);
             allFiles.Remove(glossaryPath);
             beforeFiles.Remove(glossaryPath);
 
@@ -93,10 +80,11 @@ namespace LaTeX_Validator
 
         private IEnumerable<AcronymEntry> GetAcronymEntries()
         {
-            var path = Path.Combine(this.Configuration.latexDirectoryAbsolute, this.Configuration.acrLongDirectoryRelative, this.Configuration.glossaryPathRelative);
+            var path = Path.Combine(this.Configuration.latexDirectoryAbsolute, this.Configuration.beforeDirectoryRelative, this.Configuration.glossaryName);
             var allLines = this.GetAllLinesFromFile(path);
             var allEntries = new List<AcronymEntry>();
-            var regex = new Regex(regexAcronymPattern);
+            const string regexAcronymPattern = @"newacronym{(.*)}{(.*)}{(.*)}"; // Group 0=all, 1=label, 2=short, 3=long
+            var regex = new Regex(regexAcronymPattern, RegexOptions.Compiled);
 
             foreach (var line in allLines)
             {
@@ -104,12 +92,11 @@ namespace LaTeX_Validator
 
                 foreach (var match in matched)
                 {
-
                     var actualMatch = match as Match;
                     var groups = actualMatch?.Groups;
                     if (groups == null || groups.Count < 4) continue;
 
-                    allEntries.Add(new AcronymEntry()
+                    allEntries.Add(new AcronymEntry
                                    {
                                        Label = groups[1].ToString(),
                                        Short = groups[2].ToString(),
@@ -123,10 +110,11 @@ namespace LaTeX_Validator
 
         private IEnumerable<string> GetGlossaryEntries()
         {
-            var path = Path.Combine(this.Configuration.latexDirectoryAbsolute, this.Configuration.acrLongDirectoryRelative, this.Configuration.glossaryPathRelative);
+            var path = Path.Combine(this.Configuration.latexDirectoryAbsolute, this.Configuration.beforeDirectoryRelative, this.Configuration.glossaryName);
             var allLines = this.GetAllLinesFromFile(path);
             var allEntries = new List<string>();
-            var regex = new Regex(regexGlossaryPattern);
+            const string regexGlossaryPattern = @"newglossaryentry{.*}{name={(.*)},.*}}"; // Group 1 = name
+            var regex = new Regex(regexGlossaryPattern, RegexOptions.Compiled);
 
             foreach (var line in allLines)
             {
@@ -152,7 +140,7 @@ namespace LaTeX_Validator
             var counter = 1;
             while (fileReader.ReadLine() is { } actualLine)
             {
-                allLines.Add(new Line() { Content = actualLine, Number = counter });
+                allLines.Add(new Line { Content = actualLine, Number = counter });
                 counter++;
             }
 
@@ -184,7 +172,7 @@ namespace LaTeX_Validator
                 foreach (var line in affectedLines)
                 {
                     var regexPattern = @"\\(.*){" + line.label + "}";
-                    var regex = new Regex(regexPattern);
+                    var regex = new Regex(regexPattern, RegexOptions.Compiled);
                     var matched = regex.Matches(line.content);
 
                     foreach (var match in matched)
@@ -196,8 +184,8 @@ namespace LaTeX_Validator
                         var type = groups[1].ToString();
                         if(type != "gls") continue;
 
-                        this.AllErrors.Add(new GlsError()
-                                      {
+                        this.AllErrors.Add(new GlsError
+                                           {
                                           WordContent = line.label,
                                           ActualForm = GlsType.gls,
                                           ErrorType = ErrorType.ShouldBeAcrLong,
@@ -212,7 +200,7 @@ namespace LaTeX_Validator
         /// <summary>
         /// Alle Kurz- und Langbezeichner aus dem Glossar sollten verwendet werden (\gls oder eben \acrlong \acrshort)
         /// </summary>
-        private void FindMissingGlsErrors(List<string> files, List<AcronymEntry> allAcronymEntries, List<string> allGlossaryEntries)
+        private void FindMissingGlsErrors(List<string> files, IReadOnlyCollection<AcronymEntry> allAcronymEntries, IReadOnlyCollection<string> allGlossaryEntries)
         {
             foreach (var file in files)
             {
@@ -239,7 +227,7 @@ namespace LaTeX_Validator
                 {
                     foreach (var line in element.lines)
                     {
-                        this.AllErrors.Add(new GlsError()
+                        this.AllErrors.Add(new GlsError
                                            {
                                                WordContent = element.word,
                                                ActualForm = GlsType.none,
@@ -258,7 +246,7 @@ namespace LaTeX_Validator
         private void FindTablesErrors(List<string> files, IEnumerable<AcronymEntry> allAcronymEntries)
         {
             const string regexPattern = @".*caption({|=)(.*)(}|,)";
-            var regex = new Regex(regexPattern);
+            var regex = new Regex(regexPattern, RegexOptions.Compiled);
 
             foreach (var file in files)
             {
@@ -279,7 +267,7 @@ namespace LaTeX_Validator
 
                 foreach (var line in affectedLines)
                 {
-                    this.AllErrors.Add(new GlsError()
+                    this.AllErrors.Add(new GlsError
                                        {
                                            WordContent = line.content,
                                            ActualForm = line.type,
@@ -298,10 +286,10 @@ namespace LaTeX_Validator
             foreach (var line in allLines)
             {
                 var match = regex.Match(line.Content);
-                var groups = match?.Groups;
-                if (groups == null || groups.Count < 3) continue;
+                var groups = match.Groups;
+                if (groups.Count < 3) continue;
 
-                linesWithCaption.Add(new Line(){ Content = groups[2].Value, Number = line.Number });
+                linesWithCaption.Add(new Line { Content = groups[2].Value, Number = line.Number });
             }
 
             return linesWithCaption;
@@ -315,8 +303,8 @@ namespace LaTeX_Validator
             const string regexPatternLabel = @".*label({|=)(.*?)(}|])";
             const string regexPatternRef = @"autoref{(.*?)}";
 
-            var regexLabel = new Regex(regexPatternLabel);
-            var regexRef = new Regex(regexPatternRef);
+            var regexLabel = new Regex(regexPatternLabel, RegexOptions.Compiled);
+            var regexRef = new Regex(regexPatternRef, RegexOptions.Compiled);
 
             var allLabels = new List<(string label, string file, int line)>();
             var allRefs = new List<string>();
@@ -327,7 +315,7 @@ namespace LaTeX_Validator
                 foreach (var line in allLines)
                 {
                     var labelMatches = regexLabel.Match(line.Content);
-                    var labelGroups = labelMatches?.Groups;
+                    var labelGroups = labelMatches.Groups;
 
                     if (labelGroups is { Count: > 2 })
                     {
@@ -336,9 +324,9 @@ namespace LaTeX_Validator
                     else
                     {
                         var refMatches = regexRef.Match(line.Content);
-                        var refGroups = refMatches?.Groups;
+                        var refGroups = refMatches.Groups;
 
-                        if (refGroups == null || refGroups.Count < 2) continue;
+                        if (refGroups.Count < 2) continue;
                         allRefs.Add(refGroups[1].Value);
                     }
                 }
@@ -353,7 +341,7 @@ namespace LaTeX_Validator
 
             foreach (var element in notReferenced)
             {
-                this.AllErrors.Add(new GlsError()
+                this.AllErrors.Add(new GlsError
                                    {
                                        WordContent = element.label,
                                        ActualForm = GlsType.label,
