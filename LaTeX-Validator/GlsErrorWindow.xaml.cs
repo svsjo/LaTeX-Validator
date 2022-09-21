@@ -48,7 +48,7 @@ namespace LaTeX_Validator
                               StartInfo = new ProcessStartInfo
                                           {
                                               FileName = "code",
-                                              Arguments = $"--goto {path}:{line}",
+                                              Arguments = $"--goto \"{path}\":{line}",
                                               UseShellExecute = true,
                                               CreateNoWindow = true,
                                               WindowStyle = ProcessWindowStyle.Hidden
