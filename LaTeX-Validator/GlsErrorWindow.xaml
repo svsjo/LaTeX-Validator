@@ -1,0 +1,39 @@
+﻿<!-- ReSharper disable once MemberCanBeInternal -->
+<Window x:Class="LaTeX_Validator.GlsErrorWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:LaTeX_Validator"
+        mc:Ignorable="d"
+        Title="GlsErrorWindow" Height="800" Width="1800">
+    <Grid>
+        <StackPanel Orientation="Vertical">
+            <StackPanel Orientation="Horizontal" Margin="10,10,10,10">
+                <TextBlock HorizontalAlignment="Left" Margin="0,0,0,0" TextWrapping="Wrap" Text="Latex-Verzeichnis" VerticalAlignment="Top" Width="98"/>
+                <TextBox HorizontalAlignment="Left" Margin="10,0,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="550" Name="LatexDirectoryBox"/>
+                <Button x:Name="StartSearch" Content="Starte Analyse" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.058,0.063" Width="110" Click="ButtonStart_Click"/>
+            </StackPanel>
+            <Grid Height="720">
+                <ListView Name="lvGlsError">
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn Header="Wort" Width="220" DisplayMemberBinding="{Binding WordContent}" />
+                            <GridViewColumn Header="Aktuelle Form" Width="200" DisplayMemberBinding="{Binding ActualForm}" />
+                            <GridViewColumn Header="Problem" Width="300" DisplayMemberBinding="{Binding ErrorType}" />
+                            <GridViewColumn Header="Datei" Width="840" DisplayMemberBinding="{Binding File}" />
+                            <GridViewColumn Header="Zeile" Width="80" DisplayMemberBinding="{Binding Line}" />
+                            <GridViewColumn Header="Auswahl" Width="110">
+                                <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Button Content="Springe zu" Width="85" Click="ButtonJump_Clicked" />
+                                </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+            </Grid>
+        </StackPanel>
+    </Grid>
+</Window>
