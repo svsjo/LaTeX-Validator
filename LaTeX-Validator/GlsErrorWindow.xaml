@@ -12,6 +12,7 @@
             <StackPanel Orientation="Horizontal" Margin="10,10,10,10">
                 <TextBlock HorizontalAlignment="Left" Margin="0,0,0,0" TextWrapping="Wrap" Text="Latex-Verzeichnis" VerticalAlignment="Top" Width="98"/>
                 <TextBox HorizontalAlignment="Left" Margin="10,0,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="550" Name="LatexDirectoryBox"/>
+                <Button Margin="10,0,0,0"  Click="SelectRootDirectory">Verzeichnis auswählen</Button>
                 <Button Content="Starte Analyse" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.058,0.063" Width="110" Click="ButtonStart_Click"/>
             </StackPanel>
             <Grid Height="720">

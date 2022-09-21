@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
+using Microsoft.WindowsAPICodePack.Dialogs;
 using Path = System.IO.Path;
 
 namespace LaTeX_Validator
@@ -290,6 +291,17 @@ namespace LaTeX_Validator
         public void FindMissingAutoRef()
         {
             // TODO
+        }
+
+        private void SelectRootDirectory(object sender, RoutedEventArgs e)
+        {
+            CommonOpenFileDialog dialog = new CommonOpenFileDialog();
+            dialog.InitialDirectory = "C:\\";
+            dialog.IsFolderPicker = true;
+            if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
+            {
+                LatexDirectoryBox.Text = dialog.FileName;
+            }
         }
     }
 }
