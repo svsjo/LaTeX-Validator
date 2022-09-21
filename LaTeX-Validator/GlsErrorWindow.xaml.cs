@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
+using LaTeX_Validator.Extensions;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using Path = System.IO.Path;
 
@@ -27,7 +28,7 @@ namespace LaTeX_Validator
             this.AllErrors = new ObservableCollection<GlsError>();
             this.InitializeComponent();
             this.lvGlsError.ItemsSource = this.AllErrors;
-            this.LatexDirectoryBox.Text = this.Configuration.latexDirectoryAbsolute;
+            this.LatexDirectoryBox.Text = Settings.Default.RootDirectoryPath;
         }
 
         private void ButtonStart_Click(object sender, RoutedEventArgs e)
@@ -301,6 +302,8 @@ namespace LaTeX_Validator
             if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
             {
                 LatexDirectoryBox.Text = dialog.FileName;
+                Settings.Default.RootDirectoryPath = dialog.FileName;
+                Settings.Default.Save();
             }
         }
     }
