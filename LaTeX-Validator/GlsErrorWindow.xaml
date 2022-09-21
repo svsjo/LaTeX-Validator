@@ -26,13 +26,20 @@
                             <GridViewColumn Header="Wort" Width="220" DisplayMemberBinding="{Binding WordContent}" />
                             <GridViewColumn Header="Aktuelle Form" Width="200" DisplayMemberBinding="{Binding ActualForm}" />
                             <GridViewColumn Header="Problem" Width="300" DisplayMemberBinding="{Binding ErrorText}" />
-                            <GridViewColumn Header="Datei" Width="840" DisplayMemberBinding="{Binding File}" />
+                            <GridViewColumn Header="Datei" Width="740" DisplayMemberBinding="{Binding File}" />
                             <GridViewColumn Header="Zeile" Width="80" DisplayMemberBinding="{Binding Line}" />
-                            <GridViewColumn Header="Auswahl" Width="110">
+                            <GridViewColumn Header="Auswahl" Width="100">
                                 <GridViewColumn.CellTemplate>
                                 <DataTemplate>
                                     <Button Content="Springe zu" Width="85" Click="ButtonJump_Clicked" />
                                 </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn Header="Ignorieren" Width="100">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button Content="Ignoriere" Width="85" Click="ButtonIgnore_Clicked" />
+                                    </DataTemplate>
                                 </GridViewColumn.CellTemplate>
                             </GridViewColumn>
                         </GridView>

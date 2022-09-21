@@ -60,6 +60,14 @@ namespace LaTeX_Validator
             this.JumpToError(data.File, data.Line);
         }
 
+        private void ButtonIgnore_Clicked(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            if (button?.DataContext is not GlsError data) return;
+            // TODO @jdev
+            // Ignorieren (persistent)
+        }
+
         private void JumpToError(string path, int line)
         {
             var process = new Process
