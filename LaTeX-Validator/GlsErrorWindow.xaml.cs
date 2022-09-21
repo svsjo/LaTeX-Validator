@@ -82,7 +82,6 @@ namespace LaTeX_Validator
         {
             var path = Path.Combine(this.Configuration.latexDirectoryAbsolute, this.Configuration.beforeDirectoryRelative, this.Configuration.glossaryName);
             var allLines = this.GetAllLinesFromFile(path);
-            var allEntries = new List<AcronymEntry>();
             const string regexAcronymPattern = @"newacronym{(.*)}{(.*)}{(.*)}"; // Group 0=all, 1=label, 2=short, 3=long
             var regex = new Regex(regexAcronymPattern, RegexOptions.Compiled);
 
@@ -96,23 +95,20 @@ namespace LaTeX_Validator
                     var groups = actualMatch?.Groups;
                     if (groups == null || groups.Count < 4) continue;
 
-                    allEntries.Add(new AcronymEntry
-                                   {
-                                       Label = groups[1].ToString(),
-                                       Short = groups[2].ToString(),
-                                       Long = groups[3].ToString()
-                                    });
+                    yield return new AcronymEntry
+                    {
+                        Label = groups[1].ToString(),
+                        Short = groups[2].ToString(),
+                        Long = groups[3].ToString()
+                    };
                 }
             }
-
-            return allEntries;
         }
 
         private IEnumerable<string> GetGlossaryEntries()
         {
             var path = Path.Combine(this.Configuration.latexDirectoryAbsolute, this.Configuration.beforeDirectoryRelative, this.Configuration.glossaryName);
             var allLines = this.GetAllLinesFromFile(path);
-            var allEntries = new List<string>();
             const string regexGlossaryPattern = @"newglossaryentry{.*}{name={(.*)},.*}}"; // Group 1 = name
             var regex = new Regex(regexGlossaryPattern, RegexOptions.Compiled);
 
@@ -126,25 +122,21 @@ namespace LaTeX_Validator
                     var groups = actualMatch?.Groups;
                     if (groups == null || groups.Count < 2) continue;
 
-                    allEntries.Add(groups[1].ToString());
+                    yield return groups[1].ToString();
                 }
             }
-
-            return allEntries;
         }
 
         private IEnumerable<Line> GetAllLinesFromFile(string path)
         {
             var fileReader = new StreamReader(path);
-            var allLines = new List<Line>();
             var counter = 1;
             while (fileReader.ReadLine() is { } actualLine)
             {
-                allLines.Add(new Line { Content = actualLine, Number = counter });
+                yield return new Line { Content = actualLine, Number = counter };
                 counter++;
             }
 
-            return allLines;
         }
 
 
