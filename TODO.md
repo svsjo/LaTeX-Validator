@@ -26,6 +26,7 @@ von Jonas Weis und Jonathan Schwab
   - Einträge durch Klick ignorierbar machen (togglebar) 
   - Dateien durch Klick ignorierbar machen (togglebar)
   - Genauer analysieren (Regex), aktuell wird ein Wort in \cite{...} oft erkannt, wegen der Klammern
+  - Auswahl ob case sensitiv
   
 ## Falsche Verwendung von \gls in Figuren
 - Prüfung aller Tabellen, Bilder und Quellcodes auf Verwendung von Glossar/Akronym
@@ -41,3 +42,14 @@ von Jonas Weis und Jonathan Schwab
 # Nacharbeit
 - Alle Fehler angezeigt inklusive Datei und Zeile
 - Alle Fehler anklickbar und automatisches Offnen von VS Code an der passenden Stelle
+- TODO:
+  - Alle Fehler ignorierbar machen (togglebar)
+
+# Allgemein offen
+- Fehlermeldungen durch Erweiterung der Enums verstädnlicher machen
+- Refactoring der Struktur, ggf. Nutzung MVVM
+- Weitere Funktionalitäten: 
+  - Prüfung auf Verwendung aller Quellen ?
+  - Prüfung ob alle Figuren eine Caption haben ?
+  - Prüfung auf vorher definierte Füllworte ?
+  - Prüfung auf Sätzlange > x ?
