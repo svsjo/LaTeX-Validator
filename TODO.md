@@ -35,8 +35,8 @@ von Jonas Weis und Jonathan Schwab
 ## Fehlende Referenzierung von Labels
 - Auslesen aller Labels und aller Referenzen (\autoref)
 - Überprüfung ob jedes Label mindestens einmal referenziert wurde
+- Selektierbar, ob verschiedene Label(Chapter, Section, ...) ignoriert werden (togglebar)
 - TODO:
-  - Selektierbar machen, dass verschiedene Label(Chapter, Section, ...) ignoriert werden (togglebar)
   - Anzeige der Verwendung von \ref statt \autoref
   - Dateien ignorierbar machen, z.B. Anhang (togglebar)
   
