@@ -157,7 +157,7 @@ public class FileParser
     public IEnumerable<GlsError> FindMissingReferencesErrors(List<string> files, bool ignoreSections)
     {
         var allLabels = this.GetAllLabels(files).ToList();
-        var allRefs = this.GetAllRefs(files).ToList();
+        var allRefs = this.GetAllRefs(files).Select(x => x.label).ToList();
 
         var haveReference = allLabels
                             .Where(entry => allRefs
@@ -177,18 +177,36 @@ public class FileParser
                               {
                                   WordContent = element.label,
                                   ActualForm = GlsType.Label,
-                                  ErrorType = ErrorType.MissingAutoref,
+                                  ErrorType = ErrorType.MissingRef,
                                   File = element.file,
                                   Line = element.line
                               });
         }
     }
 
+    public IEnumerable<GlsError> FindWrongRefUsage(List<string> files)
+    {
+        var allRefs = this.GetAllRefs(files).ToList();
+        var problems = allRefs.Where(reference => reference.refType == RefType.Normal);
+
+        foreach (var element in problems)
+        {
+            yield return (new GlsError()
+                          {
+                              WordContent = element.label,
+                              ActualForm = GlsType.Label,
+                              ErrorType = ErrorType.WrongRefType,
+                              File = element.file,
+                              Line = element.line
+                        });
+        }
+    }
+
     /// <summary>
-    /// Prüft ob alle Labels richtig benannt wurden
-    /// </summary>
-    /// <param name="files"></param>
-    /// <returns></returns>
+        /// Prüft ob alle Labels richtig benannt wurden
+        /// </summary>
+        /// <param name="files"></param>
+        /// <returns></returns>
     public IEnumerable<GlsError> FindLabelNamingErrors(List<string> files)
     {
         var allLabels = this.GetAllLabels(files).ToList();
@@ -260,9 +278,9 @@ public class FileParser
         }
     }
 
-    private IEnumerable<string> GetAllRefs(List<string> files)
+    private IEnumerable<(string label, RefType refType, string file, int line)> GetAllRefs(List<string> files)
     {
-        const string regexPatternRef = @"ref{(.*?)}";
+        const string regexPatternRef = @"\\(.*?)ref{(.*?)}";
         var regexRef = new Regex(regexPatternRef, RegexOptions.Compiled);
 
         foreach (var file in files)
@@ -276,9 +294,11 @@ public class FileParser
                 {
                     var refGroups = refMatch.Groups;
 
-                    if (refGroups.Count < 2) continue;
+                    if (refGroups.Count < 3) continue;
 
-                    yield return refGroups[1].Value;
+                    var refType = string.IsNullOrEmpty(refGroups[1].Value) ? RefType.Normal : RefType.Auto;
+
+                    yield return (refGroups[2].Value, refType, file, line.Number);
                 }
             }
         }

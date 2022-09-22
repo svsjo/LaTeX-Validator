@@ -16,7 +16,9 @@ public enum ErrorType
     [EnumExtension("Sollte AcrLong/Short sein")]
     ShouldBeAcrLong,
     [EnumExtension("Referenzierung Fehlt")]
-    MissingAutoref,
+    MissingRef,
     [EnumExtension("Label falsch benannt")]
-    LabelNaming
+    LabelNaming,
+    [EnumExtension("Kein Autoref verwendet")]
+    WrongRefType
 }
