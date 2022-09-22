@@ -31,17 +31,20 @@ von Jonas Weis und Jonathan Schwab
 - Selektierbar, ob verschiedene Label(Chapter, Section, ...) ignoriert werden (togglebar)
 - Anzeige der Verwendung von \ref statt \autoref
  
+ ## Fehlende Zitation von Quellen
+ - Auslesen aller Labels der Quellen
+ - Überprüfung ob alle zitiert wurden
+ - TODO:
+  - Labels ignorierbar machen
   
 # Nacharbeit
 - Alle Fehler angezeigt inklusive Datei, Zeile und Position
 - Alle Fehler anklickbar und automatisches Offnen von VS Code an der passenden Stelle
-- TODO:
-  - Alle Fehler ignorierbar machen (togglebar)
+- Alle Fehler persistent ignorierbar (togglebar)
 
 # Allgemein offen
 - Refactoring der Struktur, ggf. Nutzung MVVM
 - Weitere Funktionalitäten: 
-  - Prüfung auf Verwendung aller Quellen ?
   - Prüfung ob alle Figuren eine Caption haben ?
   - Prüfung auf vorher definierte Füllworte ?
   - Prüfung auf Sätzlange > x ?
