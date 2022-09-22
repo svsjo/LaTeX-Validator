@@ -25,6 +25,8 @@ namespace LaTeX_Validator
         private readonly FileExtractor fileExtractor;
         private readonly FileParser fileParser;
 
+        #region Initialization
+
         public GlsErrorWindow()
         {
             this.configuration = new ConfigurationGlossary();
@@ -59,6 +61,21 @@ namespace LaTeX_Validator
             this.configuration.ignoreSettingsFile = Settings.Default.IgnoreSettingsFile;
         }
 
+        private void OnWindowClosing(object sender, CancelEventArgs e)
+        {
+            Settings.Default.GlossaryPath = this.configuration.glossaryPath;
+            Settings.Default.PreambleDirectoryPath = this.configuration.preambleDirectoryPath;
+            Settings.Default.RootDirectoryPath = this.configuration.latexDirectoryPath;
+            Settings.Default.IgnoreSectionLabels = this.configuration.ignoreSectionLabels;
+            Settings.Default.SettingsPaths = this.configuration.ignoreFilesWithMissingGls;
+            Settings.Default.IgnoreSettingsFile = this.configuration.ignoreSettingsFile;
+            Settings.Default.Save();
+        }
+
+        #endregion
+
+        #region UiEvents
+
         private void ButtonStart_Click(object sender, RoutedEventArgs e)
         {
             this.allErrors.Clear();
@@ -92,69 +109,7 @@ namespace LaTeX_Validator
             // Ignorieren Option (persistent)
         }
 
-        private void ButtonFilesIgnore_Clicked(object sender, RoutedEventArgs e)
-        {
-            this.SelectIgnorableFilesMissingGls();
-        }
-
-        private void JumpToError(string path, int line, int pos)
-        {
-            var process = new Process
-                          {
-                              StartInfo = new ProcessStartInfo
-                                          {
-                                              FileName = "code",
-                                              Arguments = $"--goto \"{path}\":{line}:{pos}",
-                                              UseShellExecute = true,
-                                              CreateNoWindow = true,
-                                              WindowStyle = ProcessWindowStyle.Hidden
-                                          }
-                          };
-            process.Start();
-        }
-
-        private void StartAnalysis()
-        {
-            if (string.IsNullOrEmpty(this.configuration.latexDirectoryPath) ||
-                string.IsNullOrEmpty(this.configuration.glossaryPath) ||
-                string.IsNullOrEmpty(this.configuration.preambleDirectoryPath))
-            {
-                this.ShowMessageBox();
-                return;
-            }
-
-            var allFiles = Directory.GetFiles(
-                this.configuration.latexDirectoryPath, "*.tex", SearchOption.AllDirectories).ToList();
-            var beforeFiles = Directory.GetFiles(
-                this.configuration.preambleDirectoryPath, "*.tex", SearchOption.AllDirectories).ToList();
-            var missingGlsFiles = this.configuration.ignoreFilesWithMissingGls == null || !this.configuration.ignoreSettingsFile ?
-                                      allFiles :allFiles
-                                          .Except(this.configuration.ignoreFilesWithMissingGls.Cast<string>())
-                                          .ToList();
-
-            var allAcronymEntries = this.fileExtractor.GetAcronymEntries(this.configuration.glossaryPath).ToList();
-            var allGlossaryEntries = this.fileExtractor.GetGlossaryEntries(this.configuration.glossaryPath);
-
-            allFiles.Remove(this.configuration.glossaryPath);
-            beforeFiles.Remove(this.configuration.glossaryPath);
-
-            this.allErrors.AddRange(this.fileParser.FindAcrLongErrors(beforeFiles, allAcronymEntries));
-            this.allErrors.AddRange(this.fileParser.FindMissingGlsErrors(missingGlsFiles, allAcronymEntries, allGlossaryEntries.ToList()));
-            this.allErrors.AddRange(this.fileParser.FindTablesErrors(allFiles, allAcronymEntries));
-            this.allErrors.AddRange(this.fileParser.FindMissingReferencesErrors(allFiles, this.configuration.ignoreSectionLabels));
-            this.allErrors.AddRange(this.fileParser.FindLabelNamingErrors(allFiles));
-            this.allErrors.AddRange(this.fileParser.FindWrongRefUsage(allFiles));
-        }
-
-        private void ShowMessageBox()
-        {
-            const string messageBoxText = "Definiere zuerst alle Pfade!";
-            const string caption = "Fehler!";
-            const MessageBoxButton button = MessageBoxButton.OK;
-            const MessageBoxImage icon = MessageBoxImage.Warning;
-            MessageBox.Show(messageBoxText, caption, button, icon, MessageBoxResult.Yes);
-        }
-
+        #region SelectPaths
 
         private void SelectRootDirectory(object sender, RoutedEventArgs e)
         {
@@ -198,7 +153,8 @@ namespace LaTeX_Validator
             this.PreambleDirectoryBox.Text = dialog.FileName;
             this.configuration.preambleDirectoryPath = dialog.FileName;
         }
-        private void SelectIgnorableFilesMissingGls()
+
+        private void SelectIgnorableFilesGls(object sender, RoutedEventArgs e)
         {
             var dialog = new CommonOpenFileDialog();
             dialog.InitialDirectory = string.IsNullOrEmpty(this.configuration.latexDirectoryPath) ?
@@ -221,15 +177,67 @@ namespace LaTeX_Validator
             this.IgnorableFilesMissingGlsBox.Text = text.Any() ? text.Aggregate((x, y) => x + "\n" + y) : "";
         }
 
-        private void OnWindowClosing(object sender, CancelEventArgs e)
+        #endregion
+
+        #endregion
+
+        private void JumpToError(string path, int line, int pos)
         {
-            Settings.Default.GlossaryPath = this.configuration.glossaryPath;
-            Settings.Default.PreambleDirectoryPath = this.configuration.preambleDirectoryPath;
-            Settings.Default.RootDirectoryPath = this.configuration.latexDirectoryPath;
-            Settings.Default.IgnoreSectionLabels= this.configuration.ignoreSectionLabels;
-            Settings.Default.SettingsPaths = this.configuration.ignoreFilesWithMissingGls;
-            Settings.Default.IgnoreSettingsFile = this.configuration.ignoreSettingsFile;
-            Settings.Default.Save();
+            var process = new Process
+                          {
+                              StartInfo = new ProcessStartInfo
+                                          {
+                                              FileName = "code",
+                                              Arguments = $"--goto \"{path}\":{line}:{pos}",
+                                              UseShellExecute = true,
+                                              CreateNoWindow = true,
+                                              WindowStyle = ProcessWindowStyle.Hidden
+                                          }
+                          };
+            process.Start();
+        }
+
+        private void StartAnalysis()
+        {
+            if (string.IsNullOrEmpty(this.configuration.latexDirectoryPath) ||
+                string.IsNullOrEmpty(this.configuration.glossaryPath) ||
+                string.IsNullOrEmpty(this.configuration.preambleDirectoryPath))
+            {
+                this.ShowMessageBox();
+                return;
+            }
+
+            var allFiles = Directory.GetFiles(
+                this.configuration.latexDirectoryPath, "*.tex", SearchOption.AllDirectories).ToList();
+            var beforeFiles = Directory.GetFiles(
+                this.configuration.preambleDirectoryPath, "*.tex", SearchOption.AllDirectories).ToList();
+
+            var allAcronymEntries = this.fileExtractor.GetAcronymEntries(this.configuration.glossaryPath).ToList();
+            var allGlossaryEntries = this.fileExtractor.GetGlossaryEntries(this.configuration.glossaryPath);
+
+            allFiles.Remove(this.configuration.glossaryPath);
+            beforeFiles.Remove(this.configuration.glossaryPath);
+
+            var missingGlsFiles = this.configuration.ignoreFilesWithMissingGls == null || !this.configuration.ignoreSettingsFile ?
+                                      allFiles : allFiles
+                                                 .Except(this.configuration.ignoreFilesWithMissingGls.Cast<string>())
+                                                 .ToList();
+
+            this.allErrors.AddRange(this.fileParser.FindAcrLongErrors(beforeFiles, allAcronymEntries));
+            this.allErrors.AddRange(this.fileParser.FindMissingGlsErrors(missingGlsFiles, allAcronymEntries, allGlossaryEntries.ToList()));
+            this.allErrors.AddRange(this.fileParser.FindTablesErrors(allFiles, allAcronymEntries));
+            this.allErrors.AddRange(this.fileParser.FindMissingReferencesErrors(allFiles, this.configuration.ignoreSectionLabels));
+            this.allErrors.AddRange(this.fileParser.FindLabelNamingErrors(allFiles));
+            this.allErrors.AddRange(this.fileParser.FindWrongRefUsage(allFiles));
+        }
+
+        private void ShowMessageBox()
+        {
+            const string messageBoxText = "Definiere zuerst alle Pfade!";
+            const string caption = "Fehler!";
+            const MessageBoxButton button = MessageBoxButton.OK;
+            const MessageBoxImage icon = MessageBoxImage.Warning;
+            MessageBox.Show(messageBoxText, caption, button, icon, MessageBoxResult.Yes);
         }
     }
 }

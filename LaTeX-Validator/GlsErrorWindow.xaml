@@ -30,7 +30,7 @@
                 <StackPanel Orientation="Horizontal">
                     <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Text="Ignoriere Dateien:  \gls fehlt  (Toggle)" VerticalAlignment="Top" Width="120" Height="34"/>
                     <TextBox Focusable="False" HorizontalAlignment="Left" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="700" Height="34" Name="IgnorableFilesMissingGlsBox"/>
-                    <Button Click="ButtonFilesIgnore_Clicked" Margin="10,0,0,0" Width="130">Dateien auswählen</Button>
+                    <Button Click="SelectIgnorableFilesGls" Margin="10,0,0,0" Width="130">Dateien auswählen</Button>
                 </StackPanel>
             </StackPanel>
             <Rectangle VerticalAlignment="Stretch" Width="2" Margin="20,0,20,0" Stroke="Black" />
