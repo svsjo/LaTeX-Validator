@@ -33,13 +33,12 @@ von Jonas Weis und Jonathan Schwab
   - Anzeige der Verwendung von \ref statt \autoref
   
 # Nacharbeit
-- Alle Fehler angezeigt inklusive Datei und Zeile
+- Alle Fehler angezeigt inklusive Datei, Zeile und Position
 - Alle Fehler anklickbar und automatisches Offnen von VS Code an der passenden Stelle
 - TODO:
   - Alle Fehler ignorierbar machen (togglebar)
 
 # Allgemein offen
-- Fehlermeldungen durch Erweiterung der Enums verstädnlicher machen
 - Refactoring der Struktur, ggf. Nutzung MVVM
 - Weitere Funktionalitäten: 
   - Prüfung auf Verwendung aller Quellen ?
