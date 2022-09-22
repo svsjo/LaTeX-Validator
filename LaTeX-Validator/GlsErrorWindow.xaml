@@ -10,15 +10,33 @@
     <Grid>
         <StackPanel Orientation="Vertical">
             <StackPanel Orientation="Horizontal" Margin="10,10,10,10">
-                <TextBlock HorizontalAlignment="Left" Margin="0,0,0,0" TextWrapping="Wrap" Text="Latex-Verzeichnis" VerticalAlignment="Top" Width="98"/>
-                <TextBox HorizontalAlignment="Left" Margin="10,0,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="550" Name="LatexDirectoryBox"/>
-                <Button Margin="10,0,0,0"  Click="SelectRootDirectory">Verzeichnis auswählen</Button>
-                <Button Content="Starte Analyse" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.058,0.063" Width="110" Click="ButtonStart_Click"/>
+                <StackPanel Orientation="Vertical" Margin="10,0,0,0">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Text="Latex-Verzeichnis" VerticalAlignment="Top" Width="120"/>
+                        <TextBox HorizontalAlignment="Left" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="700" Name="LatexDirectoryBox"/>
+                        <Button Click="SelectRootDirectory" Margin="10,0,0,0" Width="130">Verzeichnis auswählen</Button>
+                    </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Text="Glossary-Pfad" VerticalAlignment="Top" Width="120"/>
+                    <TextBox HorizontalAlignment="Left" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="700" Name="GlossaryPathBox"/>
+                    <Button Click="SelectGlossaryPath" Margin="10,0,0,0" Width="130">Datei auswählen</Button>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Text="Preamble-Verzeichnis" VerticalAlignment="Top" Width="120"/>
+                        <TextBox HorizontalAlignment="Left" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="700" Name="PreambleDirectoryBox"/>
+                    <Button Click="SelectPreambleDirectory" Margin="10,0,0,0" Width="130">Verzeichnis auswählen</Button>
+                </StackPanel>
             </StackPanel>
-            <StackPanel Orientation="Horizontal">
-                <CheckBox Margin="10,0,5,0" Click="PickerRefOption_Clicked" Name="RefOptionPicker"></CheckBox>
-                <TextBlock Text="Ignoriere nicht referenzierte Sektionen-Labels (konkret chap, sec, subsec)"></TextBlock>
+            <Rectangle VerticalAlignment="Stretch" Width="2" Margin="20,0,20,0" Stroke="Black" />
+            <StackPanel Orientation="Vertical">
+                <StackPanel Orientation="Horizontal">
+                    <CheckBox Margin="0,0,5,0" Click="PickerRefOption_Clicked" Name="RefOptionPicker"></CheckBox>
+                    <TextBlock Text="Ignoriere nicht referenzierte Sektionen-Labels (chap:, sec:, subsec:)"></TextBlock>
+                </StackPanel>
             </StackPanel>
+            <Rectangle VerticalAlignment="Stretch" Width="2" Margin="20,0,20,0" Stroke="Black" />
+            <Button Content="Starte Analyse" HorizontalAlignment="Left" VerticalAlignment="Center" RenderTransformOrigin="-0.058,0.063" Width="300" Height="40" Click="ButtonStart_Click"/>
+        </StackPanel>
             <Grid Height="720">
                 <ListView Name="lvGlsError">
                     <ListView.View>

@@ -35,15 +35,24 @@ namespace LaTeX_Validator
         private void InitializeUiData()
         {
             this.lvGlsError.ItemsSource = this.allErrors;
-            this.LatexDirectoryBox.Text = Settings.Default.RootDirectoryPath;
             this.RefOptionPicker.IsChecked = this.configuration.ignoreSectionLabels;
+            this.InitializeFromPersistentData();
+        }
+
+        private void InitializeFromPersistentData()
+        {
+            this.configuration.latexDirectoryPath = Settings.Default.RootDirectoryPath;
+            this.configuration.preambleDirectoryPath = Settings.Default.PreambleDirectoryPath;
+            this.configuration.glossaryPath = Settings.Default.GlossaryPath;
+
+            this.LatexDirectoryBox.Text = Settings.Default.RootDirectoryPath;
+            this.PreambleDirectoryBox.Text = Settings.Default.PreambleDirectoryPath;
+            this.GlossaryPathBox.Text = Settings.Default.GlossaryPath;
         }
 
         private void ButtonStart_Click(object sender, RoutedEventArgs e)
         {
             this.allErrors.Clear();
-            var latexDict = this.LatexDirectoryBox.Text;
-            if (latexDict != this.configuration.latexDirectoryAbsolute) this.configuration.latexDirectoryAbsolute = latexDict;
             this.StartAnalysis();
         }
 
@@ -86,19 +95,20 @@ namespace LaTeX_Validator
 
         private void StartAnalysis()
         {
+            if (string.IsNullOrEmpty(this.configuration.latexDirectoryPath) ||
+                string.IsNullOrEmpty(this.configuration.glossaryPath) ||
+                string.IsNullOrEmpty(this.configuration.preambleDirectoryPath)) return; // TODO Fehlermeldung
+
             var allFiles = Directory.GetFiles(
-                this.configuration.latexDirectoryAbsolute, "*.tex", SearchOption.AllDirectories).ToList();
+                this.configuration.latexDirectoryPath, "*.tex", SearchOption.AllDirectories).ToList();
             var beforeFiles = Directory.GetFiles(
-                Path.Combine(this.configuration.latexDirectoryAbsolute, this.configuration.beforeDirectoryRelative), "*.tex",
-                SearchOption.AllDirectories).ToList();
+                this.configuration.preambleDirectoryPath, "*.tex", SearchOption.AllDirectories).ToList();
 
-            var path = Path.Combine(this.configuration.latexDirectoryAbsolute, this.configuration.beforeDirectoryRelative, this.configuration.glossaryName);
-            var allAcronymEntries = this.fileExtractor.GetAcronymEntries(path).ToList();
-            var allGlossaryEntries = this.fileExtractor.GetGlossaryEntries(path);
+            var allAcronymEntries = this.fileExtractor.GetAcronymEntries(this.configuration.glossaryPath).ToList();
+            var allGlossaryEntries = this.fileExtractor.GetGlossaryEntries(this.configuration.glossaryPath);
 
-            var glossaryPath = Path.Combine(this.configuration.latexDirectoryAbsolute, this.configuration.beforeDirectoryRelative, this.configuration.glossaryName);
-            allFiles.Remove(glossaryPath);
-            beforeFiles.Remove(glossaryPath);
+            allFiles.Remove(this.configuration.glossaryPath);
+            beforeFiles.Remove(this.configuration.glossaryPath);
 
             this.allErrors.AddRange(this.fileParser.FindAcrLongErrors(beforeFiles, allAcronymEntries));
             this.allErrors.AddRange(this.fileParser.FindMissingGlsErrors(allFiles, allAcronymEntries, allGlossaryEntries.ToList()));
@@ -110,12 +120,44 @@ namespace LaTeX_Validator
         private void SelectRootDirectory(object sender, RoutedEventArgs e)
         {
             var dialog = new CommonOpenFileDialog();
-            dialog.InitialDirectory = "C:\\";
+            dialog.InitialDirectory = string.IsNullOrEmpty(this.configuration.latexDirectoryPath) ?
+                                          "C:\\" : this.configuration.latexDirectoryPath;
             dialog.IsFolderPicker = true;
-            if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
-            {
-                this.LatexDirectoryBox.Text = dialog.FileName;
-            }
+
+            if (dialog.ShowDialog() != CommonFileDialogResult.Ok) return;
+
+            this.LatexDirectoryBox.Text = dialog.FileName;
+            this.configuration.latexDirectoryPath = dialog.FileName;
+        }
+
+        private void SelectGlossaryPath(object sender, RoutedEventArgs e)
+        {
+            var dialog = new CommonOpenFileDialog();
+            dialog.InitialDirectory = !string.IsNullOrEmpty(this.configuration.glossaryPath) ?
+                                          this.configuration.glossaryPath :
+                                          string.IsNullOrEmpty(this.configuration.latexDirectoryPath) ?
+                                              "C:\\" : this.configuration.latexDirectoryPath;
+            dialog.IsFolderPicker = false;
+
+            if (dialog.ShowDialog() != CommonFileDialogResult.Ok) return;
+
+            this.GlossaryPathBox.Text = dialog.FileName;
+            this.configuration.glossaryPath = dialog.FileName;
+        }
+
+        private void SelectPreambleDirectory(object sender, RoutedEventArgs e)
+        {
+            var dialog = new CommonOpenFileDialog();
+            dialog.InitialDirectory = !string.IsNullOrEmpty(this.configuration.preambleDirectoryPath) ?
+                                          this.configuration.preambleDirectoryPath :
+                                          string.IsNullOrEmpty(this.configuration.latexDirectoryPath) ?
+                                              "C:\\" : this.configuration.latexDirectoryPath;
+            dialog.IsFolderPicker = true;
+
+            if (dialog.ShowDialog() != CommonFileDialogResult.Ok) return;
+
+            this.PreambleDirectoryBox.Text = dialog.FileName;
+            this.configuration.preambleDirectoryPath = dialog.FileName;
         }
     }
 }

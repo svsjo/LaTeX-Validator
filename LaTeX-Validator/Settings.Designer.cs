@@ -34,5 +34,31 @@ namespace LaTeX_Validator {
                 this["RootDirectoryPath"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("C:\\Users\\entep04\\Desktop\\Infos\\EigeneProjektarbeiten\\T2000\\T2000_Latex\\03_Preambl" +
+            "e\\glossaries.tex")]
+        public string GlossaryPath {
+            get {
+                return ((string)(this["GlossaryPath"]));
+            }
+            set {
+                this["GlossaryPath"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("C:\\Users\\entep04\\Desktop\\Infos\\EigeneProjektarbeiten\\T2000\\T2000_Latex\\03_Preambl" +
+            "e")]
+        public string PreambleDirectoryPath {
+            get {
+                return ((string)(this["PreambleDirectoryPath"]));
+            }
+            set {
+                this["PreambleDirectoryPath"] = value;
+            }
+        }
     }
 }
