@@ -1,10 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Transactions;
 using System.Windows;
 using System.Windows.Controls;
 using LaTeX_Validator.Extensions;
@@ -42,6 +44,9 @@ namespace LaTeX_Validator
             this.PreambleDirectoryBox.Text = this.configuration.preambleDirectoryPath;
             this.GlossaryPathBox.Text = this.configuration.glossaryPath;
             this.RefOptionPicker.IsChecked = this.configuration.ignoreSectionLabels;
+
+            var text = this.configuration.ignoreFilesWithMissingGls?.Cast<string>().ToList();
+            this.IgnorableFilesMissingGlsBox.Text = text?.Aggregate((x, y) => x + ", " + y);
         }
 
         private void InitializeFromPersistentData()
@@ -50,6 +55,8 @@ namespace LaTeX_Validator
             this.configuration.preambleDirectoryPath = Settings.Default.PreambleDirectoryPath;
             this.configuration.glossaryPath = Settings.Default.GlossaryPath;
             this.configuration.ignoreSectionLabels = Settings.Default.IgnoreSectionLabels;
+            this.configuration.ignoreFilesWithMissingGls = Settings.Default.SettingsPaths;
+            this.configuration.ignoreSettingsFile = Settings.Default.IgnoreSettingsFile;
         }
 
         private void ButtonStart_Click(object sender, RoutedEventArgs e)
@@ -62,6 +69,12 @@ namespace LaTeX_Validator
         {
             var checkBox = sender as CheckBox;
             this.configuration.ignoreSectionLabels = checkBox?.IsChecked ?? false;
+        }
+
+        private void PickerIgnoreSettings_Clicked(object sender, RoutedEventArgs e)
+        {
+            var checkBox = sender as CheckBox;
+            this.configuration.ignoreSettingsFile = checkBox?.IsChecked ?? false;
         }
 
         private void ButtonJump_Clicked(object sender, RoutedEventArgs e)
@@ -77,6 +90,11 @@ namespace LaTeX_Validator
             if (button?.DataContext is not GlsError data) return;
             // TODO @jdev
             // Ignorieren Option (persistent)
+        }
+
+        private void ButtonFilesIgnore_Clicked(object sender, RoutedEventArgs e)
+        {
+            this.SelectIgnorableFilesMissingGls();
         }
 
         private void JumpToError(string path, int line)
@@ -109,6 +127,10 @@ namespace LaTeX_Validator
                 this.configuration.latexDirectoryPath, "*.tex", SearchOption.AllDirectories).ToList();
             var beforeFiles = Directory.GetFiles(
                 this.configuration.preambleDirectoryPath, "*.tex", SearchOption.AllDirectories).ToList();
+            var missingGlsFiles = this.configuration.ignoreFilesWithMissingGls == null || !this.configuration.ignoreSettingsFile ?
+                                      allFiles :allFiles
+                                          .Except(this.configuration.ignoreFilesWithMissingGls.Cast<string>())
+                                          .ToList();
 
             var allAcronymEntries = this.fileExtractor.GetAcronymEntries(this.configuration.glossaryPath).ToList();
             var allGlossaryEntries = this.fileExtractor.GetGlossaryEntries(this.configuration.glossaryPath);
@@ -117,7 +139,7 @@ namespace LaTeX_Validator
             beforeFiles.Remove(this.configuration.glossaryPath);
 
             this.allErrors.AddRange(this.fileParser.FindAcrLongErrors(beforeFiles, allAcronymEntries));
-            this.allErrors.AddRange(this.fileParser.FindMissingGlsErrors(allFiles, allAcronymEntries, allGlossaryEntries.ToList()));
+            this.allErrors.AddRange(this.fileParser.FindMissingGlsErrors(missingGlsFiles, allAcronymEntries, allGlossaryEntries.ToList()));
             this.allErrors.AddRange(this.fileParser.FindTablesErrors(allFiles, allAcronymEntries));
             this.allErrors.AddRange(this.fileParser.FindMissingReferencesErrors(allFiles, this.configuration.ignoreSectionLabels));
             this.allErrors.AddRange(this.fileParser.FindLabelNamingErrors(allFiles));
@@ -175,6 +197,28 @@ namespace LaTeX_Validator
             this.PreambleDirectoryBox.Text = dialog.FileName;
             this.configuration.preambleDirectoryPath = dialog.FileName;
         }
+        private void SelectIgnorableFilesMissingGls()
+        {
+            var dialog = new CommonOpenFileDialog();
+            dialog.InitialDirectory = string.IsNullOrEmpty(this.configuration.latexDirectoryPath) ?
+                                          "C:\\" : this.configuration.latexDirectoryPath;
+            dialog.IsFolderPicker = false;
+            dialog.Multiselect = true;
+
+            if (dialog.ShowDialog() != CommonFileDialogResult.Ok) return;
+
+            this.configuration.ignoreFilesWithMissingGls ??= dialog.FileNames as StringCollection ?? new StringCollection();
+
+            foreach (var dialogFileName in dialog.FileNames)
+            {
+                if (this.configuration.ignoreFilesWithMissingGls.Contains(dialogFileName))
+                    this.configuration.ignoreFilesWithMissingGls.Remove(dialogFileName);
+                else this.configuration.ignoreFilesWithMissingGls.Add(dialogFileName);
+            }
+
+            var text = this.configuration.ignoreFilesWithMissingGls.Cast<string>().ToList();
+            this.IgnorableFilesMissingGlsBox.Text = text.Any() ? text.Aggregate((x, y) => x + ", " + y) : "";
+        }
 
         private void OnWindowClosing(object sender, CancelEventArgs e)
         {
@@ -182,6 +226,8 @@ namespace LaTeX_Validator
             Settings.Default.PreambleDirectoryPath = this.configuration.preambleDirectoryPath;
             Settings.Default.RootDirectoryPath = this.configuration.latexDirectoryPath;
             Settings.Default.IgnoreSectionLabels= this.configuration.ignoreSectionLabels;
+            Settings.Default.SettingsPaths = this.configuration.ignoreFilesWithMissingGls;
+            Settings.Default.IgnoreSettingsFile = this.configuration.ignoreSettingsFile;
             Settings.Default.Save();
         }
     }

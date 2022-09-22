@@ -184,6 +184,11 @@ public class FileParser
         }
     }
 
+    /// <summary>
+    /// Prüft ob alle Labels richtig benannt wurden
+    /// </summary>
+    /// <param name="files"></param>
+    /// <returns></returns>
     public IEnumerable<GlsError> FindLabelNamingErrors(List<string> files)
     {
         var allLabels = this.GetAllLabels(files).ToList();

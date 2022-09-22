@@ -14,18 +14,23 @@
                 <StackPanel Orientation="Vertical" Margin="10,0,0,0">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Text="Latex-Verzeichnis" VerticalAlignment="Top" Width="120"/>
-                        <TextBox HorizontalAlignment="Left" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="700" Name="LatexDirectoryBox"/>
+                        <TextBox Focusable="False" HorizontalAlignment="Left" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="700" Name="LatexDirectoryBox"/>
                         <Button Click="SelectRootDirectory" Margin="10,0,0,0" Width="130">Verzeichnis auswählen</Button>
                     </StackPanel>
                 <StackPanel Orientation="Horizontal">
                     <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Text="Glossary-Pfad" VerticalAlignment="Top" Width="120"/>
-                    <TextBox HorizontalAlignment="Left" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="700" Name="GlossaryPathBox"/>
+                        <TextBox Focusable="False" HorizontalAlignment="Left" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="700" Name="GlossaryPathBox"/>
                     <Button Click="SelectGlossaryPath" Margin="10,0,0,0" Width="130">Datei auswählen</Button>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal">
                     <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Text="Preamble-Verzeichnis" VerticalAlignment="Top" Width="120"/>
-                        <TextBox HorizontalAlignment="Left" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="700" Name="PreambleDirectoryBox"/>
+                        <TextBox Focusable="False" HorizontalAlignment="Left" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="700" Name="PreambleDirectoryBox"/>
                     <Button Click="SelectPreambleDirectory" Margin="10,0,0,0" Width="130">Verzeichnis auswählen</Button>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Text="Ignoriere Dateien:   \gls fehlt" VerticalAlignment="Top" Width="120" Height="34"/>
+                    <TextBox Focusable="False" HorizontalAlignment="Left" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="700" Height="34" Name="IgnorableFilesMissingGlsBox"/>
+                    <Button Click="ButtonFilesIgnore_Clicked" Margin="10,0,0,0" Width="130">Dateien auswählen</Button>
                 </StackPanel>
             </StackPanel>
             <Rectangle VerticalAlignment="Stretch" Width="2" Margin="20,0,20,0" Stroke="Black" />
@@ -33,6 +38,10 @@
                 <StackPanel Orientation="Horizontal">
                     <CheckBox Margin="0,0,5,0" Click="PickerRefOption_Clicked" Name="RefOptionPicker"></CheckBox>
                     <TextBlock Text="Ignoriere nicht referenzierte Sektionen-Labels (chap:, sec:, subsec:)"></TextBlock>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <CheckBox Margin="0,0,5,0" Click="PickerIgnoreSettings_Clicked" Name="IgnoreSettingsPicker"></CheckBox>
+                    <TextBlock Text="Ignoriere eine Datei bezüglich fehlendem GLS"></TextBlock>
                 </StackPanel>
             </StackPanel>
             <Rectangle VerticalAlignment="Stretch" Width="2" Margin="20,0,20,0" Stroke="Black" />

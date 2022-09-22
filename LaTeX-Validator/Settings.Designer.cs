@@ -72,5 +72,28 @@ namespace LaTeX_Validator {
                 this["IgnoreSectionLabels"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool IgnoreSettingsFile {
+            get {
+                return ((bool)(this["IgnoreSettingsFile"]));
+            }
+            set {
+                this["IgnoreSettingsFile"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        public global::System.Collections.Specialized.StringCollection SettingsPaths {
+            get {
+                return ((global::System.Collections.Specialized.StringCollection)(this["SettingsPaths"]));
+            }
+            set {
+                this["SettingsPaths"] = value;
+            }
+        }
     }
 }
