@@ -35,7 +35,7 @@ von Jonas Weis und Jonathan Schwab
 - Auslesen aller Labels der Quellen
 - Überprüfung ob alle zitiert wurden
 - TODO:
-  - Auswahl ob case sensitiv
+  - Labels ignorierbar machen
   
 # Nacharbeit
 - Alle Fehler angezeigt inklusive Datei, Zeile und Position
