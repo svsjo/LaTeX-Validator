@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -34,9 +35,13 @@ namespace LaTeX_Validator
 
         private void InitializeUiData()
         {
-            this.lvGlsError.ItemsSource = this.allErrors;
-            this.RefOptionPicker.IsChecked = this.configuration.ignoreSectionLabels;
             this.InitializeFromPersistentData();
+
+            this.lvGlsError.ItemsSource = this.allErrors;
+            this.LatexDirectoryBox.Text = this.configuration.latexDirectoryPath;
+            this.PreambleDirectoryBox.Text = this.configuration.preambleDirectoryPath;
+            this.GlossaryPathBox.Text = this.configuration.glossaryPath;
+            this.RefOptionPicker.IsChecked = this.configuration.ignoreSectionLabels;
         }
 
         private void InitializeFromPersistentData()
@@ -44,10 +49,7 @@ namespace LaTeX_Validator
             this.configuration.latexDirectoryPath = Settings.Default.RootDirectoryPath;
             this.configuration.preambleDirectoryPath = Settings.Default.PreambleDirectoryPath;
             this.configuration.glossaryPath = Settings.Default.GlossaryPath;
-
-            this.LatexDirectoryBox.Text = Settings.Default.RootDirectoryPath;
-            this.PreambleDirectoryBox.Text = Settings.Default.PreambleDirectoryPath;
-            this.GlossaryPathBox.Text = Settings.Default.GlossaryPath;
+            this.configuration.ignoreSectionLabels = Settings.Default.IgnoreSectionLabels;
         }
 
         private void ButtonStart_Click(object sender, RoutedEventArgs e)
@@ -97,7 +99,11 @@ namespace LaTeX_Validator
         {
             if (string.IsNullOrEmpty(this.configuration.latexDirectoryPath) ||
                 string.IsNullOrEmpty(this.configuration.glossaryPath) ||
-                string.IsNullOrEmpty(this.configuration.preambleDirectoryPath)) return; // TODO Fehlermeldung
+                string.IsNullOrEmpty(this.configuration.preambleDirectoryPath))
+            {
+                this.ShowMessageBox();
+                return;
+            }
 
             var allFiles = Directory.GetFiles(
                 this.configuration.latexDirectoryPath, "*.tex", SearchOption.AllDirectories).ToList();
@@ -114,6 +120,15 @@ namespace LaTeX_Validator
             this.allErrors.AddRange(this.fileParser.FindMissingGlsErrors(allFiles, allAcronymEntries, allGlossaryEntries.ToList()));
             this.allErrors.AddRange(this.fileParser.FindTablesErrors(allFiles, allAcronymEntries));
             this.allErrors.AddRange(this.fileParser.FindMissingReferencesErrors(allFiles, this.configuration.ignoreSectionLabels));
+        }
+
+        private void ShowMessageBox()
+        {
+            const string messageBoxText = "Definiere zuerst alle Pfade!";
+            const string caption = "Fehler!";
+            const MessageBoxButton button = MessageBoxButton.OK;
+            const MessageBoxImage icon = MessageBoxImage.Warning;
+            MessageBox.Show(messageBoxText, caption, button, icon, MessageBoxResult.Yes);
         }
 
 
@@ -158,6 +173,15 @@ namespace LaTeX_Validator
 
             this.PreambleDirectoryBox.Text = dialog.FileName;
             this.configuration.preambleDirectoryPath = dialog.FileName;
+        }
+
+        private void OnWindowClosing(object sender, CancelEventArgs e)
+        {
+            Settings.Default.GlossaryPath = this.configuration.glossaryPath;
+            Settings.Default.PreambleDirectoryPath = this.configuration.preambleDirectoryPath;
+            Settings.Default.RootDirectoryPath = this.configuration.latexDirectoryPath;
+            Settings.Default.IgnoreSectionLabels= this.configuration.ignoreSectionLabels;
+            Settings.Default.Save();
         }
     }
 }

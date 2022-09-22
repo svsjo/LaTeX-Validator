@@ -60,5 +60,17 @@ namespace LaTeX_Validator {
                 this["PreambleDirectoryPath"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool IgnoreSectionLabels {
+            get {
+                return ((bool)(this["IgnoreSectionLabels"]));
+            }
+            set {
+                this["IgnoreSectionLabels"] = value;
+            }
+        }
     }
 }

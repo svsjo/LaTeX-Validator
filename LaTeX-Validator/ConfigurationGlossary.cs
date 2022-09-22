@@ -12,7 +12,7 @@
 
         #region Options
 
-        public bool ignoreSectionLabels { get; set; } = true;
+        public bool ignoreSectionLabels { get; set; }
 
         #endregion
     }
