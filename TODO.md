@@ -12,17 +12,13 @@ von Jonas Weis und Jonathan Schwab
 ## Falsche Verwendung von \gls
 - Prüfung aller Dateien im Verzeichnis 03_Preamble
 - Erkennung wenn dort \gls statt \acrlong bzw. \acrshort verwendet wurde
-- TODO: 
-  - Verzeichnis auswählbar machen
-  - Dateien durch Klick ignorierbar machen (togglebar)
-  - Einträge durch Klick ignorierbar machen (togglebar)
+- Verzeichnis auswählbar
   
 ## Verwendung von Worten ohne \gls
 - Prüfung aller .tex-Dateien auf Verwendung von Einträgen (Glossar/Akronym)
 - Erkennung aller Verwendungen ohne Nutzung von \gls bzw. \acrlong oder \acrshort
+- Dateien durch Klick ignorierbar (togglebar)
 - TODO:
-  - Einträge durch Klick ignorierbar machen (togglebar) 
-  - Dateien durch Klick ignorierbar machen (togglebar)
   - Auswahl ob case sensitiv
   
 ## Falsche Verwendung von \gls in Figuren
@@ -35,7 +31,6 @@ von Jonas Weis und Jonathan Schwab
 - Selektierbar, ob verschiedene Label(Chapter, Section, ...) ignoriert werden (togglebar)
 - TODO:
   - Anzeige der Verwendung von \ref statt \autoref
-  - Dateien ignorierbar machen, z.B. Anhang (togglebar)
   
 # Nacharbeit
 - Alle Fehler angezeigt inklusive Datei und Zeile
