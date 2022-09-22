@@ -81,7 +81,7 @@ namespace LaTeX_Validator
         {
             var button = sender as Button;
             if (button?.DataContext is not GlsError data) return;
-            this.JumpToError(data.File, data.Line);
+            this.JumpToError(data.File, data.Line, data.LinePosition);
         }
 
         private void ButtonIgnore_Clicked(object sender, RoutedEventArgs e)
@@ -97,14 +97,14 @@ namespace LaTeX_Validator
             this.SelectIgnorableFilesMissingGls();
         }
 
-        private void JumpToError(string path, int line)
+        private void JumpToError(string path, int line, int pos)
         {
             var process = new Process
                           {
                               StartInfo = new ProcessStartInfo
                                           {
                                               FileName = "code",
-                                              Arguments = $"--goto \"{path}\":{line}",
+                                              Arguments = $"--goto \"{path}\":{line}:{pos}",
                                               UseShellExecute = true,
                                               CreateNoWindow = true,
                                               WindowStyle = ProcessWindowStyle.Hidden

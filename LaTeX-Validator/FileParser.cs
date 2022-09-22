@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows.Shapes;
@@ -55,8 +56,9 @@ public class FileParser
                                       ActualForm = GlsType.Gls,
                                       ErrorType = ErrorType.ShouldBeAcrLong,
                                       File = file,
-                                      Line = line.number
-                                  });
+                                      Line = line.number,
+                                      LinePosition = match.Index
+                    });
                 }
             }
         }
@@ -107,7 +109,8 @@ public class FileParser
                                       ActualForm = type,
                                       ErrorType = ErrorType.MissingGls,
                                       File = file,
-                                      Line = line.Number
+                                      Line = line.Number,
+                                      LinePosition = line.Content.IndexOf(element.word, StringComparison.Ordinal)
                                   });
                 }
             }
@@ -133,7 +136,8 @@ public class FileParser
                                                     content = allAcronymEntries
                                                               .Select(entry => entry.Label)
                                                               .First(entry => line.Content.Contains(entry)),
-                                                    type = line.Content.Contains("AcrLong") ? GlsType.AcrLong : GlsType.AcrShort
+                                                    type = line.Content.Contains("AcrLong") ? GlsType.AcrLong : GlsType.AcrShort,
+                                                    fullLine = line
                                                 });
 
             foreach (var line in affectedLines)
@@ -144,7 +148,8 @@ public class FileParser
                                   ActualForm = line.type,
                                   ErrorType = ErrorType.ShouldBeAcrLong,
                                   File = file,
-                                  Line = line.number
+                                  Line = line.number,
+                                  LinePosition = line.fullLine.Content.IndexOf(line.content, StringComparison.Ordinal)
                               });
             }
         }
@@ -179,7 +184,8 @@ public class FileParser
                                   ActualForm = GlsType.Label,
                                   ErrorType = ErrorType.MissingRef,
                                   File = element.file,
-                                  Line = element.line
+                                  Line = element.line,
+                                  LinePosition = element.pos
                               });
         }
     }
@@ -197,7 +203,8 @@ public class FileParser
                               ActualForm = GlsType.Label,
                               ErrorType = ErrorType.WrongRefType,
                               File = element.file,
-                              Line = element.line
+                              Line = element.line,
+                              LinePosition = element.pos
                         });
         }
     }
@@ -223,7 +230,8 @@ public class FileParser
                               ActualForm = GlsType.Label,
                               ErrorType = ErrorType.LabelNaming,
                               File = problematicLabel.file,
-                              Line = problematicLabel.line
+                              Line = problematicLabel.line,
+                              LinePosition = problematicLabel.pos
                           });
         }
     }
@@ -253,7 +261,7 @@ public class FileParser
         return linesWithCaption;
     }
 
-    private IEnumerable<(string label, string file, int line)> GetAllLabels(List<string> files)
+    private IEnumerable<(string label, string file, int line, int pos)> GetAllLabels(List<string> files)
     {
         const string regexPatternLabel = @"label({|=)(.*?)(}|])";
         var regexLabel = new Regex(regexPatternLabel, RegexOptions.Compiled);
@@ -271,14 +279,14 @@ public class FileParser
 
                     if (labelGroups is { Count: > 2 })
                     {
-                        yield return (labelGroups[2].Value, file, line.Number);
+                        yield return (labelGroups[2].Value, file, line.Number, labelMatch.Index);
                     }
                 }
             }
         }
     }
 
-    private IEnumerable<(string label, RefType refType, string file, int line)> GetAllRefs(List<string> files)
+    private IEnumerable<(string label, RefType refType, string file, int line, int pos)> GetAllRefs(List<string> files)
     {
         const string regexPatternRef = @"\\(.*?)ref{(.*?)}";
         var regexRef = new Regex(regexPatternRef, RegexOptions.Compiled);
@@ -298,7 +306,7 @@ public class FileParser
 
                     var refType = string.IsNullOrEmpty(refGroups[1].Value) ? RefType.Normal : RefType.Auto;
 
-                    yield return (refGroups[2].Value, refType, file, line.Number);
+                    yield return (refGroups[2].Value, refType, file, line.Number, refMatch.Index);
                 }
             }
         }

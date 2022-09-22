@@ -54,8 +54,9 @@
                             <GridViewColumn Header="Wort" Width="220" DisplayMemberBinding="{Binding WordContent}" />
                             <GridViewColumn Header="Aktuelle Form" Width="200" DisplayMemberBinding="{Binding FormText}" />
                             <GridViewColumn Header="Problem" Width="300" DisplayMemberBinding="{Binding ErrorText}" />
-                            <GridViewColumn Header="Datei" Width="740" DisplayMemberBinding="{Binding File}" />
-                            <GridViewColumn Header="Zeile" Width="80" DisplayMemberBinding="{Binding Line}" />
+                            <GridViewColumn Header="Datei" Width="700" DisplayMemberBinding="{Binding File}" />
+                            <GridViewColumn Header="Zeile" Width="60" DisplayMemberBinding="{Binding Line}" />
+                            <GridViewColumn Header="Position" Width="60" DisplayMemberBinding="{Binding LinePosition}" />
                             <GridViewColumn Header="Auswahl" Width="100">
                                 <GridViewColumn.CellTemplate>
                                 <DataTemplate>

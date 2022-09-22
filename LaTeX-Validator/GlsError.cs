@@ -18,4 +18,5 @@ public class GlsError
     public string? ErrorText => this.ErrorType.GetStringValue();
     public string File { get; set; }
     public int Line { get; set; }
+    public int LinePosition { get; set; } = 0;
 }
