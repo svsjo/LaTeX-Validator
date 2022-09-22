@@ -16,7 +16,7 @@ public class FileExtractor
     public IEnumerable<AcronymEntry> GetAcronymEntries(string path)
     {
         var allLines = this.GetAllLinesFromFile(path);
-        const string regexAcronymPattern = @"newacronym{(.*)}{(.*)}{(.*)}"; // Group 0=all, 1=label, 2=short, 3=long
+        const string regexAcronymPattern = @"newacronym{(.*)}{(.*)}{(.*)}"; // Group 0=all, 1=Label, 2=short, 3=long
         var regex = new Regex(regexAcronymPattern, RegexOptions.Compiled);
 
         foreach (var line in allLines)

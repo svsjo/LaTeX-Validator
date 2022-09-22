@@ -13,8 +13,8 @@ public enum ErrorType
 {
     [EnumExtension("GLS fehlt")]
     MissingGls,
-    [EnumExtension("Sollte AcrLong sein")]
+    [EnumExtension("Sollte AcrLong/Short sein")]
     ShouldBeAcrLong,
-    [EnumExtension("Autoref Fehlt")]
+    [EnumExtension("Referenzierung Fehlt")]
     MissingAutoref
 }

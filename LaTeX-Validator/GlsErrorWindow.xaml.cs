@@ -65,7 +65,7 @@ namespace LaTeX_Validator
             var button = sender as Button;
             if (button?.DataContext is not GlsError data) return;
             // TODO @jdev
-            // Ignorieren (persistent)
+            // Ignorieren Option (persistent)
         }
 
         private void JumpToError(string path, int line)
@@ -109,12 +109,12 @@ namespace LaTeX_Validator
 
         private void SelectRootDirectory(object sender, RoutedEventArgs e)
         {
-            CommonOpenFileDialog dialog = new CommonOpenFileDialog();
+            var dialog = new CommonOpenFileDialog();
             dialog.InitialDirectory = "C:\\";
             dialog.IsFolderPicker = true;
             if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
             {
-                LatexDirectoryBox.Text = dialog.FileName;
+                this.LatexDirectoryBox.Text = dialog.FileName;
             }
         }
     }

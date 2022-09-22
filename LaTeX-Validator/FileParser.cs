@@ -15,7 +15,7 @@ public class FileParser
     }
 
     /// <summary>
-    /// In allen Texten vor der Einleitung sollte nur \acrlong verwendet werden.
+    /// In allen Texten vor der Einleitung sollte nur \AcrLong verwendet werden.
     /// </summary>
     /// <param name="files"></param>
     /// <param name="allAcronymEntries"></param>
@@ -41,11 +41,10 @@ public class FileParser
                 var regex = new Regex(regexPattern, RegexOptions.Compiled);
                 var matched = regex.Matches(line.content);
 
-                foreach (var match in matched)
+                foreach (Match match in matched)
                 {
-                    var actualMatch = match as Match;
-                    var groups = actualMatch?.Groups;
-                    if (groups == null || groups.Count < 2) continue;
+                    var groups = match.Groups;
+                    if (groups.Count < 2) continue;
 
                     var type = groups[1].ToString();
                     if (type != "gls") continue;
@@ -53,7 +52,7 @@ public class FileParser
                     yield return (new GlsError
                                   {
                                       WordContent = line.label,
-                                      ActualForm = GlsType.gls,
+                                      ActualForm = GlsType.Gls,
                                       ErrorType = ErrorType.ShouldBeAcrLong,
                                       File = file,
                                       Line = line.number
@@ -64,7 +63,7 @@ public class FileParser
     }
 
     /// <summary>
-    /// Alle Kurz- und Langbezeichner aus dem Glossar sollten verwendet werden (\gls oder eben \acrlong \acrshort)
+    /// Alle Kurz- und Langbezeichner aus dem Glossar sollten verwendet werden (\Gls oder eben \AcrLong \AcrShort)
     /// </summary>
     public IEnumerable<GlsError> FindMissingGlsErrors(List<string> files, IReadOnlyCollection<AcronymEntry> allAcronymEntries, IReadOnlyCollection<string> allGlossaryEntries)
     {
@@ -98,10 +97,14 @@ public class FileParser
 
                 foreach (var line in element.lines.Where(line => !regex.IsMatch(line.Content)))
                 {
+                    var type = allAcronymEntries.Select(x => x.Short).Any(x => x == element.word) ?
+                                   GlsType.AcrShort : allAcronymEntries.Select(x => x.Long).Any(x => x == element.word) ?
+                                       GlsType.AcrLong : GlsType.Gls;
+
                     yield return (new GlsError
                                   {
                                       WordContent = element.word,
-                                      ActualForm = GlsType.none,
+                                      ActualForm = type,
                                       ErrorType = ErrorType.MissingGls,
                                       File = file,
                                       Line = line.Number
@@ -112,17 +115,14 @@ public class FileParser
     }
 
     /// <summary>
-    /// In Abbildungen, Tabellen und Quellcode sollte nie \gls sondern nur \acrlong oder \acrshort verwendet werden
+    /// In Abbildungen, Tabellen und Quellcode sollte nie \Gls sondern nur \AcrLong oder \AcrShort verwendet werden
     /// </summary>
     public IEnumerable<GlsError> FindTablesErrors(List<string> files, IEnumerable<AcronymEntry> allAcronymEntries)
     {
-        const string regexPattern = @".*caption({|=)(.*)(}|,)";
-        var regex = new Regex(regexPattern, RegexOptions.Compiled);
-
         foreach (var file in files)
         {
             var allLines = this.fileExtractor.GetAllLinesFromFile(file).ToList();
-            var linesWithCaption = this.GetAllLinesWithCaption(allLines, regex);
+            var linesWithCaption = this.GetAllLinesWithCaption(allLines).ToList();
             var affectedLines = linesWithCaption
                                 .Where(line => line.Content.Contains(@"\gls") && allAcronymEntries
                                                                                  .Select(entry => entry.Label)
@@ -133,7 +133,7 @@ public class FileParser
                                                     content = allAcronymEntries
                                                               .Select(entry => entry.Label)
                                                               .First(entry => line.Content.Contains(entry)),
-                                                    type = line.Content.Contains("acrlong") ? GlsType.acrlong : GlsType.acrshort
+                                                    type = line.Content.Contains("AcrLong") ? GlsType.AcrLong : GlsType.AcrShort
                                                 });
 
             foreach (var line in affectedLines)
@@ -176,7 +176,7 @@ public class FileParser
             yield return (new GlsError
                               {
                                   WordContent = element.label,
-                                  ActualForm = GlsType.label,
+                                  ActualForm = GlsType.Label,
                                   ErrorType = ErrorType.MissingAutoref,
                                   File = element.file,
                                   Line = element.line
@@ -187,17 +187,23 @@ public class FileParser
 
     #region HelperMethods
 
-    private IEnumerable<Line> GetAllLinesWithCaption(List<Line> allLines, Regex regex)
+    private IEnumerable<Line> GetAllLinesWithCaption(List<Line> allLines)
     {
+        const string regexPattern = @".*caption({|=)(.*)(}|,)";
+        var regex = new Regex(regexPattern, RegexOptions.Compiled);
+
         var linesWithCaption = new List<Line>();
 
         foreach (var line in allLines)
         {
-            var match = regex.Match(line.Content);
-            var groups = match.Groups;
-            if (groups.Count < 3) continue;
+            var matches = regex.Matches(line.Content);
+            foreach (Match match in matches)
+            {
+                var groups = match.Groups;
+                if (groups.Count < 3) continue;
 
-            linesWithCaption.Add(new Line { Content = groups[2].Value, Number = line.Number });
+                linesWithCaption.Add(new Line { Content = groups[2].Value, Number = line.Number });
+            }
         }
 
         return linesWithCaption;
@@ -213,12 +219,16 @@ public class FileParser
             var allLines = this.fileExtractor.GetAllLinesFromFile(file);
             foreach (var line in allLines)
             {
-                var labelMatches = regexLabel.Match(line.Content);
-                var labelGroups = labelMatches.Groups;
+                var labelMatches = regexLabel.Matches(line.Content);
 
-                if (labelGroups is { Count: > 2 })
+                foreach (Match labelMatch in labelMatches)
                 {
-                    yield return (labelGroups[2].Value, file, line.Number);
+                    var labelGroups = labelMatch.Groups;
+
+                    if (labelGroups is { Count: > 2 })
+                    {
+                        yield return (labelGroups[2].Value, file, line.Number);
+                    }
                 }
             }
         }
@@ -226,7 +236,7 @@ public class FileParser
 
     private IEnumerable<string> GetAllRefs(List<string> files)
     {
-        const string regexPatternRef = @"autoref{(.*?)}";
+        const string regexPatternRef = @"ref{(.*?)}";
         var regexRef = new Regex(regexPatternRef, RegexOptions.Compiled);
 
         foreach (var file in files)

@@ -5,13 +5,20 @@
 // <author>Jonas Weis</author>
 // --------------------------------------------------------------------------------------------------------------------
 
+using LaTeX_Validator.Extensions;
+
 namespace LaTeX_Validator;
 
 public enum GlsType
 {
-    acrshort,
-    acrlong,
-    gls,
-    none,
-    label
+    [EnumExtension("Akronym")]
+    AcrShort,
+    [EnumExtension("Langbezeichner")]
+    AcrLong,
+    [EnumExtension("Glossareintrag")]
+    Gls,
+    [EnumExtension("Temp")]
+    None,
+    [EnumExtension("Label")]
+    Label
 }
