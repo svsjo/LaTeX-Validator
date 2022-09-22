@@ -29,8 +29,8 @@ von Jonas Weis und Jonathan Schwab
 - Auslesen aller Labels und aller Referenzen (\autoref)
 - Überprüfung ob jedes Label mindestens einmal referenziert wurde
 - Selektierbar, ob verschiedene Label(Chapter, Section, ...) ignoriert werden (togglebar)
-- TODO:
-  - Anzeige der Verwendung von \ref statt \autoref
+- Anzeige der Verwendung von \ref statt \autoref
+ 
   
 # Nacharbeit
 - Alle Fehler angezeigt inklusive Datei, Zeile und Position
