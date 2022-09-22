@@ -16,8 +16,7 @@ public class FileParser
         this.fileExtractor = fileExtractor1;
     }
 
-    public IEnumerable<GlsError> FindMissingCitations(List<string> files,
-                                                      List<(string label, string file, int line, int pos)> allCitationEntries)
+    public IEnumerable<GlsError> FindMissingCitations(List<string> files, List<CitationEntry> allCitationEntries)
     {
         var regexPattern = @"\\cite{(.*?)}";
         var regex = new Regex(regexPattern, RegexOptions.Compiled);

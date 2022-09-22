@@ -8,6 +8,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
+using System.Windows.Controls.Primitives;
 
 namespace LaTeX_Validator;
 
@@ -70,7 +71,7 @@ public class FileExtractor
 
     }
 
-    public IEnumerable<(string label, string file, int line, int pos)> GetCitationEntries(string path)
+    public IEnumerable<CitationEntry> GetCitationEntries(string path)
     {
         var allLines = this.GetAllLinesFromFile(path);
         const string regexBibPattern = @"@(.*?){(.*?),";
@@ -85,7 +86,13 @@ public class FileExtractor
                 var groups = match.Groups;
                 if (groups.Count < 3) continue;
 
-                yield return (groups[2].ToString(), path, line.Number, match.Index);
+                yield return new CitationEntry()
+                             {
+                                 label = groups[2].ToString(),
+                                 file = path,
+                                 line = line.Number,
+                                 pos = match.Index
+                             };
             }
         }
     }
