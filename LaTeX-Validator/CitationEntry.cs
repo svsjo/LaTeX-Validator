@@ -9,8 +9,8 @@ namespace LaTeX_Validator;
 
 public class CitationEntry
 {
-    public string label { get; set; }
-    public string file { get; set; }
+    public string? label { get; set; }
+    public string? file { get; set; }
     public int line { get; set; }
     public int pos { get; set; }
 }
