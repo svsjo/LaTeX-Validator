@@ -7,9 +7,7 @@ von Jonas Weis und Jonathan Schwab
 - Auslesen aller Glossar-Einträge
 - Auslesen aller Akronym-Einträge
 - Auslesen aller Linien aller .tex Dateien
-- Hauptverzeichnis bereits konfigurierbar
-- TODO:
-  - Glossarname und Verzeichnis konfigurierbar machen
+- Hauptverzeichnis, Glossar und Preamble konfigurierbar
 
 ## Falsche Verwendung von \gls
 - Prüfung aller Dateien im Verzeichnis 03_Preamble
@@ -25,7 +23,6 @@ von Jonas Weis und Jonathan Schwab
 - TODO:
   - Einträge durch Klick ignorierbar machen (togglebar) 
   - Dateien durch Klick ignorierbar machen (togglebar)
-  - Genauer analysieren (Regex), aktuell wird ein Wort in \cite{...} oft erkannt, wegen der Klammern
   - Auswahl ob case sensitiv
   
 ## Falsche Verwendung von \gls in Figuren
