@@ -21,6 +21,8 @@ namespace LaTeX_Validator
     partial class GlsErrorWindow : Window
     {
         private readonly ObservableCollection<GlsError> allErrors;
+        private List<GlsError> persistentIgnoredErrors;
+        private List<GlsError> transientIgnoredErrors;
         private readonly ConfigurationGlossary configuration;
         private readonly FileExtractor fileExtractor;
         private readonly FileParser fileParser;
@@ -33,6 +35,8 @@ namespace LaTeX_Validator
             this.fileExtractor = new FileExtractor();
             this.fileParser = new FileParser(this.fileExtractor);
             this.allErrors = new ObservableCollection<GlsError>();
+            this.persistentIgnoredErrors = new List<GlsError>();
+            this.transientIgnoredErrors = new List<GlsError>();
             this.InitializeComponent();
             this.InitializeUiData();
         }
@@ -59,6 +63,8 @@ namespace LaTeX_Validator
             this.configuration.ignoreSectionLabels = Settings.Default.IgnoreSectionLabels;
             this.configuration.ignoreFilesWithMissingGls = Settings.Default.SettingsPaths;
             this.configuration.ignoreSettingsFile = Settings.Default.IgnoreSettingsFile;
+            this.configuration.showIgnoredErrors = Settings.Default.ShowIgnoredErrors;
+            this.persistentIgnoredErrors = Settings.Default.SerialzedGlsErrors.Deserialize();
         }
 
         private void OnWindowClosing(object sender, CancelEventArgs e)
@@ -69,6 +75,8 @@ namespace LaTeX_Validator
             Settings.Default.IgnoreSectionLabels = this.configuration.ignoreSectionLabels;
             Settings.Default.SettingsPaths = this.configuration.ignoreFilesWithMissingGls;
             Settings.Default.IgnoreSettingsFile = this.configuration.ignoreSettingsFile;
+            Settings.Default.ShowIgnoredErrors = this.configuration.showIgnoredErrors;
+            Settings.Default.SerialzedGlsErrors = this.persistentIgnoredErrors.Serialize();
             Settings.Default.Save();
         }
 
@@ -105,8 +113,37 @@ namespace LaTeX_Validator
         {
             var button = sender as Button;
             if (button?.DataContext is not GlsError data) return;
-            // TODO @jdev
-            // Ignorieren Option (persistent)
+
+            if (data.ErrorStatus == ErrorStatus.NotIgnored)
+            {
+                this.allErrors.Remove(data);
+                data.ErrorStatus = ErrorStatus.Ignored;
+                this.persistentIgnoredErrors.Add(data);
+                this.transientIgnoredErrors.Add(data);
+                if(this.configuration.showIgnoredErrors) this.allErrors.Add(data);
+            }
+            else
+            {
+                this.allErrors.Remove(data);
+                data.ErrorStatus = ErrorStatus.NotIgnored;
+                this.transientIgnoredErrors.Remove(data);
+                this.persistentIgnoredErrors.Remove(data);
+                this.allErrors.Add(data);
+            }
+        }
+
+        private void PickerShowIgnoredErrors_Clicked(object sender, RoutedEventArgs e)
+        {
+            var checkBox = sender as CheckBox;
+            this.configuration.showIgnoredErrors = checkBox?.IsChecked ?? false;
+            if (this.configuration.showIgnoredErrors)
+            {
+                this.allErrors.AddRange(this.transientIgnoredErrors);
+            }
+            else
+            {
+                this.allErrors.RemoveRange(this.transientIgnoredErrors);
+            }
         }
 
         #region SelectPaths
@@ -223,12 +260,23 @@ namespace LaTeX_Validator
                                                  .Except(this.configuration.ignoreFilesWithMissingGls.Cast<string>())
                                                  .ToList();
 
-            this.allErrors.AddRange(this.fileParser.FindAcrLongErrors(beforeFiles, allAcronymEntries));
-            this.allErrors.AddRange(this.fileParser.FindMissingGlsErrors(missingGlsFiles, allAcronymEntries, allGlossaryEntries.ToList()));
-            this.allErrors.AddRange(this.fileParser.FindTablesErrors(allFiles, allAcronymEntries));
-            this.allErrors.AddRange(this.fileParser.FindMissingReferencesErrors(allFiles, this.configuration.ignoreSectionLabels));
-            this.allErrors.AddRange(this.fileParser.FindLabelNamingErrors(allFiles));
-            this.allErrors.AddRange(this.fileParser.FindWrongRefUsage(allFiles));
+            var acrLongErrors = this.fileParser.FindAcrLongErrors(beforeFiles, allAcronymEntries);
+            var missingGlsErrors = this.fileParser.FindMissingGlsErrors(missingGlsFiles, allAcronymEntries, allGlossaryEntries.ToList());
+            var tableErrors = this.fileParser.FindTablesErrors(allFiles, allAcronymEntries);
+            var missingReferenceErrors = this.fileParser.FindMissingReferencesErrors(allFiles, this.configuration.ignoreSectionLabels);
+            var labelNameErrors = this.fileParser.FindLabelNamingErrors(allFiles);
+            var refTypeErrors = this.fileParser.FindWrongRefUsage(allFiles);
+
+            var isIgnored = this.allErrors.AddRangeIfPossibleAndReturnErrors(acrLongErrors, this.persistentIgnoredErrors);
+            isIgnored.AddRange(this.allErrors.AddRangeIfPossibleAndReturnErrors(missingGlsErrors, this.persistentIgnoredErrors));
+            isIgnored.AddRange(this.allErrors.AddRangeIfPossibleAndReturnErrors(tableErrors, this.persistentIgnoredErrors));
+            isIgnored.AddRange(this.allErrors.AddRangeIfPossibleAndReturnErrors(missingReferenceErrors, this.persistentIgnoredErrors));
+            isIgnored.AddRange(this.allErrors.AddRangeIfPossibleAndReturnErrors(labelNameErrors, this.persistentIgnoredErrors));
+            isIgnored.AddRange(this.allErrors.AddRangeIfPossibleAndReturnErrors(refTypeErrors, this.persistentIgnoredErrors));
+
+            this.transientIgnoredErrors = isIgnored;
+            this.persistentIgnoredErrors.AddRange(isIgnored);
+            this.persistentIgnoredErrors = this.transientIgnoredErrors.Distinct().ToList();
         }
 
         private void ShowMessageBox()

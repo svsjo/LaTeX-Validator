@@ -43,7 +43,11 @@
                     <CheckBox Margin="0,0,5,0" Click="PickerIgnoreSettings_Clicked" Name="IgnoreSettingsPicker"></CheckBox>
                     <TextBlock Text="Ignoriere eine Datei bezüglich fehlendem GLS"></TextBlock>
                 </StackPanel>
-            </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <CheckBox Margin="0,0,5,0" Click="PickerShowIgnoredErrors_Clicked" Name="ShowIgnoredErrors"></CheckBox>
+                    <TextBlock Text="Ignorierte Fehler anzeigen"></TextBlock>
+                </StackPanel>
+                </StackPanel>
             <Rectangle VerticalAlignment="Stretch" Width="2" Margin="20,0,20,0" Stroke="Black" />
             <Button Content="Starte Analyse" HorizontalAlignment="Left" VerticalAlignment="Center" RenderTransformOrigin="-0.058,0.063" Width="300" Height="40" Click="ButtonStart_Click"/>
         </StackPanel>
@@ -64,10 +68,10 @@
                                 </DataTemplate>
                                 </GridViewColumn.CellTemplate>
                             </GridViewColumn>
-                            <GridViewColumn Header="Ignorieren" Width="100">
+                            <GridViewColumn Header="Ignorieren" Width="115">
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
-                                        <Button Content="Ignoriere" Width="85" Click="ButtonIgnore_Clicked" />
+                                        <Button Width="100" Click="ButtonIgnore_Clicked" Content="{Binding ErrorStatusText}"/>
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>
                             </GridViewColumn>

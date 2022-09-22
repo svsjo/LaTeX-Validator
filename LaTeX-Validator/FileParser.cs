@@ -57,7 +57,8 @@ public class FileParser
                                       ErrorType = ErrorType.ShouldBeAcrLong,
                                       File = file,
                                       Line = line.number,
-                                      LinePosition = match.Index
+                                      LinePosition = match.Index,
+                                      ErrorStatus = ErrorStatus.NotIgnored
                     });
                 }
             }
@@ -110,8 +111,9 @@ public class FileParser
                                       ErrorType = ErrorType.MissingGls,
                                       File = file,
                                       Line = line.Number,
-                                      LinePosition = line.Content.IndexOf(element.word, StringComparison.Ordinal)
-                                  });
+                                      LinePosition = line.Content.IndexOf(element.word, StringComparison.Ordinal),
+                                      ErrorStatus = ErrorStatus.NotIgnored
+                    });
                 }
             }
         }
@@ -149,8 +151,9 @@ public class FileParser
                                   ErrorType = ErrorType.ShouldBeAcrLong,
                                   File = file,
                                   Line = line.number,
-                                  LinePosition = line.fullLine.Content.IndexOf(line.content, StringComparison.Ordinal)
-                              });
+                                  LinePosition = line.fullLine.Content.IndexOf(line.content, StringComparison.Ordinal),
+                                  ErrorStatus = ErrorStatus.NotIgnored
+                });
             }
         }
     }
@@ -185,8 +188,9 @@ public class FileParser
                                   ErrorType = ErrorType.MissingRef,
                                   File = element.file,
                                   Line = element.line,
-                                  LinePosition = element.pos
-                              });
+                                  LinePosition = element.pos,
+                                  ErrorStatus = ErrorStatus.NotIgnored
+            });
         }
     }
 
@@ -204,8 +208,9 @@ public class FileParser
                               ErrorType = ErrorType.WrongRefType,
                               File = element.file,
                               Line = element.line,
-                              LinePosition = element.pos
-                        });
+                              LinePosition = element.pos,
+                              ErrorStatus = ErrorStatus.NotIgnored
+            });
         }
     }
 
@@ -231,8 +236,9 @@ public class FileParser
                               ErrorType = ErrorType.LabelNaming,
                               File = problematicLabel.file,
                               Line = problematicLabel.line,
-                              LinePosition = problematicLabel.pos
-                          });
+                              LinePosition = problematicLabel.pos,
+                              ErrorStatus = ErrorStatus.NotIgnored
+            });
         }
     }
 

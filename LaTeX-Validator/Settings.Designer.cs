@@ -95,5 +95,28 @@ namespace LaTeX_Validator {
                 this["SettingsPaths"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool ShowIgnoredErrors {
+            get {
+                return ((bool)(this["ShowIgnoredErrors"]));
+            }
+            set {
+                this["ShowIgnoredErrors"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        public global::System.Collections.Specialized.StringCollection SerialzedGlsErrors {
+            get {
+                return ((global::System.Collections.Specialized.StringCollection)(this["SerialzedGlsErrors"]));
+            }
+            set {
+                this["SerialzedGlsErrors"] = value;
+            }
+        }
     }
 }

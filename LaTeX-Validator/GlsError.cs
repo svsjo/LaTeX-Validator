@@ -19,4 +19,18 @@ public class GlsError
     public string File { get; set; }
     public int Line { get; set; }
     public int LinePosition { get; set; } = 0;
+    public ErrorStatus ErrorStatus { get; set; }
+    public string? ErrorStatusText => this.ErrorStatus.GetStringValue();
+
+    public bool IsEqual(GlsError glsError)
+    {
+        if (this.WordContent != glsError.WordContent) return false;
+        if (this.ActualForm != glsError.ActualForm) return false;
+        if (this.ErrorType != glsError.ErrorType) return false;
+        if (this.File != glsError.File) return false;
+        if (this.Line != glsError.Line) return false;
+        if (this.LinePosition != glsError.LinePosition) return false;
+
+        return true;
+    }
 }

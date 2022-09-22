@@ -18,6 +18,7 @@ namespace LaTeX_Validator
 
         public bool ignoreSectionLabels { get; set; }
         public bool ignoreSettingsFile { get; set; }
+        public bool showIgnoredErrors { get; set; }
 
         #endregion
     }

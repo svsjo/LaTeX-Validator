@@ -20,5 +20,7 @@ public enum ErrorType
     [EnumExtension("Label falsch benannt")]
     LabelNaming,
     [EnumExtension("Kein Autoref verwendet")]
-    WrongRefType
+    WrongRefType,
+    [EnumExtension("Serialisierungsfehler")]
+    Serialize
 }
