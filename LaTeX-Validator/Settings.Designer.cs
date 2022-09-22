@@ -118,5 +118,17 @@ namespace LaTeX_Validator {
                 this["SerialzedGlsErrors"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string BibPath {
+            get {
+                return ((string)(this["BibPath"]));
+            }
+            set {
+                this["BibPath"] = value;
+            }
+        }
     }
 }

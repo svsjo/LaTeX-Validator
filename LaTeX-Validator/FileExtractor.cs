@@ -23,11 +23,10 @@ public class FileExtractor
         {
             var matched = regex.Matches(line.Content);
 
-            foreach (var match in matched)
+            foreach (Match match in matched)
             {
-                var actualMatch = match as Match;
-                var groups = actualMatch?.Groups;
-                if (groups == null || groups.Count < 4) continue;
+                var groups = match.Groups;
+                if (groups.Count < 4) continue;
 
                 yield return new AcronymEntry
                              {
@@ -49,11 +48,10 @@ public class FileExtractor
         {
             var matched = regex.Matches(line.Content);
 
-            foreach (var match in matched)
+            foreach (Match match in matched)
             {
-                var actualMatch = match as Match;
-                var groups = actualMatch?.Groups;
-                if (groups == null || groups.Count < 2) continue;
+                var groups = match.Groups;
+                if (groups.Count < 2) continue;
 
                 yield return groups[1].ToString();
             }
@@ -70,5 +68,25 @@ public class FileExtractor
             counter++;
         }
 
+    }
+
+    public IEnumerable<(string label, string file, int line, int pos)> GetCitationEntries(string path)
+    {
+        var allLines = this.GetAllLinesFromFile(path);
+        const string regexBibPattern = @"@(.*?){(.*?),";
+        var regex = new Regex(regexBibPattern, RegexOptions.Compiled);
+
+        foreach (var line in allLines)
+        {
+            var matched = regex.Matches(line.Content);
+
+            foreach (Match match in matched)
+            {
+                var groups = match.Groups;
+                if (groups.Count < 3) continue;
+
+                yield return (groups[2].ToString(), path, line.Number, match.Index);
+            }
+        }
     }
 }

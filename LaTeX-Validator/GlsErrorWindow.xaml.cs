@@ -50,6 +50,7 @@ namespace LaTeX_Validator
             this.PreambleDirectoryBox.Text = this.configuration.preambleDirectoryPath;
             this.GlossaryPathBox.Text = this.configuration.glossaryPath;
             this.RefOptionPicker.IsChecked = this.configuration.ignoreSectionLabels;
+            this.BibliographiePathBox.Text = this.configuration.bibPath;
 
             var text = this.configuration.ignoreFilesWithMissingGls?.Cast<string>().ToList();
             this.IgnorableFilesMissingGlsBox.Text = text?.Aggregate((x, y) => x + "\n" + y);
@@ -65,6 +66,7 @@ namespace LaTeX_Validator
             this.configuration.ignoreSettingsFile = Settings.Default.IgnoreSettingsFile;
             this.configuration.showIgnoredErrors = Settings.Default.ShowIgnoredErrors;
             this.persistentIgnoredErrors = Settings.Default.SerialzedGlsErrors.Deserialize();
+            this.configuration.bibPath = Settings.Default.BibPath;
         }
 
         private void OnWindowClosing(object sender, CancelEventArgs e)
@@ -76,6 +78,7 @@ namespace LaTeX_Validator
             Settings.Default.SettingsPaths = this.configuration.ignoreFilesWithMissingGls;
             Settings.Default.IgnoreSettingsFile = this.configuration.ignoreSettingsFile;
             Settings.Default.ShowIgnoredErrors = this.configuration.showIgnoredErrors;
+            Settings.Default.BibPath = this.configuration.bibPath;
             Settings.Default.SerialzedGlsErrors = this.persistentIgnoredErrors.Serialize();
             Settings.Default.Save();
         }
@@ -176,6 +179,21 @@ namespace LaTeX_Validator
             this.configuration.glossaryPath = dialog.FileName;
         }
 
+        private void SelectBibliographiePath(object sender, RoutedEventArgs e)
+        {
+            var dialog = new CommonOpenFileDialog();
+            dialog.InitialDirectory = !string.IsNullOrEmpty(this.configuration.bibPath) ?
+                                          this.configuration.bibPath :
+                                          string.IsNullOrEmpty(this.configuration.latexDirectoryPath) ?
+                                              "C:\\" : this.configuration.latexDirectoryPath;
+            dialog.IsFolderPicker = false;
+
+            if (dialog.ShowDialog() != CommonFileDialogResult.Ok) return;
+
+            this.BibliographiePathBox.Text = dialog.FileName;
+            this.configuration.bibPath = dialog.FileName;
+        }
+
         private void SelectPreambleDirectory(object sender, RoutedEventArgs e)
         {
             var dialog = new CommonOpenFileDialog();
@@ -236,43 +254,50 @@ namespace LaTeX_Validator
 
         private void StartAnalysis()
         {
-            if (string.IsNullOrEmpty(this.configuration.latexDirectoryPath) ||
-                string.IsNullOrEmpty(this.configuration.glossaryPath) ||
-                string.IsNullOrEmpty(this.configuration.preambleDirectoryPath))
+            if (this.configuration.IsMissingSomething())
             {
                 this.ShowMessageBox();
                 return;
             }
 
             var allFiles = Directory.GetFiles(
-                this.configuration.latexDirectoryPath, "*.tex", SearchOption.AllDirectories).ToList();
+                this.configuration.latexDirectoryPath!, "*.tex", SearchOption.AllDirectories).ToList();
             var beforeFiles = Directory.GetFiles(
-                this.configuration.preambleDirectoryPath, "*.tex", SearchOption.AllDirectories).ToList();
+                this.configuration.preambleDirectoryPath!, "*.tex", SearchOption.AllDirectories).ToList();
 
-            var allAcronymEntries = this.fileExtractor.GetAcronymEntries(this.configuration.glossaryPath).ToList();
-            var allGlossaryEntries = this.fileExtractor.GetGlossaryEntries(this.configuration.glossaryPath);
+            var allAcronymEntries = this.fileExtractor.GetAcronymEntries(this.configuration.glossaryPath!).ToList();
+            var allGlossaryEntries = this.fileExtractor.GetGlossaryEntries(this.configuration.glossaryPath!).ToList();
+            var allCitationEntries = this.fileExtractor.GetCitationEntries(this.configuration.bibPath!).ToList();
 
-            allFiles.Remove(this.configuration.glossaryPath);
-            beforeFiles.Remove(this.configuration.glossaryPath);
+            allFiles.Remove(this.configuration.glossaryPath!);
+            beforeFiles.Remove(this.configuration.glossaryPath!);
 
             var missingGlsFiles = this.configuration.ignoreFilesWithMissingGls == null || !this.configuration.ignoreSettingsFile ?
                                       allFiles : allFiles
                                                  .Except(this.configuration.ignoreFilesWithMissingGls.Cast<string>())
                                                  .ToList();
 
-            var acrLongErrors = this.fileParser.FindAcrLongErrors(beforeFiles, allAcronymEntries);
-            var missingGlsErrors = this.fileParser.FindMissingGlsErrors(missingGlsFiles, allAcronymEntries, allGlossaryEntries.ToList());
-            var tableErrors = this.fileParser.FindTablesErrors(allFiles, allAcronymEntries);
-            var missingReferenceErrors = this.fileParser.FindMissingReferencesErrors(allFiles, this.configuration.ignoreSectionLabels);
-            var labelNameErrors = this.fileParser.FindLabelNamingErrors(allFiles);
-            var refTypeErrors = this.fileParser.FindWrongRefUsage(allFiles);
+            this.ActualisateErrors(this.fileParser.FindAcrLongErrors(beforeFiles, allAcronymEntries),
+                                   this.fileParser.FindMissingGlsErrors(missingGlsFiles, allAcronymEntries, allGlossaryEntries),
+                                   this.fileParser.FindTablesErrors(allFiles, allAcronymEntries),
+                                   this.fileParser.FindMissingReferencesErrors(allFiles, this.configuration.ignoreSectionLabels),
+                                   this.fileParser.FindLabelNamingErrors(allFiles),
+                                   this.fileParser.FindWrongRefUsage(allFiles),
+                                   this.fileParser.FindMissingCitations(allFiles, allCitationEntries));
+        }
 
+        private void ActualisateErrors(
+            IEnumerable<GlsError> acrLongErrors, IEnumerable<GlsError> missingGlsErrors, IEnumerable<GlsError> tableErrors,
+            IEnumerable<GlsError> missingReferenceErrors, IEnumerable<GlsError> labelNameErrors, IEnumerable<GlsError> refTypeErrors,
+            IEnumerable<GlsError> missingCitationErrors)
+        {
             var isIgnored = this.allErrors.AddRangeIfPossibleAndReturnErrors(acrLongErrors, this.persistentIgnoredErrors);
             isIgnored.AddRange(this.allErrors.AddRangeIfPossibleAndReturnErrors(missingGlsErrors, this.persistentIgnoredErrors));
             isIgnored.AddRange(this.allErrors.AddRangeIfPossibleAndReturnErrors(tableErrors, this.persistentIgnoredErrors));
             isIgnored.AddRange(this.allErrors.AddRangeIfPossibleAndReturnErrors(missingReferenceErrors, this.persistentIgnoredErrors));
             isIgnored.AddRange(this.allErrors.AddRangeIfPossibleAndReturnErrors(labelNameErrors, this.persistentIgnoredErrors));
             isIgnored.AddRange(this.allErrors.AddRangeIfPossibleAndReturnErrors(refTypeErrors, this.persistentIgnoredErrors));
+            isIgnored.AddRange(this.allErrors.AddRangeIfPossibleAndReturnErrors(missingCitationErrors, this.persistentIgnoredErrors));
 
             this.transientIgnoredErrors = isIgnored;
             this.persistentIgnoredErrors.AddRange(isIgnored);

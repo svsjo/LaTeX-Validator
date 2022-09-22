@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows.Shapes;
+using static Microsoft.WindowsAPICodePack.Shell.PropertySystem.SystemProperties.System;
 
 namespace LaTeX_Validator;
 
@@ -13,6 +14,47 @@ public class FileParser
     public FileParser(FileExtractor fileExtractor1)
     {
         this.fileExtractor = fileExtractor1;
+    }
+
+    public IEnumerable<GlsError> FindMissingCitations(List<string> files,
+                                                      List<(string label, string file, int line, int pos)> allCitationEntries)
+    {
+        var regexPattern = @"\\cite{(.*?)}";
+        var regex = new Regex(regexPattern, RegexOptions.Compiled);
+
+        foreach (var file in files)
+        {
+            var allLines = this.fileExtractor.GetAllLinesFromFile(file);
+
+            foreach (var line in allLines)
+            {
+                var matches = regex.Matches(line.Content);
+
+                foreach (Match match in matches)
+                {
+                    var groups = match.Groups;
+                    if(groups.Count < 2) continue;
+
+                    var label = groups[1].Value;
+                    var entry = allCitationEntries.FirstOrDefault(ent => ent.label == label);
+                    if(entry != default) allCitationEntries.Remove(entry);
+                }
+            }
+        }
+
+        foreach (var entry in allCitationEntries)
+        {
+            yield return new GlsError()
+                         {
+                             WordContent = entry.label,
+                             ActualForm = GlsType.CitationLabel,
+                             ErrorType = ErrorType.MissingCitation,
+                             File = entry.file,
+                             Line = entry.line,
+                             LinePosition = entry.pos,
+                             ErrorStatus = ErrorStatus.NotIgnored
+                         };
+        }
     }
 
     /// <summary>

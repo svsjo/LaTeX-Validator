@@ -22,5 +22,7 @@ public enum ErrorType
     [EnumExtension("Kein Autoref verwendet")]
     WrongRefType,
     [EnumExtension("Serialisierungsfehler")]
-    Serialize
+    Serialize,
+    [EnumExtension("Quelle nie angegeben")]
+    MissingCitation
 }

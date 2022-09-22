@@ -22,5 +22,7 @@ public enum GlsType
     [EnumExtension("Label")]
     Label,
     [EnumExtension("Serialisierungsfehler")]
-    Serialize
+    Serialize,
+    [EnumExtension("Quell-Label")]
+    CitationLabel
 }

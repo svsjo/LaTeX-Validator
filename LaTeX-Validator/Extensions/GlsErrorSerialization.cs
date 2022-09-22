@@ -75,6 +75,7 @@ internal static class GlsErrorSerialization
             "MissingRef" => ErrorType.MissingRef,
             "LabelNaming" => ErrorType.LabelNaming,
             "WrongRefType" => ErrorType.WrongRefType,
+            "MissingCitation" => ErrorType.MissingCitation,
             _ => ErrorType.Serialize
         };
 
@@ -90,6 +91,7 @@ internal static class GlsErrorSerialization
             "Gls" => GlsType.Gls,
             "None" => GlsType.None,
             "Label" => GlsType.Label,
+            "CitationLabel" => GlsType.CitationLabel,
             _ => GlsType.Serialize
         };
 
