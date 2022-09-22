@@ -24,7 +24,7 @@
                     <ListView.View>
                         <GridView>
                             <GridViewColumn Header="Wort" Width="220" DisplayMemberBinding="{Binding WordContent}" />
-                            <GridViewColumn Header="Aktuelle Form" Width="200" DisplayMemberBinding="{Binding ActualForm}" />
+                            <GridViewColumn Header="Aktuelle Form" Width="200" DisplayMemberBinding="{Binding FormText}" />
                             <GridViewColumn Header="Problem" Width="300" DisplayMemberBinding="{Binding ErrorText}" />
                             <GridViewColumn Header="Datei" Width="740" DisplayMemberBinding="{Binding File}" />
                             <GridViewColumn Header="Zeile" Width="80" DisplayMemberBinding="{Binding Line}" />
