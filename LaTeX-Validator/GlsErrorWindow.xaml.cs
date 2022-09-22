@@ -46,7 +46,7 @@ namespace LaTeX_Validator
             this.RefOptionPicker.IsChecked = this.configuration.ignoreSectionLabels;
 
             var text = this.configuration.ignoreFilesWithMissingGls?.Cast<string>().ToList();
-            this.IgnorableFilesMissingGlsBox.Text = text?.Aggregate((x, y) => x + ", " + y);
+            this.IgnorableFilesMissingGlsBox.Text = text?.Aggregate((x, y) => x + "\n" + y);
         }
 
         private void InitializeFromPersistentData()
@@ -217,7 +217,7 @@ namespace LaTeX_Validator
             }
 
             var text = this.configuration.ignoreFilesWithMissingGls.Cast<string>().ToList();
-            this.IgnorableFilesMissingGlsBox.Text = text.Any() ? text.Aggregate((x, y) => x + ", " + y) : "";
+            this.IgnorableFilesMissingGlsBox.Text = text.Any() ? text.Aggregate((x, y) => x + "\n" + y) : "";
         }
 
         private void OnWindowClosing(object sender, CancelEventArgs e)

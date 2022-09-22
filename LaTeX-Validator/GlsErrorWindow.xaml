@@ -28,7 +28,7 @@
                     <Button Click="SelectPreambleDirectory" Margin="10,0,0,0" Width="130">Verzeichnis auswählen</Button>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Text="Ignoriere Dateien:   \gls fehlt" VerticalAlignment="Top" Width="120" Height="34"/>
+                    <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Text="Ignoriere Dateien:  \gls fehlt  (Toggle)" VerticalAlignment="Top" Width="120" Height="34"/>
                     <TextBox Focusable="False" HorizontalAlignment="Left" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="700" Height="34" Name="IgnorableFilesMissingGlsBox"/>
                     <Button Click="ButtonFilesIgnore_Clicked" Margin="10,0,0,0" Width="130">Dateien auswählen</Button>
                 </StackPanel>
