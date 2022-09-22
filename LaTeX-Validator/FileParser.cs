@@ -92,10 +92,10 @@ public class FileParser
 
             foreach (var element in possiblyMissingWords)
             {
-                var regexPatternLabel = @"\\.*({|=)(.*?)" + element.word + "(.*?)(}|])";
-                var regex = new Regex(regexPatternLabel, RegexOptions.Compiled);
+                var regexPatternToIgnore = @"\\.*({|=)(.*?)" + element.word + "(.*?)(}|])";
+                var regexToIgnore = new Regex(regexPatternToIgnore, RegexOptions.Compiled);
 
-                foreach (var line in element.lines.Where(line => !regex.IsMatch(line.Content)))
+                foreach (var line in element.lines.Where(line => !regexToIgnore.IsMatch(line.Content)))
                 {
                     var type = allAcronymEntries.Select(x => x.Short).Any(x => x == element.word) ?
                                    GlsType.AcrShort : allAcronymEntries.Select(x => x.Long).Any(x => x == element.word) ?
@@ -181,6 +181,27 @@ public class FileParser
                                   File = element.file,
                                   Line = element.line
                               });
+        }
+    }
+
+    public IEnumerable<GlsError> FindLabelNamingErrors(List<string> files)
+    {
+        var allLabels = this.GetAllLabels(files).ToList();
+        var possiblePres = new List<string>() { "chap:", "sec:", "subsec:", "fig:", "table:", "lst:", "label" };
+        var problematicLabels = allLabels
+            .Where(label => possiblePres
+                       .All(pre => !label.label.Contains(pre)));
+
+        foreach (var problematicLabel in problematicLabels)
+        {
+            yield return (new GlsError()
+                          {
+                              WordContent = problematicLabel.label,
+                              ActualForm = GlsType.Label,
+                              ErrorType = ErrorType.LabelNaming,
+                              File = problematicLabel.file,
+                              Line = problematicLabel.line
+                          });
         }
     }
 

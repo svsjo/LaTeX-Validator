@@ -120,6 +120,7 @@ namespace LaTeX_Validator
             this.allErrors.AddRange(this.fileParser.FindMissingGlsErrors(allFiles, allAcronymEntries, allGlossaryEntries.ToList()));
             this.allErrors.AddRange(this.fileParser.FindTablesErrors(allFiles, allAcronymEntries));
             this.allErrors.AddRange(this.fileParser.FindMissingReferencesErrors(allFiles, this.configuration.ignoreSectionLabels));
+            this.allErrors.AddRange(this.fileParser.FindLabelNamingErrors(allFiles));
         }
 
         private void ShowMessageBox()
