@@ -31,11 +31,11 @@ von Jonas Weis und Jonathan Schwab
 - Selektierbar, ob verschiedene Label(Chapter, Section, ...) ignoriert werden (togglebar)
 - Anzeige der Verwendung von \ref statt \autoref
  
- ## Fehlende Zitation von Quellen
- - Auslesen aller Labels der Quellen
- - Überprüfung ob alle zitiert wurden
- - TODO:
-  - Labels ignorierbar machen
+## Fehlende Zitation von Quellen
+- Auslesen aller Labels der Quellen
+- Überprüfung ob alle zitiert wurden
+- TODO:
+  - Auswahl ob case sensitiv
   
 # Nacharbeit
 - Alle Fehler angezeigt inklusive Datei, Zeile und Position
