@@ -13,4 +13,5 @@ public class CitationEntry
     public string? file { get; set; }
     public int line { get; set; }
     public int pos { get; set; }
+    public string? type { get; set; }
 }

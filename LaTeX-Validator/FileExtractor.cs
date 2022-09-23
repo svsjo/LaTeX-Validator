@@ -91,7 +91,8 @@ public class FileExtractor
                                  label = groups[2].ToString(),
                                  file = path,
                                  line = line.Number,
-                                 pos = match.Index
+                                 pos = match.Index,
+                                 type = groups[1].ToString()
                              };
             }
         }

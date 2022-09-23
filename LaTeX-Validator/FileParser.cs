@@ -23,7 +23,7 @@ public class FileParser
 
         foreach (var file in files)
         {
-            var allLines = this.fileExtractor.GetAllLinesFromFile(file);
+            var allLines = this.fileExtractor.GetAllLinesFromFile(file).ToList();
 
             foreach (var line in allLines)
             {
@@ -45,7 +45,8 @@ public class FileParser
                                          File = file,
                                          Line = line.Number,
                                          LinePosition = match.Index,
-                                         ErrorStatus = ErrorStatus.NotIgnored
+                                         ErrorStatus = ErrorStatus.NotIgnored,
+                                         DirectSuroundings = this.GetDirectSuroundings(line.Content, match.Value)
                                      };
                     }
                 }
@@ -60,7 +61,7 @@ public class FileParser
 
         foreach (var file in files)
         {
-            var allLines = this.fileExtractor.GetAllLinesFromFile(file);
+            var allLines = this.fileExtractor.GetAllLinesFromFile(file).ToList();
 
             foreach (var line in allLines)
             {
@@ -90,8 +91,9 @@ public class FileParser
                              File = entry.file,
                              Line = entry.line,
                              LinePosition = entry.pos,
-                             ErrorStatus = ErrorStatus.NotIgnored
-                         };
+                             ErrorStatus = ErrorStatus.NotIgnored,
+                             DirectSuroundings = $"@{entry.type}{{{entry.label},"
+            };
         }
     }
 
@@ -104,7 +106,7 @@ public class FileParser
     {
         foreach (var file in files)
         {
-            var allLines = this.fileExtractor.GetAllLinesFromFile(file);
+            var allLines = this.fileExtractor.GetAllLinesFromFile(file).ToList();
             var affectedLines = allLines
                                 .Where(line => allAcronymEntries
                                            .Any(entry => line.Content.Contains($"{{{entry.Label}}}")))
@@ -138,7 +140,8 @@ public class FileParser
                                       File = file,
                                       Line = line.number,
                                       LinePosition = match.Index,
-                                      ErrorStatus = ErrorStatus.NotIgnored
+                                      ErrorStatus = ErrorStatus.NotIgnored,
+                                      DirectSuroundings = this.GetDirectSuroundings(line.content, line.label)
                     });
                 }
             }
@@ -152,7 +155,7 @@ public class FileParser
     {
         foreach (var file in files)
         {
-            var allLines = this.fileExtractor.GetAllLinesFromFile(file);
+            var allLines = this.fileExtractor.GetAllLinesFromFile(file).ToList();
             var allEntriesConcatinated = allGlossaryEntries
                 .Concat(allAcronymEntries
                         .Select(x => x.Long)
@@ -192,7 +195,8 @@ public class FileParser
                                       File = file,
                                       Line = line.Number,
                                       LinePosition = line.Content.IndexOf(element.word, StringComparison.Ordinal),
-                                      ErrorStatus = ErrorStatus.NotIgnored
+                                      ErrorStatus = ErrorStatus.NotIgnored,
+                                      DirectSuroundings = this.GetDirectSuroundings(line.Content, element.word)
                     });
                 }
             }
@@ -232,7 +236,8 @@ public class FileParser
                                   File = file,
                                   Line = line.number,
                                   LinePosition = line.fullLine.Content.IndexOf(line.content, StringComparison.Ordinal),
-                                  ErrorStatus = ErrorStatus.NotIgnored
+                                  ErrorStatus = ErrorStatus.NotIgnored,
+                                  DirectSuroundings = this.GetDirectSuroundings(line.content, line.content)
                 });
             }
         }
@@ -269,9 +274,10 @@ public class FileParser
                               ActualForm = GlsType.Label,
                               ErrorType = ErrorType.MissingRef,
                               File = element.file,
-                              Line = element.line,
+                              Line = element.line.Number,
                               LinePosition = element.pos,
-                              ErrorStatus = ErrorStatus.NotIgnored
+                              ErrorStatus = ErrorStatus.NotIgnored,
+                              DirectSuroundings = this.GetDirectSuroundings(element.line.Content, element.label)
                           });
         }
     }
@@ -289,9 +295,10 @@ public class FileParser
                               ActualForm = GlsType.Label,
                               ErrorType = ErrorType.WrongRefType,
                               File = element.file,
-                              Line = element.line,
+                              Line = element.line.Number,
                               LinePosition = element.pos,
-                              ErrorStatus = ErrorStatus.NotIgnored
+                              ErrorStatus = ErrorStatus.NotIgnored,
+                              DirectSuroundings = this.GetDirectSuroundings(element.line.Content, element.label)
             });
         }
     }
@@ -307,7 +314,8 @@ public class FileParser
         var possiblePres = new List<string>() { "chap:", "sec:", "subsec:", "fig:", "table:", "lst:", "label" };
         var problematicLabels = allLabels
             .Where(label => possiblePres
-                       .All(pre => !label.label.Contains(pre)));
+                       .All(pre => !label.label.Contains(pre)))
+            .ToList();
 
         foreach (var problematicLabel in problematicLabels)
         {
@@ -317,15 +325,33 @@ public class FileParser
                               ActualForm = GlsType.Label,
                               ErrorType = ErrorType.LabelNaming,
                               File = problematicLabel.file,
-                              Line = problematicLabel.line,
+                              Line = problematicLabel.line.Number,
                               LinePosition = problematicLabel.pos,
-                              ErrorStatus = ErrorStatus.NotIgnored
+                              ErrorStatus = ErrorStatus.NotIgnored,
+                              DirectSuroundings = this.GetDirectSuroundings(problematicLabel.line.Content, problematicLabel.label)
             });
         }
     }
 
 
     #region HelperMethods
+
+    private string GetDirectSuroundings(string line, string word)
+    {
+        var position = line.IndexOf(word, StringComparison.Ordinal);
+
+        var range = (80 - word.Length) / 2;
+
+        var min = position - range;
+        if (min < 0) min = 0;
+
+        var max = position + range + word.Length;
+        if (max > line.Length) max = line.Length;
+
+        var length = max - min;
+
+        return line.Substring(min, length);
+    }
 
     private IEnumerable<Line> GetAllLinesWithCaption(List<Line> allLines)
     {
@@ -349,7 +375,7 @@ public class FileParser
         return linesWithCaption;
     }
 
-    private IEnumerable<(string label, string file, int line, int pos)> GetAllLabels(List<string> files)
+    private IEnumerable<(string label, string file, Line line, int pos)> GetAllLabels(List<string> files)
     {
         const string regexPatternLabel = @"label({|=)(.*?)(}|])";
         var regexLabel = new Regex(regexPatternLabel, RegexOptions.Compiled);
@@ -367,14 +393,14 @@ public class FileParser
 
                     if (labelGroups is { Count: > 2 })
                     {
-                        yield return (labelGroups[2].Value, file, line.Number, labelMatch.Index);
+                        yield return (labelGroups[2].Value, file, line, labelMatch.Index);
                     }
                 }
             }
         }
     }
 
-    private IEnumerable<(string label, RefType refType, string file, int line, int pos)> GetAllRefs(List<string> files)
+    private IEnumerable<(string label, RefType refType, string file, Line line, int pos)> GetAllRefs(List<string> files)
     {
         const string regexPatternRef = @"\\(.*?)ref{(.*?)}";
         var regexRef = new Regex(regexPatternRef, RegexOptions.Compiled);
@@ -394,7 +420,7 @@ public class FileParser
 
                     var refType = string.IsNullOrEmpty(refGroups[1].Value) ? RefType.Normal : RefType.Auto;
 
-                    yield return (refGroups[2].Value, refType, file, line.Number, refMatch.Index);
+                    yield return (refGroups[2].Value, refType, file, line, refMatch.Index);
                 }
             }
         }

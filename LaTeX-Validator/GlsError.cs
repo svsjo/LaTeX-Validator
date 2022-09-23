@@ -21,6 +21,7 @@ public class GlsError
     public int LinePosition { get; set; } = 0;
     public ErrorStatus ErrorStatus { get; set; }
     public string? ErrorStatusText => this.ErrorStatus.GetStringValue();
+    public string? DirectSuroundings { get; set; }
 
     public bool IsEqual(GlsError glsError)
     {
@@ -28,6 +29,10 @@ public class GlsError
         if (this.ActualForm != glsError.ActualForm) return false;
         if (this.ErrorType != glsError.ErrorType) return false;
         if (this.File != glsError.File) return false;
+
+        if (glsError.ErrorType is ErrorType.MissingRef or ErrorType.LabelNaming or ErrorType.MissingCitation) return true;
+
+        if (this.DirectSuroundings != glsError.DirectSuroundings) return false;
         if (this.Line != glsError.Line) return false;
         if (this.LinePosition != glsError.LinePosition) return false;
 

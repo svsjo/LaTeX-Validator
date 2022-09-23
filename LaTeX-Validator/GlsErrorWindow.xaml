@@ -6,7 +6,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:LaTeX_Validator"
         mc:Ignorable="d"
-        Title="GlsErrorWindow" Height="800" Width="1800"
+        Title="GlsErrorWindow" Height="1080" Width="1980"
+        WindowStartupLocation="CenterScreen" WindowState="Maximized"
         Closing="OnWindowClosing">
     <Grid>
         <local:PopupDialog Panel.ZIndex="1" Visibility="Hidden" x:Name="PopupDialog" WindowIsClosing="PopupDialog_OnWindowIsClosing"></local:PopupDialog>
@@ -34,12 +35,12 @@
                     <Button Click="SelectPreambleDirectory" Margin="10,0,0,0" Width="130">Verzeichnis auswählen</Button>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Text="Ignoriere Dateien:  \gls fehlt  (Toggle)" VerticalAlignment="Top" Width="120" Height="34"/>
-                    <TextBox Focusable="False" HorizontalAlignment="Left" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="700" Height="34" Name="IgnorableFilesMissingGlsBox"/>
+                    <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Text="Ignoriere Dateien:  \gls fehlt  (Toggle)" VerticalAlignment="Top" Width="120" Height="52"/>
+                        <TextBox Focusable="False" HorizontalAlignment="Left" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="700" Height="52" Name="IgnorableFilesMissingGlsBox"/>
                     <Button Click="SelectIgnorableFilesGls" Margin="10,0,0,0" Width="130">Dateien auswählen</Button>
                 </StackPanel>
             </StackPanel>
-            <Rectangle VerticalAlignment="Stretch" Width="2" Margin="20,0,20,0" Stroke="Black" />
+            <Rectangle VerticalAlignment="Stretch" Width="2" Margin="40,0,40,0" Stroke="Black" />
             <StackPanel Orientation="Vertical">
                 <StackPanel Orientation="Horizontal">
                     <CheckBox Margin="0,0,5,0" Click="PickerRefOption_Clicked" Name="RefOptionPicker"></CheckBox>
@@ -65,30 +66,31 @@
                     </StackPanel>
                 </StackPanel>
             </StackPanel>
-            <Rectangle VerticalAlignment="Stretch" Width="2" Margin="20,0,20,0" Stroke="Black" />
-            <Button Content="Starte Analyse" HorizontalAlignment="Left" VerticalAlignment="Center" RenderTransformOrigin="-0.058,0.063" Width="300" Height="40" Click="ButtonStart_Click"/>
+            <Rectangle VerticalAlignment="Stretch" Width="2" Margin="40,0,40,0" Stroke="Black" />
+            <Button Content="Starte Analyse" HorizontalAlignment="Left" VerticalAlignment="Center" RenderTransformOrigin="-0.058,0.063" Width="360" Height="40" Click="ButtonStart_Click"/>
         </StackPanel>
-            <Grid Height="630">
+            <Grid Height="865">
                 <ListView Name="lvGlsError">
                     <ListView.View>
                         <GridView>
-                            <GridViewColumn Header="Wort" Width="220" DisplayMemberBinding="{Binding WordContent}" />
-                            <GridViewColumn Header="Aktuelle Form" Width="200" DisplayMemberBinding="{Binding FormText}" />
-                            <GridViewColumn Header="Problem" Width="300" DisplayMemberBinding="{Binding ErrorText}" />
-                            <GridViewColumn Header="Datei" Width="700" DisplayMemberBinding="{Binding File}" />
-                            <GridViewColumn Header="Zeile" Width="60" DisplayMemberBinding="{Binding Line}" />
-                            <GridViewColumn Header="Position" Width="60" DisplayMemberBinding="{Binding LinePosition}" />
+                            <GridViewColumn Header="Wort" Width="180" DisplayMemberBinding="{Binding WordContent}" />
+                            <GridViewColumn Header="Aktuelle Form" Width="120" DisplayMemberBinding="{Binding FormText}" />
+                            <GridViewColumn Header="Problem" Width="160" DisplayMemberBinding="{Binding ErrorText}" />
+                            <GridViewColumn Header="Umgebung" Width="490" DisplayMemberBinding="{Binding DirectSuroundings}"></GridViewColumn>
+                            <GridViewColumn Header="Datei" Width="670" DisplayMemberBinding="{Binding File}" />
+                            <GridViewColumn Header="Zeile" Width="40" DisplayMemberBinding="{Binding Line}" />
+                            <GridViewColumn Header="Pos" Width="40" DisplayMemberBinding="{Binding LinePosition}" />
                             <GridViewColumn Header="Auswahl" Width="100">
                                 <GridViewColumn.CellTemplate>
                                 <DataTemplate>
-                                    <Button Content="Springe zu" Width="85" Click="ButtonJump_Clicked" />
+                                    <Button Content="Springe zu" Width="88" Click="ButtonJump_Clicked" />
                                 </DataTemplate>
                                 </GridViewColumn.CellTemplate>
                             </GridViewColumn>
-                            <GridViewColumn Header="Ignorieren" Width="115">
+                            <GridViewColumn Header="Ignorieren" Width="100">
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
-                                        <Button Width="100" Click="ButtonIgnore_Clicked" Content="{Binding ErrorStatusText}"/>
+                                        <Button Width="88" Click="ButtonIgnore_Clicked" Content="{Binding ErrorStatusText}"/>
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>
                             </GridViewColumn>
