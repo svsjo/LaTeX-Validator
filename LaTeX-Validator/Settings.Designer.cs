@@ -130,5 +130,39 @@ namespace LaTeX_Validator {
                 this["BibPath"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        public global::System.Collections.Specialized.StringCollection LabelsToIgnore {
+            get {
+                return ((global::System.Collections.Specialized.StringCollection)(this["LabelsToIgnore"]));
+            }
+            set {
+                this["LabelsToIgnore"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        public global::System.Collections.Specialized.StringCollection FillWords {
+            get {
+                return ((global::System.Collections.Specialized.StringCollection)(this["FillWords"]));
+            }
+            set {
+                this["FillWords"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool SearchFillWords {
+            get {
+                return ((bool)(this["SearchFillWords"]));
+            }
+            set {
+                this["SearchFillWords"] = value;
+            }
+        }
     }
 }

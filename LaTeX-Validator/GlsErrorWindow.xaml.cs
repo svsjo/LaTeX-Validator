@@ -51,9 +51,11 @@ namespace LaTeX_Validator
             this.GlossaryPathBox.Text = this.configuration.glossaryPath;
             this.RefOptionPicker.IsChecked = this.configuration.ignoreSectionLabels;
             this.BibliographiePathBox.Text = this.configuration.bibPath;
+            this.PopupDialog.FillwordsBox.Text = this.configuration.fillWords?.AggregateToString();
+            this.PopupDialog.LabelsBox.Text = this.configuration.labelsToIgnore?.AggregateToString();
 
-            var text = this.configuration.ignoreFilesWithMissingGls?.Cast<string>().ToList();
-            this.IgnorableFilesMissingGlsBox.Text = text?.Aggregate((x, y) => x + "\n" + y);
+            var text = this.configuration.ignoreFilesWithMissingGls.ToList();
+            this.IgnorableFilesMissingGlsBox.Text = text.Aggregate((x, y) => x + "\n" + y);
         }
 
         private void InitializeFromPersistentData()
@@ -67,6 +69,9 @@ namespace LaTeX_Validator
             this.configuration.showIgnoredErrors = Settings.Default.ShowIgnoredErrors;
             this.persistentIgnoredErrors = Settings.Default.SerialzedGlsErrors.Deserialize();
             this.configuration.bibPath = Settings.Default.BibPath;
+            this.configuration.labelsToIgnore = Settings.Default.LabelsToIgnore;
+            this.configuration.fillWords = Settings.Default.FillWords;
+            this.configuration.searchFillWords = Settings.Default.SearchFillWords;
         }
 
         private void OnWindowClosing(object sender, CancelEventArgs e)
@@ -79,6 +84,9 @@ namespace LaTeX_Validator
             Settings.Default.IgnoreSettingsFile = this.configuration.ignoreSettingsFile;
             Settings.Default.ShowIgnoredErrors = this.configuration.showIgnoredErrors;
             Settings.Default.BibPath = this.configuration.bibPath;
+            Settings.Default.LabelsToIgnore = this.configuration.labelsToIgnore;
+            Settings.Default.FillWords = this.configuration.fillWords;
+            Settings.Default.SearchFillWords = this.configuration.searchFillWords;
             Settings.Default.SerialzedGlsErrors = this.persistentIgnoredErrors.Serialize();
             Settings.Default.Save();
         }
@@ -105,11 +113,17 @@ namespace LaTeX_Validator
             this.configuration.ignoreSettingsFile = checkBox?.IsChecked ?? false;
         }
 
+        private void PickerShowFillwords_Clicked(object sender, RoutedEventArgs e)
+        {
+            var checkBox = sender as CheckBox;
+            this.configuration.searchFillWords = checkBox?.IsChecked ?? false;
+        }
+
         private void ButtonJump_Clicked(object sender, RoutedEventArgs e)
         {
             var button = sender as Button;
             if (button?.DataContext is not GlsError data) return;
-            this.JumpToError(data.File, data.Line, data.LinePosition);
+            this.JumpToError(data.File!, data.Line, data.LinePosition);
         }
 
         private void ButtonIgnore_Clicked(object sender, RoutedEventArgs e)
@@ -133,6 +147,22 @@ namespace LaTeX_Validator
                 this.persistentIgnoredErrors.Remove(data);
                 this.allErrors.Add(data);
             }
+        }
+
+        private void SelectFillwords_Clicked(object sender, RoutedEventArgs e)
+        {
+            this.PopupDialog.Visibility = Visibility.Visible;
+        }
+
+        private void SelectLabelsToIgnore_Clicked(object sender, RoutedEventArgs e)
+        {
+            this.PopupDialog.Visibility = Visibility.Visible;
+        }
+
+        private void PopupDialog_OnWindowIsClosing(string labelsToIgnore, string fillWords)
+        {
+            this.configuration.labelsToIgnore = labelsToIgnore.ToStringCollection();
+            this.configuration.fillWords = fillWords.ToStringCollection();
         }
 
         private void PickerShowIgnoredErrors_Clicked(object sender, RoutedEventArgs e)
@@ -228,7 +258,7 @@ namespace LaTeX_Validator
                 else this.configuration.ignoreFilesWithMissingGls.Add(dialogFileName);
             }
 
-            var text = this.configuration.ignoreFilesWithMissingGls.Cast<string>().ToList();
+            var text = this.configuration.ignoreFilesWithMissingGls.ToList();
             this.IgnorableFilesMissingGlsBox.Text = text.Any() ? text.Aggregate((x, y) => x + "\n" + y) : "";
         }
 
@@ -249,6 +279,7 @@ namespace LaTeX_Validator
                                               WindowStyle = ProcessWindowStyle.Hidden
                                           }
                           };
+
             process.Start();
         }
 
@@ -274,30 +305,44 @@ namespace LaTeX_Validator
 
             var missingGlsFiles = this.configuration.ignoreFilesWithMissingGls == null || !this.configuration.ignoreSettingsFile ?
                                       allFiles : allFiles
-                                                 .Except(this.configuration.ignoreFilesWithMissingGls.Cast<string>())
+                                                 .Except(this.configuration.ignoreFilesWithMissingGls.ToList())
                                                  .ToList();
 
             this.ActualisateErrors(this.fileParser.FindAcrLongErrors(beforeFiles, allAcronymEntries),
                                    this.fileParser.FindMissingGlsErrors(missingGlsFiles, allAcronymEntries, allGlossaryEntries),
                                    this.fileParser.FindTablesErrors(allFiles, allAcronymEntries),
-                                   this.fileParser.FindMissingReferencesErrors(allFiles, this.configuration.ignoreSectionLabels),
+                                   this.fileParser.FindMissingReferencesErrors(allFiles,
+                                                                               this.configuration.ignoreSectionLabels,
+                                                                               this.configuration.labelsToIgnore.ToList()),
                                    this.fileParser.FindLabelNamingErrors(allFiles),
                                    this.fileParser.FindWrongRefUsage(allFiles),
-                                   this.fileParser.FindMissingCitations(allFiles, allCitationEntries));
+                                   this.fileParser.FindMissingCitations(allFiles, allCitationEntries,
+                                           this.configuration.labelsToIgnore.ToList()),
+                                   this.fileParser.FindFillWords(allFiles, this.configuration.fillWords.ToList(),
+                                                                 this.configuration.searchFillWords));
         }
 
         private void ActualisateErrors(
             IEnumerable<GlsError> acrLongErrors, IEnumerable<GlsError> missingGlsErrors, IEnumerable<GlsError> tableErrors,
             IEnumerable<GlsError> missingReferenceErrors, IEnumerable<GlsError> labelNameErrors, IEnumerable<GlsError> refTypeErrors,
-            IEnumerable<GlsError> missingCitationErrors)
+            IEnumerable<GlsError> missingCitationErrors, IEnumerable<GlsError> fillWordErrors)
         {
-            var isIgnored = this.allErrors.AddRangeIfPossibleAndReturnErrors(acrLongErrors, this.persistentIgnoredErrors);
-            isIgnored.AddRange(this.allErrors.AddRangeIfPossibleAndReturnErrors(missingGlsErrors, this.persistentIgnoredErrors));
-            isIgnored.AddRange(this.allErrors.AddRangeIfPossibleAndReturnErrors(tableErrors, this.persistentIgnoredErrors));
-            isIgnored.AddRange(this.allErrors.AddRangeIfPossibleAndReturnErrors(missingReferenceErrors, this.persistentIgnoredErrors));
-            isIgnored.AddRange(this.allErrors.AddRangeIfPossibleAndReturnErrors(labelNameErrors, this.persistentIgnoredErrors));
-            isIgnored.AddRange(this.allErrors.AddRangeIfPossibleAndReturnErrors(refTypeErrors, this.persistentIgnoredErrors));
-            isIgnored.AddRange(this.allErrors.AddRangeIfPossibleAndReturnErrors(missingCitationErrors, this.persistentIgnoredErrors));
+            var isIgnored = this.allErrors
+                                .AddRangeIfPossibleAndReturnErrors(acrLongErrors, this.persistentIgnoredErrors);
+            isIgnored.AddRange(this.allErrors
+                                   .AddRangeIfPossibleAndReturnErrors(missingGlsErrors, this.persistentIgnoredErrors));
+            isIgnored.AddRange(this.allErrors
+                                   .AddRangeIfPossibleAndReturnErrors(tableErrors, this.persistentIgnoredErrors));
+            isIgnored.AddRange(this.allErrors
+                                   .AddRangeIfPossibleAndReturnErrors(missingReferenceErrors, this.persistentIgnoredErrors));
+            isIgnored.AddRange(this.allErrors
+                                   .AddRangeIfPossibleAndReturnErrors(labelNameErrors, this.persistentIgnoredErrors));
+            isIgnored.AddRange(this.allErrors
+                                   .AddRangeIfPossibleAndReturnErrors(refTypeErrors, this.persistentIgnoredErrors));
+            isIgnored.AddRange(this.allErrors
+                                   .AddRangeIfPossibleAndReturnErrors(missingCitationErrors, this.persistentIgnoredErrors));
+            isIgnored.AddRange(this.allErrors
+                                   .AddRangeIfPossibleAndReturnErrors(fillWordErrors, this.persistentIgnoredErrors));
 
             this.transientIgnoredErrors = isIgnored;
             this.persistentIgnoredErrors.AddRange(isIgnored);

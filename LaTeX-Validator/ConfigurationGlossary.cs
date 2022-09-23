@@ -12,6 +12,8 @@ namespace LaTeX_Validator
         public string? preambleDirectoryPath { get; set; }
         public string? bibPath { get; set; }
         public StringCollection? ignoreFilesWithMissingGls { get; set; }
+        public StringCollection? fillWords { get; set; }
+        public StringCollection? labelsToIgnore { get; set; }
 
         #endregion
 
@@ -20,6 +22,7 @@ namespace LaTeX_Validator
         public bool ignoreSectionLabels { get; set; }
         public bool ignoreSettingsFile { get; set; }
         public bool showIgnoredErrors { get; set; }
+        public bool searchFillWords { get; set; }
 
         #endregion
 

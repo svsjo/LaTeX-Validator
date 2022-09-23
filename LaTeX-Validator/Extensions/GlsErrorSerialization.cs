@@ -76,6 +76,7 @@ internal static class GlsErrorSerialization
             "LabelNaming" => ErrorType.LabelNaming,
             "WrongRefType" => ErrorType.WrongRefType,
             "MissingCitation" => ErrorType.MissingCitation,
+            "IsFillWord" => ErrorType.IsFillWord,
             _ => ErrorType.Serialize
         };
 
@@ -92,6 +93,7 @@ internal static class GlsErrorSerialization
             "None" => GlsType.None,
             "Label" => GlsType.Label,
             "CitationLabel" => GlsType.CitationLabel,
+            "Fillword" => GlsType.Fillword,
             _ => GlsType.Serialize
         };
 

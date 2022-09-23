@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows.Shapes;
@@ -16,7 +17,43 @@ public class FileParser
         this.fileExtractor = fileExtractor1;
     }
 
-    public IEnumerable<GlsError> FindMissingCitations(List<string> files, List<CitationEntry> allCitationEntries)
+    public IEnumerable<GlsError> FindFillWords(List<string> files, List<string> fillWords, bool doSearch)
+    {
+        if (!doSearch) yield break;
+
+        foreach (var file in files)
+        {
+            var allLines = this.fileExtractor.GetAllLinesFromFile(file);
+
+            foreach (var line in allLines)
+            {
+                var foundFillWords = fillWords.Where(word => line.Content.Contains(word));
+
+                foreach (var fillWord in foundFillWords)
+                {
+                    var regexPattern = $" {fillWord} ";
+                    var regex = new Regex(regexPattern, RegexOptions.Compiled);
+                    var matches = regex.Matches(line.Content);
+
+                    foreach (Match match in matches)
+                    {
+                        yield return new GlsError()
+                                     {
+                                         WordContent = match.Value,
+                                         ActualForm = GlsType.Fillword,
+                                         ErrorType = ErrorType.IsFillWord,
+                                         File = file,
+                                         Line = line.Number,
+                                         LinePosition = match.Index,
+                                         ErrorStatus = ErrorStatus.NotIgnored
+                                     };
+                    }
+                }
+            }
+        }
+    }
+
+    public IEnumerable<GlsError> FindMissingCitations(List<string> files, List<CitationEntry> allCitationEntries, List<string> labelsToIgnore)
     {
         var regexPattern = @"\\cite{(.*?)}";
         var regex = new Regex(regexPattern, RegexOptions.Compiled);
@@ -35,6 +72,8 @@ public class FileParser
                     if(groups.Count < 2) continue;
 
                     var label = groups[1].Value;
+                    if(labelsToIgnore.Contains(label)) continue;
+
                     var entry = allCitationEntries.FirstOrDefault(ent => ent.label == label);
                     if(entry != default) allCitationEntries.Remove(entry);
                 }
@@ -203,7 +242,7 @@ public class FileParser
     /// <summary>
     /// Wird auf alle Label von Tabellen, Quellcode und Bildern verwiesen?
     /// </summary>
-    public IEnumerable<GlsError> FindMissingReferencesErrors(List<string> files, bool ignoreSections)
+    public IEnumerable<GlsError> FindMissingReferencesErrors(List<string> files, bool ignoreSections, List<string> labelsToIgnore)
     {
         var allLabels = this.GetAllLabels(files).ToList();
         var allRefs = this.GetAllRefs(files).Select(x => x.label).ToList();
@@ -217,21 +256,23 @@ public class FileParser
 
         foreach (var element in notReferenced)
         {
+            if (labelsToIgnore.Contains(element.label)) continue;
+
             if (ignoreSections)
             {
                 if(element.label.Contains("sec:") || element.label.Contains("chap:") || element.label.Contains("subsec:")) continue;
             }
 
             yield return (new GlsError
-                              {
-                                  WordContent = element.label,
-                                  ActualForm = GlsType.Label,
-                                  ErrorType = ErrorType.MissingRef,
-                                  File = element.file,
-                                  Line = element.line,
-                                  LinePosition = element.pos,
-                                  ErrorStatus = ErrorStatus.NotIgnored
-            });
+                          {
+                              WordContent = element.label,
+                              ActualForm = GlsType.Label,
+                              ErrorType = ErrorType.MissingRef,
+                              File = element.file,
+                              Line = element.line,
+                              LinePosition = element.pos,
+                              ErrorStatus = ErrorStatus.NotIgnored
+                          });
         }
     }
 

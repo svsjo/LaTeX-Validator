@@ -24,5 +24,7 @@ public enum ErrorType
     [EnumExtension("Serialisierungsfehler")]
     Serialize,
     [EnumExtension("Quelle nie angegeben")]
-    MissingCitation
+    MissingCitation,
+    [EnumExtension("Füllwort verwendet")]
+    IsFillWord
 }
