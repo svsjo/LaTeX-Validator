@@ -125,7 +125,7 @@ namespace LaTeX_Validator
             if (button?.DataContext is not GlsError data) return;
             this.JumpToError(data.File!, data.Line, data.LinePosition);
         }
-
+        
         private void ButtonIgnore_Clicked(object sender, RoutedEventArgs e)
         {
             var button = sender as Button;
@@ -149,12 +149,7 @@ namespace LaTeX_Validator
             }
         }
 
-        private void SelectFillwords_Clicked(object sender, RoutedEventArgs e)
-        {
-            this.PopupDialog.Visibility = Visibility.Visible;
-        }
-
-        private void SelectLabelsToIgnore_Clicked(object sender, RoutedEventArgs e)
+        private void SelectFillwordsAndLabels_Clicked(object sender, RoutedEventArgs e)
         {
             this.PopupDialog.Visibility = Visibility.Visible;
         }

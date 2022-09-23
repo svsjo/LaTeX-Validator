@@ -57,15 +57,14 @@
                     <CheckBox Margin="0,0,5,0" Click="PickerShowFillwords_Clicked" Name="IgnoreFillWords"></CheckBox>
                     <TextBlock Text="Definierte Füllworte suchen"></TextBlock>
                 </StackPanel>
-                    <StackPanel Orientation="Horizontal">
-                        <Button Margin="0,0,5,0" Click="SelectFillwords_Clicked" Name="SelectFillwordsButton" Width="15"></Button>
-                    <TextBlock Text="Füllworte definieren (Popup)"></TextBlock>
-                </StackPanel>
                 <StackPanel Orientation="Horizontal">
-                        <Button Margin="0,0,5,0" Click="SelectLabelsToIgnore_Clicked" Name="SelectLabelsToIgnoreButton" Width="15"></Button>
-                    <TextBlock Text="Label definieren zum ignorieren (Popup)"></TextBlock>
+                    <Button Margin="1,0,5,0" Click="SelectFillwordsAndLabels_Clicked" Name="SelectFillwordsAndLabelsButton" Width="14"></Button>
+                        <StackPanel Orientation="Vertical">
+                        <TextBlock Text="Füllworte definieren (Popup)"></TextBlock>
+                        <TextBlock Text="Label definieren zum ignorieren (Popup)"></TextBlock>
+                    </StackPanel>
                 </StackPanel>
-                </StackPanel>
+            </StackPanel>
             <Rectangle VerticalAlignment="Stretch" Width="2" Margin="20,0,20,0" Stroke="Black" />
             <Button Content="Starte Analyse" HorizontalAlignment="Left" VerticalAlignment="Center" RenderTransformOrigin="-0.058,0.063" Width="300" Height="40" Click="ButtonStart_Click"/>
         </StackPanel>

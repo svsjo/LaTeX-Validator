@@ -20,7 +20,7 @@
                 <TextBox Height="100" Name="FillwordsBox"></TextBox>
             </StackPanel>
             <Rectangle HorizontalAlignment="Stretch" Height="3" Margin="20,20,20,20" Stroke="White" Width="940"/>
-            <Button Content="Bestätige" Click="PopupOk_Clicked"></Button>
+            <Button Content="Bestätige" Click="PopupOk_Clicked" Height="50"></Button>
         </StackPanel>
     </Grid>
 </UserControl>
