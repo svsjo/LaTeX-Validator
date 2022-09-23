@@ -19,7 +19,7 @@ von Jonas Weis und Jonathan Schwab
 - Erkennung aller Verwendungen ohne Nutzung von \gls bzw. \acrlong oder \acrshort
 - Dateien durch Klick ignorierbar (togglebar)
 - TODO:
-  - Auswahl ob case sensitiv
+  - Auswahl ob case sensitiv ?
   
 ## Falsche Verwendung von \gls in Figuren
 - Prüfung aller Tabellen, Bilder und Quellcodes auf Verwendung von Glossar/Akronym
@@ -34,8 +34,13 @@ von Jonas Weis und Jonathan Schwab
 ## Fehlende Zitation von Quellen
 - Auslesen aller Labels der Quellen
 - Überprüfung ob alle zitiert wurden
+- Labels sind ignorierbar
+
+## Füllworte finden
+- (Füll-)Worte sind definierbar
+- Definierte sind suchbar (aktuell nur jene mit Leerzeichen davor und danach)
 - TODO:
-  - Labels ignorierbar machen
+  - Suche besser machen (Satzanfang mit einbeziehen, ...)
   
 # Nacharbeit
 - Alle Fehler angezeigt inklusive Datei, Zeile und Position
@@ -43,8 +48,8 @@ von Jonas Weis und Jonathan Schwab
 - Alle Fehler persistent ignorierbar (togglebar)
 
 # Allgemein offen
-- Refactoring der Struktur, ggf. Nutzung MVVM
 - Weitere Funktionalitäten: 
   - Prüfung ob alle Figuren eine Caption haben ?
   - Prüfung auf vorher definierte Füllworte ?
   - Prüfung auf Sätzlange > x ?
+- Teilsatz einblenden
