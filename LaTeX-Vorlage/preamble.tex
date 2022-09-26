@@ -1,0 +1,504 @@
+%%%%%%%%%% Allgemein %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Einstellungen laden
+\input{einstellungen}
+
+% Breitere Abstände zwischen Wörtern erlauben, um zu breite Zeilen zu vermeiden
+% Ähnlich wie sloppypar-Umgebung, wobei diese einen Wert von 3em setzt
+\setlength{\emergencystretch}{1em}
+
+% Sprache
+\usepackage[english,ngerman]{babel}
+\selectlanguage{ngerman}
+
+% Anführungszeichenstil
+\usepackage[style=german,german=quotes]{csquotes}
+
+% Lorem Ipsum
+\usepackage{lipsum}
+
+% erweiterte Schriftgrößenänderungen
+\usepackage{relsize}
+
+% Farben
+\usepackage[table, x11names]{xcolor}
+\usepackage{transparent}
+
+% Grafiken/Bilder
+\usepackage{graphicx}
+\graphicspath{{\imgpath}{\umlpath}}
+\usepackage{subfig}
+
+
+% Standalone-Latex-Dateien einbinden
+\usepackage{standalone}
+
+%Bild fixieren \FloatBarrier
+\usepackage{placeins}
+
+% Programmierte Verktorgrafiken
+\usepackage{tikz}
+\usetikzlibrary{decorations.pathreplacing}
+\usetikzlibrary{backgrounds}
+\usetikzlibrary{calc}
+\usetikzlibrary{arrows.meta}
+\usetikzlibrary{fit}
+\usetikzlibrary{shapes}
+\usetikzlibrary{positioning}
+\usetikzlibrary{arrows}
+\usetikzlibrary{decorations.text}
+\usetikzlibrary{decorations.pathmorphing}
+\usetikzlibrary{automata}
+
+% zusätzliche Aufzählungsarten
+\usepackage{paralist}
+
+% zusätzliche Tabellenfunktionen
+\usepackage{tabularx}
+\usepackage{booktabs}
+\usepackage[flushleft]{threeparttable}
+\usepackage{ltablex}
+\usepackage{multirow}
+\usepackage{multicol}
+\usepackage{longtable}
+\usepackage{makecell}
+\usepackage{ltablex}
+\keepXColumns
+\usepackage{array}
+\newcolumntype{I}{>{\labelitemi~~}l<{}}
+\newcolumntype{P}[1]{>{\centering\arraybackslash}p{#1}} % Zentral in Zelle mit "P{xcm}"
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}} % Links in Zelle mit "L{xcm}"
+\newcolumntype{R}[1]{>{\raggedleft\arraybackslash}p{#1}} % Rechts in Zelle mit "R{xcm}"
+\newcommand{\talign}[2]{\multicolumn{1}{#1}{#2}}
+
+% zusätzliche Aufzählungen
+\usepackage{enumitem}
+
+% mathematische Symbole der American Mathematical Society
+\usepackage{amsfonts}
+\usepackage{amsmath}
+
+% Berechnungen von Längenangaben
+\usepackage{calc}
+
+% Rotation
+\usepackage{rotating}
+
+% Querformat für Seiten
+\usepackage{pdflscape}
+
+% URLs
+\usepackage[hyphens]{url}
+\usepackage[anythingbreaks]{breakurl}
+
+% Hypelinks
+\usepackage[pdfencoding=auto]{hyperref}
+\hypersetup{
+	pdftitle={\titel},			% PDF-Titel
+	pdfauthor={\autor},			% PDF-Autor
+	pdfcreator={LuaLaTeX},
+	breaklinks,
+	hidelinks,					% Links nicht umrahmen
+	bookmarksnumbered=true,		% Überschriftnummerierung im PDF-Inhalt anzeigen
+	pageanchor=true				% \autoref und \cite Zahlen auch als Link darstellen
+}
+\usepackage{bookmark}
+\usepackage{nameref}
+
+% Glossar
+\usepackage[
+toc,				% Verzeichnisse ins Inhaltsverzeichnis aufnehmen
+acronym,			% Abkürzungsverzeichnis
+nonumberlist,		% keine Seitenzahlen in Verzeichnissen
+nogroupskip,		% kein Abstand zwischen Einträgen mit dem gleichen Anfangsbuchstaben
+style=long,			% Verzeichnis als longtable darstellen
+]{glossaries}
+\newglossarystyle{mystyle}{
+	\setglossarystyle{long}
+	\renewenvironment{theglossary}
+	{\begin{longtable}{L{4cm}p{\glsdescwidth+1cm}}
+		\renewcommand{\arraystretch}{1.5}}
+		{\end{longtable}}
+}
+\hyphenation{Programmierung} % Ausnahme: Verhindert die Worttrennung von Programmierung (sah im Glossar blöd aus)
+
+\renewcommand{\glsnamefont}[1]{\textbf{#1}}
+\newcommand{\glsr}[2][]{
+	\glsdisp[#1]{#2}{\glsentryshort{#2} (\glsentrylong{#2})}
+}
+\setacronymstyle{short-long}	% kurz (lang)
+%include pdf to document
+\usepackage{pdfpages}
+
+% BibTex
+\usepackage[
+backend=biber,		% Bibliograhpieprogramm
+bibencoding=utf-8,	% Kodierung
+sortlocale=de_DE,	% Sortiersprache
+bibstyle=ieee,		% Stil des Literaturverzeichnisses
+citestyle=numeric,	% Stil der Referenzen (ieee: [1], [2] | numeric: [1, 2])
+dashed=false		% true: bei mehreren Quellen mit dem selben Author wird ab dem 2. Mal ein Strich (-----) anstelle des Namens verwendet (nur bei bibstyle=ieee|authoryear nötig)
+]{biblatex}
+\DefineBibliographyStrings{ngerman}{
+	bibliography={Literaturverzeichnis},	% Literaturverzeichnis statt Literatur als Überschrift
+	url={[Online]\adddot\addspace URL}								% "URL: http://..." statt "Adresse: http://..." in Quellenangabe
+}
+\DeclareNameAlias{author}{last-first}						% Nachname vor Vorname
+\let\lastnameformat=\textnormal								% Nachname nicht komplett in Großbuchstaben
+\DeclareFieldFormat{labelnumberwidth}{\mkbibbrackets{#1}}	% Eckige Klammer in Literaturverzeichnis
+\DeclareFieldFormat{shorthandwidth}{\mkbibbrackets{#1}}		% Eckige Klammer bei Zitaten
+\urlstyle{same}												% gleiche Schrift für URL
+\addbibresource{literatur.bib}								% Literaturdatenbank einbinden
+
+
+\usepackage{xpatch}
+\xpatchbibdriver{online}
+{\printtext[parens]{\usebibmacro{date}}}
+{\iffieldundef{year}
+	{}
+	{\printtext[parens]{\usebibmacro{date}}}}
+{}
+{\typeout{There was an error patching biblatex-ieee (specifically, ieee.bbx's @online driver)}}
+
+\usepackage{xparse}
+
+
+\newcommand\ddfrac[2]{\frac{\displaystyle #1}{\displaystyle #2}}
+
+%%%%%%%%%% Eigene Environments %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Grafiken/Bilder
+\usepackage{newfloat}
+\DeclareFloatingEnvironment[
+fileext=lop,
+listname={Diagrammverzeichnis},
+name=Diagramm,
+placement=tp,
+within=none
+]{uml}
+
+% Andere
+\usepackage{amsthm}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+\theoremstyle{remark}
+\newtheorem*{remark}{Anmerkung}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newenvironment{nscenter}
+{\parskip=0pt\par\nopagebreak\centering}
+{\par\noindent\ignorespacesafterend}
+
+%%%%%%%%%% Formatierungen %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Zeilenabstand
+%\usepackage[
+%singlespacing
+%spacing
+%doublespacing
+%]{setspace}
+%\linespread{1.25}
+\usepackage{setspace}
+\makeatletter
+\newcommand{\MSonehalfspacing}{%
+	\setstretch{1.25}%  default
+	\ifcase \@ptsize \relax % 10pt
+	\setstretch {1.25}%
+	\or % 11pt
+	\setstretch {1.25}%
+	\or % 12pt
+	\setstretch {1.433}%
+	\fi
+}
+\newcommand{\MSdoublespacing}{%
+	\setstretch {1.92}%  default
+	\ifcase \@ptsize \relax % 10pt
+	\setstretch {1.936}%
+	\or % 11pt
+	\setstretch {1.866}%
+	\or % 12pt
+	\setstretch {1.902}%
+	\fi
+}
+\makeatother
+\MSonehalfspacing
+
+% Seitenränder und Höhe von Kopf- und Fußzeile
+\usepackage[a4paper, left=3cm, right=2.5cm, top=2.5cm, bottom=2.5cm]{geometry}
+
+% Standardschriftart: Helvetica
+\usepackage[T1]{fontenc}
+\usepackage[scaled]{helvet}
+\renewcommand{\familydefault}{\sfdefault}
+\usepackage{lmodern}
+
+% Monospace Schriftart definieren
+\usepackage{fontspec}
+\setmonofont{\monofont}
+
+
+% Rahmen um Text o.a.
+\usepackage{tcolorbox}
+\newtcolorbox{myframe}[1][]{
+	arc=0pt,
+	outer arc=0pt,
+	colback=white,
+	boxrule=0.8pt,
+	#1
+}
+\usepackage{efbox}
+
+% Nummer der caption ohne Kapitelzahl
+\usepackage{chngcntr}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Lückenfüller
+
+\newcommand{\shortlorem}{Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua.}
+\newcommand{\longlorem}{Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.}
+
+%%%%%%%%%% Kopf- und Fußzeile %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\usepackage{scrlayer-scrpage}
+\pagestyle{scrheadings}
+\clearscrheadfoot
+\addtokomafont{pageheadfoot}{\setstretch{1}}
+% Abstand zwischen Kopfzeile und \chapter{title}
+\renewcommand*{\chapterheadstartvskip}{\vspace*{0.0\baselineskip}}
+% kursive Seitenzahl
+\renewcommand{\pagemark}{\textit{\thepage}}
+% Fußzeile mittig
+\cfoot*{\pagemark}
+%     ^ Stern: Fußzeile wird auch auf seiten mit \pagestyle{plain} wie z.B. \chapter{title} angezeigt
+
+%%%%%%%%%% Code %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\usepackage{caption}
+\DeclareCaptionFont{black}{\color{black}}
+\DeclareCaptionFormat{listing}{#1#2#3}
+\captionsetup[lstlisting]{format=listing, labelfont=black, textfont=black, singlelinecheck=false, margin=0pt, font={bf, footnotesize},} % Change Caption from Code
+
+% Package für Codedarstellung mit Syntax-Highlighting
+% Benutzung: 
+% \begin{lstlisting}
+% 	<Code/>
+% \end{lstlisting}
+\usepackage{listings}
+
+% Definition eigener Klassen von Schlüsselwörter für das Syntax-Highlighting
+\makeatletter
+% Klassen
+\lst@InstallKeywords k{classes}{classstyle}\slshape{classstyle}{}ld
+\makeatother
+
+\newcommand{\keywordstyle}{\color[HTML]{0000ff}}
+\newcommand{\commentstyle}{\color[HTML]{228b22}}
+\newcommand{\stringstyle}{\color[HTML]{800000}}
+
+% allgemeine Styles
+
+\lstset{language=[Sharp]C,
+	numbers=left,
+	numberstyle=\tiny\color{white},
+	numbersep=5pt,
+	tabsize=2,
+	extendedchars=true,
+	breaklines=true,
+	frame=lines,
+	showspaces=false,
+	showtabs=false,
+	xleftmargin=1pt,
+	framexleftmargin=1pt,
+	framexrightmargin=1pt,
+	framexbottommargin=1pt,
+	framextopmargin=1pt,
+	morecomment=[l]{//}, %use comment-line-style!
+	morecomment=[s]{/*}{*/}, %for multiline comments
+	showstringspaces=false,
+	morekeywords={abstract, as, base, bool, break, byte, case, catch, char, checked, class, const, continue, decimal, default, delegate, do, double, else, enum, event, explicit, extern, false, finally, fixed, float, for, foreach, goto, if, implicit, in, int, interface, internal, is, lock, long, namespace, new, null, object, operator, out, override, params, private, protected, public, readonly, ref, return, sbyte, sealed, short, sizeof, stackalloc, static, string, struct, switch, this, throw, true, try, typeof, uint, ulong, unchecked, unsafe, ushort, using, using, static, virtual, void, volatile, while, add, alias, ascending, async, await, by, descending, dynamic, equals, from, get, global, group, into, join, let, nameof, on, orderby, partial, partial, remove, select, set, value, var, when, where, where, yield, IEnumerable, get, set, List, List<string>, IEnumerable<string>
+	},
+	moreclasses={ % Klassen angaben, damit dieses mit classescolor hervorgehoben werden
+		RecognizedPhrase, ICommandToken, SemanticResultKey, Choices, GrammarBuilder, ILanguage, PanelUris, Grammar, Uri
+	},
+	stringstyle=\color{gray},
+	basicstyle=\fontsize{8}{10}\selectfont\ttfamily\color{black},
+	classstyle=\color{Cyan4},
+	backgroundcolor=\color{white},
+	commentstyle=\color{green},
+	keywordstyle=\color{blue},
+}
+
+\begin{comment}
+	Alternativer Dark-Mode:
+	
+	\DeclareCaptionFont{white}{\color{white}}
+	\DeclareCaptionFormat{listing}{\colorbox{RoyalBlue3}{\parbox{\textwidth}{\hspace{5pt}#1#2#3}}}
+	\captionsetup[lstlisting]{format=listing,labelfont=white,textfont=white, singlelinecheck=false, margin=0pt, font={bf,footnotesize}} % Change Caption from Code
+	
+	
+	\lstset{language=[Sharp]C,
+		frame=top,frame=bottom,
+		numbers=left,
+		numberstyle=\tiny\color{white},
+		numbersep=5pt,
+		tabsize=2,
+		extendedchars=true,
+		breaklines=true,
+		frame=b,
+		stringstyle=\color{blue}\ttfamily,
+		showspaces=false,
+		showtabs=false,
+		xleftmargin=1pt,
+		framexleftmargin=1pt,
+		framexrightmargin=1pt,
+		framexbottommargin=1pt,
+		commentstyle=\color{green},
+		morecomment=[l]{//}, %use comment-line-style!
+		morecomment=[s]{/*}{*/}, %for multiline comments
+		showstringspaces=false,
+		keywordstyle=\color{cyan},
+		morekeywords={abstract, as, base, bool, break, byte, case, catch, char, checked, class, const, continue, decimal, default, delegate, do, double, else, enum, event, explicit, extern, false, finally, fixed, float, for, foreach, goto, if, implicit, in, int, interface, internal, is, lock, long, namespace, new, null, object, operator, out, override, params, private, protected, public, readonly, ref, return, sbyte, sealed, short, sizeof, stackalloc, static, string, struct, switch, this, throw, true, try, typeof, uint, ulong, unchecked, unsafe, ushort, using, using, static, virtual, void, volatile, while, add, alias, ascending, async, await, by, descending, dynamic, equals, from, get, global, group, into, join, let, nameof, on, orderby, partial, partial, remove, select, set, value, var, when, where, where, yield, IEnumerable, get, set, List, List<string>, IEnumerable<string>
+		},
+		moreclasses={													% Klassen angaben, damit dieses mit classescolor hervorgehoben werden
+			RecognizedPhrase, ICommandToken, SemanticResultKey, Choices, GrammarBuilder, ILanguage, PanelUris, Grammar, Uri
+		},
+		stringstyle=\color{Chocolate3},
+		basicstyle=\fontsize{8}{10}\selectfont\ttfamily\color{white},
+		classstyle=\color{Aquamarine3},
+		backgroundcolor=\color{darkgray},
+	}
+\end{comment}
+
+\lstdefinestyle{xml}{
+	language={XML},
+	morestring=[b]",
+	morecomment=[s]{<?}{?>},
+	morecomment=[s]{<!--}{-->},
+	stringstyle=\color[HTML]{99401d},
+	tagstyle=\color[HTML]{002385},
+	keywordstyle=\color[HTML]{808080},
+	commentstyle=\commentstyle,
+	morekeywords={xmlns,version,type,standalone,name,kid,activityCondition,textResource},	% list your attributes here
+	%moreidentifiers={PanelGroup,SectionGroup,TableGroup,ColumnGroup,ParameterItem}
+}
+
+\lstdefinelanguage{go}{
+	morekeywords=[1]{package,import,func,type,struct,return,defer,panic,recover,select,var,const,iota,},%
+	morekeywords=[2]{string,uint,uint8,uint16,uint32,uint64,int,int8,int16,int32,int64,bool,float32,float64,complex64,complex128,byte,rune,uintptr,error,interface},%
+	morekeywords=[3]{map,slice,make,new,nil,len,cap,copy,close,true,false,delete,append,real,imag,complex,chan,},%
+	morekeywords=[4]{for,break,continue,range,go,goto,switch,case,fallthrough,if,else,default,},%
+	morekeywords=[5]{Println,Printf,Error,Print,},%
+	sensitive=true,%
+	morecomment=[l]{//},%
+	morecomment=[s]{/*}{*/},%
+	morestring=[b]',%
+	morestring=[b]",%
+	morestring=[s]{`}{`},%
+	keywordstyle=\keywordstyle,
+	commentstyle=\commentstyle,
+	stringstyle=\stringstyle,
+}
+
+\newcommand\YAMLcolonstyle{\color{gray}\mdseries}
+\newcommand\YAMLvaluestyle{\stringstyle\mdseries}
+\lstdefinelanguage{yaml}{
+	sensitive=false,
+	keywords={true,false,null,y,n},
+	comment=[l]{\#},
+	morestring=[b]',
+	morestring=[b]",
+	moredelim=**[il][\YAMLcolonstyle{:}\YAMLvaluestyle]{:},
+	keywordstyle=\keywordstyle,
+	commentstyle=\commentstyle,
+	stringstyle=\YAMLvaluestyle,
+}
+
+\lstdefinelanguage{ebnf}{
+	keywords={grammar,parser,lexer},
+	morecomment=[l]{//},
+	morecomment=[s]{/*}{*/},
+	morestring=[b]',
+	literate=*{
+		{+}{{{\color[HTML]{dd0000}+}}}1
+		{*}{{{\color[HTML]{dd0000}*}}}1
+		{?}{{{\color[HTML]{dd0000}?}}}1
+		{|}{{{\color[HTML]{44bbcc}|}}}1
+	},
+	keywordstyle=\keywordstyle,
+	commentstyle=\commentstyle,
+	stringstyle=\stringstyle,
+}
+
+\lstdefinestyle{bash}{
+	language={bash},
+	keywordstyle=\keywordstyle,
+	commentstyle=\commentstyle,
+	stringstyle=\stringstyle,
+}
+
+\lstdefinelanguage{pseudo}{
+	mathescape=true,
+	morekeywords={input, output, variables, return, begin, end, do, while, if, else, func, new, push, pop, append},
+	keywordstyle=\keywordstyle,
+}
+\lstdefinelanguage{regex}{
+	literate=*{
+		{a-z}{{{\keywordstyle{}a-z}}}3
+		{A-Z}{{{\keywordstyle{}A-Z}}}3
+		{0-9}{{{\keywordstyle{}0-9}}}3
+		{*}{{{\stringstyle{}*}}}1
+		{?}{{{\stringstyle{}?}}}1
+		{+}{{{\stringstyle{}+}}}1
+		{|}{{{\commentstyle{}|}}}1
+		{\{}{{{\commentstyle{}\{}}}1
+		{\}}{{{\commentstyle{}\}}}}1
+	},
+}
+
+
+
+\definecolor{eclipseStrings}{RGB}{42,0.0,255}
+\definecolor{eclipseKeywords}{RGB}{127,0,85}
+\colorlet{numb}{magenta!60!black}
+
+\lstdefinelanguage{json}{
+	commentstyle=\color{eclipseStrings}, % style of comment
+	stringstyle=\color{eclipseKeywords}, % style of strings
+	string=[s]{"}{"},
+	comment=[l]{:\ "},
+	morecomment=[l]{:"},
+	literate=
+	*{0}{{{\color{numb}0}}}{1}
+	{1}{{{\color{numb}1}}}{1}
+	{2}{{{\color{numb}2}}}{1}
+	{3}{{{\color{numb}3}}}{1}
+	{4}{{{\color{numb}4}}}{1}
+	{5}{{{\color{numb}5}}}{1}
+	{6}{{{\color{numb}6}}}{1}
+	{7}{{{\color{numb}7}}}{1}
+	{8}{{{\color{numb}8}}}{1}
+	{9}{{{\color{numb}9}}}{1}
+}
+% zusätzliche Symbolzeichen
+\usepackage{textcomp}
+
+% Code--Benennung
+\renewcommand{\lstlistingname}{Quellcode}
+% Listsings-Verzeichnis umbenennen
+\renewcommand{\lstlistlistingname}{Quellcodeverzeichnis}
+% Inline Code
+\DeclareRobustCommand{\code}[1]{{%
+		\begingroup%
+		\setlength{\fboxsep}{2pt}%
+		\colorbox[HTML]{f3f4f4}{\texttt{\color[HTML]{24292e}\vphantom{Ay}{\smaller\detokenize{#1}}}}%
+		\endgroup%
+}}
+
+
+%%%%%%%%%% Util %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\usepackage[prependcaption,textsize=small]{todonotes}
+\presetkeys{todonotes}{linecolor=yellow,backgroundcolor=yellow!25,bordercolor=yellow}{}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

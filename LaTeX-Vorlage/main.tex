@@ -1,0 +1,74 @@
+\documentclass[
+a4paper,					% DINA4 Papier
+12pt,						% Schriftgröße 12
+oneside,
+openany,
+parskip=half,				% Abstand nach Absatz (statt Einrückung)
+headsepline=true,			% Linie nach Kopfzeile
+footsepline=false,			% Linie vor Fußzeile
+plainfootsepline=true,		% Linie vor Fußzeile auf \chapter{}-Seiten
+listof=totoc,				% Abblidungs- und Tabellenverzeichnis im Imhalsverteichnis darstellen
+toc=bibliography,			% Literaturverzeichnis im Inhlatsverzeichnis darstellen
+abstract=on,				% Abstract mit Titel
+]{scrreprt}					% KOMA-Script-Äquivalent zur Standardklasse report
+
+\include{preamble}
+\include{03_Preamble/glossaries}
+
+\ihead{\headmark}
+\automark{chapter}
+\usepackage{amssymb}
+
+
+\begin{document}
+	\include{ifthenelse}
+	
+	\begin{titlepage}
+		\include{03_Preamble/titelblatt}
+	\end{titlepage}
+	\pagenumbering{Roman}
+	\include{03_Preamble/sperrvermerk}
+	\include{03_Preamble/eidesstattlicheerklaerung}	
+	\include{03_Preamble/abstract}
+	\newpage
+	\pdfbookmark[chapter]{\contentsname}{toc} % Inhaltsverzeichnis als Lesezeichen in der PDF
+	\tableofcontents
+	{
+		\renewcommand{\addvspace}[1]{\vspace{0mm}}
+		\printglossary[style={mystyle}, type=\acronymtype, title={Abkürzungsverzeichnis}] % Abkürzungen
+		\printglossary[style={mystyle}] % Erklärungen
+		\listoffigures % Bilder
+		\listoftables % Tabellen
+		\lstlistoflistings % Quellcode
+		\clearpage
+	}
+	
+	% Seitennummer speichern und mit normalem von 0 beginnen
+	\newcounter{TmpPage}
+	\setcounter{TmpPage}{\value{page}}
+	\pagenumbering{arabic}
+	\setcounter{table}{0}
+	
+	% WICHTIG: Tatsächlicher Content in passender Reihenfolge einbinden
+	\include{04_Content/einleitung}
+	\include{04_Content/soft_grundlagen}
+	\begin{comment}
+	\include{04_Content/theo_grundlagen}
+	\include{04_Content/anforderungen}
+	\include{04_Content/framework_vergleich}
+	\include{04_Content/konzeptionierung}
+	\include{04_Content/implementierung}
+	\include{04_Content/problemloesung}
+	\include{04_Content/performance}
+	\include{04_Content/schluss}
+	\end{comment}
+	
+	% Nummerierung wieder auf Römisch und dort weitermachen, wo vorher aufgehört wurde
+	\pagenumbering{Roman}
+	\setcounter{page}{\theTmpPage}
+	\printbibliography
+	% Aufzählung Sections ändern
+	
+	\appendix
+	\include{05_Post/anhang} % Anhang, kann auch in einzelne Dateien unterteilt werden wenn gewollt
+\end{document}

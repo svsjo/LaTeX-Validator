@@ -1,0 +1,11 @@
+% Abbildungen u.Ä.: forlaufende Nummerierung statt Nummerierung pro Kapitel
+\newboolean{fortnum}
+\setboolean{fortnum}{\fortlaufendenummerierung}
+\ifthenelse{\boolean{fortnum}}{
+	\counterwithout{figure}{chapter}
+	\counterwithout{table}{chapter}
+	\counterwithout{lstlisting}{chapter}
+	% needed because otherwise table numering starts with the number of the chapter the fist table is in
+	% (reason unknown)
+	\setcounter{table}{0}
+}{}
