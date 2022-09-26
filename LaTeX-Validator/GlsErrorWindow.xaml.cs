@@ -9,8 +9,12 @@ using System.Text.RegularExpressions;
 using System.Transactions;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
+using System.Windows.Data;
+using System.Windows.Documents;
 using LaTeX_Validator.Extensions;
 using Microsoft.WindowsAPICodePack.Dialogs;
+using static LaTeX_Validator.Extensions.ObservableCollectionExtensions;
 using Path = System.IO.Path;
 
 namespace LaTeX_Validator
@@ -20,12 +24,15 @@ namespace LaTeX_Validator
     /// </summary>
     partial class GlsErrorWindow : Window
     {
-        private readonly ObservableCollection<GlsError> allErrors;
+        private ObservableCollection<GlsError> allErrors;
         private List<GlsError> persistentIgnoredErrors;
         private List<GlsError> transientIgnoredErrors;
         private readonly ConfigurationGlossary configuration;
         private readonly FileExtractor fileExtractor;
         private readonly FileParser fileParser;
+        private GridViewColumnHeader lastHeaderClicked = null;
+        private ListSortDirection lastSortOrder = ListSortDirection.Ascending;
+
 
         #region Initialization
 
@@ -39,6 +46,7 @@ namespace LaTeX_Validator
             this.transientIgnoredErrors = new List<GlsError>();
             this.InitializeComponent();
             this.InitializeUiData();
+            this.lvGlsError.AddHandler(ButtonBase.ClickEvent, new RoutedEventHandler(this.ColumnClick));
         }
 
         private void InitializeUiData()
@@ -105,6 +113,34 @@ namespace LaTeX_Validator
         {
             var checkBox = sender as CheckBox;
             this.configuration.ignoreSectionLabels = checkBox?.IsChecked ?? false;
+        }
+
+        private void ColumnClick(object sender, RoutedEventArgs e)
+        {
+            if (e.OriginalSource is not GridViewColumnHeader header) return;
+
+            var sortOrder = header != this.lastHeaderClicked ? ListSortDirection.Ascending :
+                                this.lastSortOrder == ListSortDirection.Ascending ? ListSortDirection.Descending : ListSortDirection.Ascending;
+
+            var columnBinding = header.Column.DisplayMemberBinding as Binding;
+            var sortBy = columnBinding?.Path.Path ?? header.Column.Header as string;
+
+            if (string.IsNullOrEmpty(sortBy)) return;
+
+            this.SortErrors(sortBy, sortOrder);
+
+            this.lastSortOrder = sortOrder;
+            this.lastHeaderClicked = header;
+        }
+
+        private void SortErrors(string sortBy, ListSortDirection sortOrder)
+        {
+            var dataView = CollectionViewSource.GetDefaultView(this.lvGlsError.ItemsSource);
+
+            dataView.SortDescriptions.Clear();
+            var sd = new SortDescription(sortBy, sortOrder);
+            dataView.SortDescriptions.Add(sd);
+            dataView.Refresh();
         }
 
         private void PickerIgnoreSettings_Clicked(object sender, RoutedEventArgs e)

@@ -60,23 +60,33 @@
                 </StackPanel>
                 <StackPanel Orientation="Horizontal">
                     <Button Margin="1,0,5,0" Click="SelectFillwordsAndLabels_Clicked" Name="SelectFillwordsAndLabelsButton" Width="14"></Button>
-                        <StackPanel Orientation="Vertical">
+                    <StackPanel Orientation="Vertical">
                         <TextBlock Text="Füllworte definieren (Popup)"></TextBlock>
                         <TextBlock Text="Label definieren zum ignorieren (Popup)"></TextBlock>
                     </StackPanel>
                 </StackPanel>
             </StackPanel>
             <Rectangle VerticalAlignment="Stretch" Width="2" Margin="40,0,40,0" Stroke="Black" />
-            <Button Content="Starte Analyse" HorizontalAlignment="Left" VerticalAlignment="Center" RenderTransformOrigin="-0.058,0.063" Width="360" Height="40" Click="ButtonStart_Click"/>
-        </StackPanel>
+            <Button Content="Starte Analyse" HorizontalAlignment="Center" VerticalAlignment="Center" RenderTransformOrigin="-0.058,0.063" Width="360" Height="40" Click="ButtonStart_Click"/>
+            </StackPanel>
             <Grid Height="865">
                 <ListView Name="lvGlsError">
                     <ListView.View>
                         <GridView>
-                            <GridViewColumn Header="Wort" Width="180" DisplayMemberBinding="{Binding WordContent}" />
+                            <GridViewColumn Header="Wort" Width="180" DisplayMemberBinding="{Binding WordContent}"/>
                             <GridViewColumn Header="Aktuelle Form" Width="120" DisplayMemberBinding="{Binding FormText}" />
                             <GridViewColumn Header="Problem" Width="160" DisplayMemberBinding="{Binding ErrorText}" />
-                            <GridViewColumn Header="Umgebung" Width="490" DisplayMemberBinding="{Binding DirectSuroundings}"></GridViewColumn>
+                            <GridViewColumn Header="Umgebung" Width="480">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock FontWeight="Normal" Text="{Binding SuroundingsBefore}"></TextBlock>
+                                            <TextBlock FontWeight="Bold" Text="{Binding WordContent}"></TextBlock>
+                                            <TextBlock FontWeight="Normal" Text="{Binding SuroundingsAfter}"></TextBlock>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
                             <GridViewColumn Header="Datei" Width="670" DisplayMemberBinding="{Binding File}" />
                             <GridViewColumn Header="Zeile" Width="40" DisplayMemberBinding="{Binding Line}" />
                             <GridViewColumn Header="Pos" Width="40" DisplayMemberBinding="{Binding LinePosition}" />

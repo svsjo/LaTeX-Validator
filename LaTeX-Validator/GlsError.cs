@@ -5,6 +5,8 @@
 // <author>Jonas Weis</author>
 // --------------------------------------------------------------------------------------------------------------------
 
+using System;
+using System.Linq;
 using LaTeX_Validator.Extensions;
 
 namespace LaTeX_Validator;
@@ -22,6 +24,9 @@ public class GlsError
     public ErrorStatus ErrorStatus { get; set; }
     public string? ErrorStatusText => this.ErrorStatus.GetStringValue();
     public string? DirectSuroundings { get; set; }
+    public string? SuroundingsBefore => this.DirectSuroundings?.Split(this.WordContent).ElementAt(0);
+    public string? SuroundingsAfter => this.DirectSuroundings?.Split(this.WordContent).ElementAt(1);
+
 
     public bool IsEqual(GlsError glsError)
     {
