@@ -58,7 +58,8 @@ von Jonas Weis und Jonathan Schwab
 - Symbol für die Anwendung und besserer Fenster-Titel
 - "Reset All" um alles (auch persistentes) zu löschen 
 - Bei der Umgebung beim drüber hovern die komplette "Line" anzeigen, als so kleiner "Splashtext" ?
-- Design verbessern ! (vlt. den oberen Teil irgendwie mit anderem Hintergrund und vor allem das Popup) 
+- Design verbessern ! (vlt. den oberen Teil irgendwie mit anderem Hintergrund und vor allem das Popup)
+- Naming Methoden und Co. verbessern 
 - Prüfung auf Sätzlange > x ?
 - Auswahl ob casesensitiv oder nicht (aktuell ist immer casesensitiv) ?
 - Architektur der Anwendung verbessern ?
