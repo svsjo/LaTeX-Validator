@@ -127,6 +127,7 @@ namespace LaTeX_Validator
             var sortBy = columnBinding?.Path.Path ?? header.Column.Header as string;
 
             if (string.IsNullOrEmpty(sortBy)) return;
+            if (sortBy == "Umgebung") return;
 
             this.SortErrors(sortBy, sortOrder);
 
