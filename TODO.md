@@ -49,6 +49,7 @@ von Jonas Weis und Jonathan Schwab
 - Alle Fehler persistent ignorierbar (togglebar)
 
 # Allgemein offen
+- Serialisierung mit JSON
 - Input (Keys) senden sobald VS Code offen ist, um das Wort zu markieren (Input: Einmal RECHTS, dann STRG SHIFT RECHTS)
 - Prüfung ob alle Figuren/Tabellen/Codes eine Caption haben
 - Methode ```FindTablesErrors``` erweitern, damit neben den Tabellen, Quellcode und Bildern auch Überschriften, Sektionen und Untersektionen beachtet werden
