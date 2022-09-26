@@ -63,6 +63,7 @@ namespace LaTeX_Validator
             this.PopupDialog.LabelsBox.Text = this.configuration.labelsToIgnore?.AggregateToString();
 
             var text = this.configuration.ignoreFilesWithMissingGls.ToList();
+            if(!text.Any()) return;
             this.IgnorableFilesMissingGlsBox.Text = text.Aggregate((x, y) => x + "\n" + y);
         }
 
