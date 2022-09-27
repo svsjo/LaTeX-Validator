@@ -49,18 +49,4 @@ von Jonas Weis und Jonathan Schwab
 - Alle Fehler persistent ignorierbar (togglebar)
 
 # Allgemein offen
-- Input (Keys) senden sobald VS Code offen ist, um das Wort zu markieren (Input: Einmal RECHTS, dann STRG SHIFT RECHTS)
-- Prüfung ob alle Figuren/Tabellen/Codes eine Caption haben
-- Methode ```FindTablesErrors``` erweitern, damit neben den Tabellen, Quellcode und Bildern auch Überschriften, Sektionen und Untersektionen beachtet werden
-- Anzeige von falschen Zitationen (Label nicht vorhanden) => Grüße gehen an @jdev
-- Füllwortsuche verbessern
-- Die einzlenen Felder kopierbar machen, also z.B. per Rechtsklick -> kopieren
-- Symbol für die Anwendung und besserer Fenster-Titel
-- "Reset All" um alles (auch persistentes) zu löschen 
-- Bei der Umgebung beim drüber hovern die komplette "Line" anzeigen, als so kleiner "Splashtext" ?
-- Design verbessern ! (vlt. den oberen Teil irgendwie mit anderem Hintergrund und vor allem das Popup)
-- Naming Methoden und Co. verbessern 
-- Prüfung auf Sätzlange > x ?
-- Auswahl ob casesensitiv oder nicht (aktuell ist immer casesensitiv) ?
-- Architektur der Anwendung verbessern ?
-- Einbinden von Jonas Latex.md Dokument, z.B. Öffnen beim Klick auf einen weiteren Button oder so
+Siehe unter Issues
