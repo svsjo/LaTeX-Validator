@@ -24,13 +24,13 @@ namespace LaTeX_Validator
     /// </summary>
     partial class GlsErrorWindow : Window
     {
-        private ObservableCollection<GlsError> allErrors;
+        private readonly ObservableCollection<GlsError> allErrors;
         private List<GlsError> persistentIgnoredErrors;
         private List<GlsError> transientIgnoredErrors;
         private readonly ConfigurationGlossary configuration;
         private readonly FileExtractor fileExtractor;
         private readonly FileParser fileParser;
-        private GridViewColumnHeader lastHeaderClicked = null;
+        private GridViewColumnHeader? lastHeaderClicked = null;
         private ListSortDirection lastSortOrder = ListSortDirection.Ascending;
 
 

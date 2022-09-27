@@ -31,13 +31,7 @@ internal static class GlsErrorSerialization
 
         foreach (var obj in errorObjects)
         {
-            var wordConent = obj.WordContent;
-            var actualForm = obj.ActualForm.ToString();
-            var errorType = obj.ErrorType.ToString();
-            var file = obj.File;
-            var line = obj.Line.ToString();
-            var pos = obj.LinePosition.ToString();
-            var resultString = string.Join(",", wordConent, actualForm, errorType, file, line, pos);
+            var resultString = JsonSerializer.Serialize(obj);
             stringCollection.Add(resultString);
         }
 
@@ -51,55 +45,11 @@ internal static class GlsErrorSerialization
 
         foreach (var obj in serializedObjects)
         {
-            var splittedString = obj?.Split(",");
-            if(splittedString == null || splittedString.Length < 6) continue;
-
-            objectList.Add(new GlsError()
-                           {
-                               WordContent = splittedString.ElementAt(0),
-                               ActualForm = ParseActualForm(splittedString.ElementAt(1)),
-                               ErrorType = ParseErrorType(splittedString.ElementAt(2)),
-                               File = splittedString.ElementAt(3),
-                               Line = int.Parse(splittedString.ElementAt(4)),
-                               LinePosition = int.Parse(splittedString.ElementAt(5)),
-                               ErrorStatus = ErrorStatus.Ignored
-                           });
+            if(string.IsNullOrEmpty(obj)) continue;
+            var resultObj = JsonSerializer.Deserialize<GlsError>(obj);
+            if(resultObj != null) objectList.Add(resultObj);
         }
 
         return objectList;
-    }
-
-    private static ErrorType ParseErrorType(string element)
-    {
-       var type = element switch
-        {
-            "MissingGls" => ErrorType.MissingGls,
-            "ShouldBeAcrLong" => ErrorType.ShouldBeAcrLong,
-            "MissingRef" => ErrorType.MissingRef,
-            "LabelNaming" => ErrorType.LabelNaming,
-            "WrongRefType" => ErrorType.WrongRefType,
-            "MissingCitation" => ErrorType.MissingCitation,
-            "IsFillWord" => ErrorType.IsFillWord,
-            _ => ErrorType.Serialize
-        };
-
-        return type;
-    }
-
-    private static GlsType ParseActualForm(string element)
-    {
-        var type = element switch
-        {
-            "AcrShort" => GlsType.AcrShort,
-            "AcrLong" => GlsType.AcrLong,
-            "Gls" => GlsType.Gls,
-            "None" => GlsType.None,
-            "Label" => GlsType.Label,
-            "CitationLabel" => GlsType.CitationLabel,
-            "Fillword" => GlsType.Fillword,
-            _ => GlsType.Serialize
-        };
-
-        return type;
     }
 }
