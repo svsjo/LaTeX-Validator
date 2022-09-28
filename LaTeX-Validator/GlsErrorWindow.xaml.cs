@@ -341,9 +341,9 @@ namespace LaTeX_Validator
                                                  .Except(this.configuration.ignoreFilesWithMissingGls.ToList())
                                                  .ToList();
 
-            this.ActualisateErrors(this.fileParser.FindAcrLongErrors(beforeFiles, allAcronymEntries),
+            this.ActualisateErrors(this.fileParser.FindWrongGlossaryErrorsPreamble(beforeFiles, allAcronymEntries),
                                    this.fileParser.FindMissingGlsErrors(missingGlsFiles, allAcronymEntries, allGlossaryEntries),
-                                   this.fileParser.FindTablesErrors(allFiles, allAcronymEntries),
+                                   this.fileParser.FindWrongGlossaryErrors(allFiles, allAcronymEntries),
                                    this.fileParser.FindMissingReferencesErrors(allFiles,
                                                                                this.configuration.ignoreSectionLabels,
                                                                                this.configuration.labelsToIgnore.ToList()),

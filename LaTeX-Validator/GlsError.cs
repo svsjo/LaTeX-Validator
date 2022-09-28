@@ -24,8 +24,23 @@ public class GlsError
     public ErrorStatus ErrorStatus { get; set; }
     public string? ErrorStatusText => this.ErrorStatus.GetStringValue();
     public string? DirectSuroundings { get; set; }
-    public string? SuroundingsBefore => this.DirectSuroundings?.Split(this.WordContent).ElementAt(0);
-    public string? SuroundingsAfter => this.DirectSuroundings?.Split(this.WordContent).ElementAt(1);
+    public string? SuroundingsBefore
+    {
+        get
+        {
+            var split = this.DirectSuroundings?.Split(this.WordContent).ToList();
+            return split?.ElementAt(0) ?? this.WordContent;
+        }
+    }
+
+    public string? SuroundingsAfter
+    {
+        get
+        {
+            var split = this.DirectSuroundings?.Split(this.WordContent).ToList();
+            return split is { Count: > 1 } ? split.ElementAt(1) : this.WordContent;
+        }
+    }
 
 
     public bool IsEqual(GlsError glsError)

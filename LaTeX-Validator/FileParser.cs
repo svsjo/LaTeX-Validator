@@ -17,6 +17,13 @@ public class FileParser
         this.fileExtractor = fileExtractor1;
     }
 
+    /// <summary>
+    /// Suche alle vorher definierten Füllworte im Text
+    /// </summary>
+    /// <param name="files"></param>
+    /// <param name="fillWords"></param>
+    /// <param name="doSearch"></param>
+    /// <returns></returns>
     public IEnumerable<GlsError> FindFillWords(List<string> files, List<string> fillWords, bool doSearch)
     {
         if (!doSearch) yield break;
@@ -54,6 +61,13 @@ public class FileParser
         }
     }
 
+    /// <summary>
+    /// Suche alle Quellen, die nie angegeben wurden
+    /// </summary>
+    /// <param name="files"></param>
+    /// <param name="allCitationEntries"></param>
+    /// <param name="labelsToIgnore"></param>
+    /// <returns></returns>
     public IEnumerable<GlsError> FindMissingCitations(List<string> files, List<CitationEntry> allCitationEntries, List<string> labelsToIgnore)
     {
         var regexPattern = @"\\cite{(.*?)}";
@@ -98,11 +112,11 @@ public class FileParser
     }
 
     /// <summary>
-    /// In allen Texten vor der Einleitung sollte nur \AcrLong verwendet werden.
+    /// In allen Texten vor der Einleitung sollte nur \acrlong oder \acrshort statt \gls verwendet werden.
     /// </summary>
     /// <param name="files"></param>
     /// <param name="allAcronymEntries"></param>
-    public IEnumerable<GlsError> FindAcrLongErrors(List<string> files, IEnumerable<AcronymEntry> allAcronymEntries)
+    public IEnumerable<GlsError> FindWrongGlossaryErrorsPreamble(List<string> files, IEnumerable<AcronymEntry> allAcronymEntries)
     {
         foreach (var file in files)
         {
@@ -204,25 +218,25 @@ public class FileParser
     }
 
     /// <summary>
-    /// In Abbildungen, Tabellen und Quellcode sollte nie \Gls sondern nur \AcrLong oder \AcrShort verwendet werden
+    /// In Abbildungen, Tabellen und Quellcode und Überschriften sollte nie \Gls sondern nur \AcrLong oder \AcrShort verwendet werden
     /// </summary>
-    public IEnumerable<GlsError> FindTablesErrors(List<string> files, IEnumerable<AcronymEntry> allAcronymEntries)
+    public IEnumerable<GlsError> FindWrongGlossaryErrors(List<string> files, IEnumerable<AcronymEntry> allAcronymEntries)
     {
         foreach (var file in files)
         {
             var allLines = this.fileExtractor.GetAllLinesFromFile(file).ToList();
-            var linesWithCaption = this.GetAllLinesWithCaption(allLines).ToList();
-            var affectedLines = linesWithCaption
-                                .Where(line => line.Content.Contains(@"\gls") && allAcronymEntries
-                                                                                 .Select(entry => entry.Label)
-                                                                                 .Any(entry => line.Content.Contains(entry)))
+            var linesWithCaptionOrHeadline = this.GetAllLinesWithCaption(allLines).Concat(this.GetAllLinesWithHeadlines(allLines)).ToList();
+            var affectedLines = linesWithCaptionOrHeadline
+                                .Where(line => line.contentCaption.Contains(@"\gls") && allAcronymEntries
+                                                                                        .Select(entry => entry.Label)
+                                                                                        .Any(entry => line.contentCaption.Contains(entry)))
                                 .Select(line => new
                                                 {
-                                                    number = line.Number,
-                                                    content = allAcronymEntries
+                                                    number = line.line.Number,
+                                                    containedLabel = allAcronymEntries
                                                               .Select(entry => entry.Label)
-                                                              .First(entry => line.Content.Contains(entry)),
-                                                    type = line.Content.Contains("AcrLong") ? GlsType.AcrLong : GlsType.AcrShort,
+                                                              .First(entry => line.contentCaption.Contains(entry)),
+                                                    type = line.contentCaption.Contains("acrlong") ? GlsType.AcrLong : GlsType.AcrShort,
                                                     fullLine = line
                                                 });
 
@@ -230,19 +244,18 @@ public class FileParser
             {
                 yield return (new GlsError
                               {
-                                  WordContent = line.content,
+                                  WordContent = line.containedLabel,
                                   ActualForm = line.type,
                                   ErrorType = ErrorType.ShouldBeAcrLong,
                                   File = file,
                                   Line = line.number,
-                                  LinePosition = line.fullLine.Content.IndexOf(line.content, StringComparison.Ordinal),
+                                  LinePosition = line.fullLine.line.Content.IndexOf(line.containedLabel, StringComparison.Ordinal),
                                   ErrorStatus = ErrorStatus.NotIgnored,
-                                  DirectSuroundings = this.GetDirectSuroundings(line.content, line.content)
+                                  DirectSuroundings = this.GetDirectSuroundings(line.fullLine.line.Content, line.containedLabel)
                 });
             }
         }
     }
-
 
     /// <summary>
     /// Wird auf alle Label von Tabellen, Quellcode und Bildern verwiesen?
@@ -282,6 +295,11 @@ public class FileParser
         }
     }
 
+    /// <summary>
+    /// Findet alle Referenzierungen in denen \ref statt \autoref verwendet wurde
+    /// </summary>
+    /// <param name="files"></param>
+    /// <returns></returns>
     public IEnumerable<GlsError> FindWrongRefUsage(List<string> files)
     {
         var allRefs = this.GetAllRefs(files).ToList();
@@ -353,26 +371,42 @@ public class FileParser
         return line.Substring(min, length);
     }
 
-    private IEnumerable<Line> GetAllLinesWithCaption(List<Line> allLines)
+    private IEnumerable<(Line line, string contentCaption)> GetAllLinesWithCaption(List<Line> allLines)
     {
         const string regexPattern = @".*caption({|=)(.*)(}|,)";
         var regex = new Regex(regexPattern, RegexOptions.Compiled);
 
-        var linesWithCaption = new List<Line>();
-
-        foreach (var line in allLines)
+        foreach (var actualLine in allLines)
         {
-            var matches = regex.Matches(line.Content);
+            var matches = regex.Matches(actualLine.Content);
             foreach (Match match in matches)
             {
                 var groups = match.Groups;
                 if (groups.Count < 3) continue;
 
-                linesWithCaption.Add(new Line { Content = groups[2].Value, Number = line.Number });
+                yield return (actualLine, groups[2].Value);
             }
         }
+    }
 
-        return linesWithCaption;
+    private IEnumerable<(Line line, string contentCaption)> GetAllLinesWithHeadlines(List<Line> allLines)
+    {
+        const string regexPattern = @"\\(section|chapter|subsection){(.*?)}";
+        var regex = new Regex(regexPattern, RegexOptions.Compiled);
+
+        var linesWithCaption = new List<Line>();
+
+        foreach (var actualLine in allLines)
+        {
+            var matches = regex.Matches(actualLine.Content);
+            foreach (Match match in matches)
+            {
+                var groups = match.Groups;
+                if (groups.Count < 3) continue;
+
+                yield return (actualLine, groups[2].Value);
+            }
+        }
     }
 
     private IEnumerable<(string label, string file, Line line, int pos)> GetAllLabels(List<string> files)
