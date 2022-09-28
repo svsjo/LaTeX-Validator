@@ -111,6 +111,13 @@ namespace LaTeX_Validator
             this.StartAnalysis();
         }
 
+        private void ButtonReset_Click(object sender, RoutedEventArgs e)
+        {
+            this.allErrors.Clear();
+            this.persistentIgnoredErrors.Clear();
+            this.transientIgnoredErrors.Clear();
+        }
+
         private void PickerRefOption_Clicked(object sender, RoutedEventArgs e)
         {
             var checkBox = sender as CheckBox;
@@ -144,12 +151,6 @@ namespace LaTeX_Validator
             var sd = new SortDescription(sortBy, sortOrder);
             dataView.SortDescriptions.Add(sd);
             dataView.Refresh();
-        }
-
-        private void PickerIgnoreSettings_Clicked(object sender, RoutedEventArgs e)
-        {
-            var checkBox = sender as CheckBox;
-            this.configuration.ignoreSettingsFile = checkBox?.IsChecked ?? false;
         }
 
         private void PickerShowFillwords_Clicked(object sender, RoutedEventArgs e)
@@ -319,7 +320,7 @@ namespace LaTeX_Validator
 
             process.Start();
 
-            // STRG SHIFT RECHTS
+            // STRG SHIFT RECHTS INPUT sobald VS Code offen ist
         }
 
         private void StartAnalysis()
@@ -345,8 +346,8 @@ namespace LaTeX_Validator
             allFiles.Remove(this.configuration.glossaryPath!);
             beforeFiles.Remove(this.configuration.glossaryPath!);
 
-            var missingGlsFiles = this.configuration.ignoreFilesWithMissingGls == null || !this.configuration.ignoreSettingsFile ?
-                                      allFiles : allFiles
+            var missingGlsFiles = this.configuration.ignoreFilesWithMissingGls == null ? allFiles :
+                                      allFiles
                                                  .Except(this.configuration.ignoreFilesWithMissingGls.ToList())
                                                  .ToList();
 
@@ -403,6 +404,36 @@ namespace LaTeX_Validator
             const MessageBoxButton button = MessageBoxButton.OK;
             const MessageBoxImage icon = MessageBoxImage.Warning;
             MessageBox.Show(messageBoxText, caption, button, icon, MessageBoxResult.Yes);
+        }
+
+        private void ResetLatexDirectory(object sender, RoutedEventArgs e)
+        {
+            this.LatexDirectoryBox.Text = string.Empty;
+            this.configuration.latexDirectoryPath = string.Empty;
+        }
+
+        private void ResetGlossaryPath(object sender, RoutedEventArgs e)
+        {
+            this.GlossaryPathBox.Text = string.Empty;
+            this.configuration.glossaryPath = string.Empty;
+        }
+
+        private void ResetBibPath(object sender, RoutedEventArgs e)
+        {
+            this.BibliographiePathBox.Text = string.Empty;
+            this.configuration.bibPath = string.Empty;
+        }
+
+        private void ResetIgnoredFiles(object sender, RoutedEventArgs e)
+        {
+            this.IgnorableFilesMissingGlsBox.Text = string.Empty;
+            this.configuration.ignoreFilesWithMissingGls?.Clear();
+        }
+
+        private void ResetPreambleDirectory(object sender, RoutedEventArgs e)
+        {
+            this.PreambleDirectoryBox.Text = string.Empty;
+            this.configuration.preambleDirectoryPath = string.Empty;
         }
     }
 }
