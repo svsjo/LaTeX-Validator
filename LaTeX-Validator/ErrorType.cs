@@ -26,5 +26,7 @@ public enum ErrorType
     [EnumExtension("Quelle nie angegeben")]
     MissingCitation,
     [EnumExtension("Füllwort verwendet")]
-    IsFillWord
+    IsFillWord,
+    [EnumExtension("Label nicht vorhanden")]
+    WrongLabel
 }

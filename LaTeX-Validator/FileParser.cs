@@ -2,8 +2,11 @@
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
+using System.Net.WebSockets;
+using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Windows.Shapes;
+using static LaTeX_Validator.FileExtractor;
 using static Microsoft.WindowsAPICodePack.Shell.PropertySystem.SystemProperties.System;
 
 namespace LaTeX_Validator;
@@ -72,6 +75,7 @@ public class FileParser
     {
         var regexPattern = @"\\cite{(.*?)}";
         var regex = new Regex(regexPattern, RegexOptions.Compiled);
+        var allCitationEntriesCopy = allCitationEntries.GetRange(0, allCitationEntries.Count);
 
         foreach (var file in files)
         {
@@ -89,13 +93,13 @@ public class FileParser
                     var label = groups[1].Value;
                     if(labelsToIgnore.Contains(label)) continue;
 
-                    var entry = allCitationEntries.FirstOrDefault(ent => ent.label == label);
-                    if(entry != default) allCitationEntries.Remove(entry);
+                    var entry = allCitationEntriesCopy.FirstOrDefault(ent => ent.label == label);
+                    if(entry != default) allCitationEntriesCopy.Remove(entry);
                 }
             }
         }
 
-        foreach (var entry in allCitationEntries)
+        foreach (var entry in allCitationEntriesCopy)
         {
             yield return new GlsError()
                          {
@@ -165,7 +169,8 @@ public class FileParser
     /// <summary>
     /// Alle Kurz- und Langbezeichner aus dem Glossar sollten verwendet werden (\Gls oder eben \AcrLong \AcrShort)
     /// </summary>
-    public IEnumerable<GlsError> FindMissingGlsErrors(List<string> files, IReadOnlyCollection<AcronymEntry> allAcronymEntries, IReadOnlyCollection<string> allGlossaryEntries)
+    public IEnumerable<GlsError> FindMissingGlsErrors(List<string> files, IReadOnlyCollection<AcronymEntry> allAcronymEntries,
+                                                      IReadOnlyCollection<string> allGlossaryEntries)
     {
         foreach (var file in files)
         {
@@ -260,14 +265,12 @@ public class FileParser
     /// <summary>
     /// Wird auf alle Label von Tabellen, Quellcode und Bildern verwiesen?
     /// </summary>
-    public IEnumerable<GlsError> FindMissingReferencesErrors(List<string> files, bool ignoreSections, List<string> labelsToIgnore)
+    public IEnumerable<GlsError> FindMissingReferencesErrors(List<string> files, bool ignoreSections, List<string> labelsToIgnore,
+                                                             List<LabelDefinition> allLabels, List<ReferenceUsage> allRefs)
     {
-        var allLabels = this.GetAllLabels(files).ToList();
-        var allRefs = this.GetAllRefs(files).Select(x => x.label).ToList();
-
         var haveReference = allLabels
                             .Where(entry => allRefs
-                                       .Any(referencedLabel => referencedLabel == entry.label))
+                                       .Any(referencedLabel => referencedLabel.label == entry.label))
                             .ToList();
 
         var notReferenced = allLabels.Except(haveReference);
@@ -300,10 +303,9 @@ public class FileParser
     /// </summary>
     /// <param name="files"></param>
     /// <returns></returns>
-    public IEnumerable<GlsError> FindWrongRefUsage(List<string> files)
+    public IEnumerable<GlsError> FindWrongRefUsage(List<string> files, List<ReferenceUsage> allRefs)
     {
-        var allRefs = this.GetAllRefs(files).ToList();
-        var problems = allRefs.Where(reference => reference.refType == RefType.Normal);
+        var problems = allRefs.Where(reference => reference.RefType == RefType.Normal);
 
         foreach (var element in problems)
         {
@@ -326,9 +328,8 @@ public class FileParser
         /// </summary>
         /// <param name="files"></param>
         /// <returns></returns>
-    public IEnumerable<GlsError> FindLabelNamingErrors(List<string> files)
+    public IEnumerable<GlsError> FindLabelNamingErrors(List<string> files, List<LabelDefinition> allLabels)
     {
-        var allLabels = this.GetAllLabels(files).ToList();
         var possiblePres = new List<string>() { "chap:", "sec:", "subsec:", "fig:", "table:", "lst:", "label" };
         var problematicLabels = allLabels
             .Where(label => possiblePres
@@ -351,6 +352,58 @@ public class FileParser
         }
     }
 
+    /// <summary>
+    /// Finde bei Referenzierung und Zitation ob Label verwendet wurden, welches es nicht gibt.
+    /// Bei Glossar erkennt es TexStudio selbst und wirft einen Fehler.
+    /// </summary>
+    /// <param name="files"></param>
+    /// <param name="allCitationLabels"></param>
+    /// <param name="allCitations"></param>
+    /// <param name="allRefUsages"></param>
+    /// <param name="allRefLabels"></param>
+    /// <returns></returns>
+    public IEnumerable<GlsError> FindNotExistendLabels(List<string> files, List<CitationEntry> allCitationLabels, List<CitationUsage> allCitations,
+                                                       List<ReferenceUsage> allRefUsages, List<LabelDefinition> allRefLabels)
+    {
+        var wrongRefs = allRefUsages
+                        .Where(usage => allRefLabels
+                                   .All(label => label.label != usage.label))
+                        .ToList();
+        var wrongCitations = allCitations
+                             .Where(usage => allCitationLabels
+                                        .All(label => label.label != usage.label))
+                             .ToList();
+
+        foreach (var citation in wrongCitations)
+        {
+            yield return new GlsError()
+                         {
+                             WordContent = citation.label,
+                             ActualForm = GlsType.CitationLabel,
+                             ErrorType = ErrorType.WrongLabel,
+                             File = citation.file,
+                             Line = citation.line.Number,
+                             LinePosition = citation.pos,
+                             ErrorStatus = ErrorStatus.NotIgnored,
+                             DirectSuroundings = this.GetDirectSuroundings(citation.line.Content, citation.label)
+                         };
+        }
+
+        foreach (var reference in wrongRefs)
+        {
+            yield return new GlsError()
+                         {
+                             WordContent = reference.label,
+                             ActualForm = GlsType.Label,
+                             ErrorType = ErrorType.WrongLabel,
+                             File = reference.file,
+                             Line = reference.line.Number,
+                             LinePosition = reference.pos,
+                             ErrorStatus = ErrorStatus.NotIgnored,
+                             DirectSuroundings = this.GetDirectSuroundings(reference.line.Content, reference.label)
+                         };
+        }
+    }
 
     #region HelperMethods
 
@@ -405,57 +458,6 @@ public class FileParser
                 if (groups.Count < 3) continue;
 
                 yield return (actualLine, groups[2].Value);
-            }
-        }
-    }
-
-    private IEnumerable<(string label, string file, Line line, int pos)> GetAllLabels(List<string> files)
-    {
-        const string regexPatternLabel = @"label({|=)(.*?)(}|])";
-        var regexLabel = new Regex(regexPatternLabel, RegexOptions.Compiled);
-
-        foreach (var file in files)
-        {
-            var allLines = this.fileExtractor.GetAllLinesFromFile(file);
-            foreach (var line in allLines)
-            {
-                var labelMatches = regexLabel.Matches(line.Content);
-
-                foreach (Match labelMatch in labelMatches)
-                {
-                    var labelGroups = labelMatch.Groups;
-
-                    if (labelGroups is { Count: > 2 })
-                    {
-                        yield return (labelGroups[2].Value, file, line, labelMatch.Index);
-                    }
-                }
-            }
-        }
-    }
-
-    private IEnumerable<(string label, RefType refType, string file, Line line, int pos)> GetAllRefs(List<string> files)
-    {
-        const string regexPatternRef = @"\\(.*?)ref{(.*?)}";
-        var regexRef = new Regex(regexPatternRef, RegexOptions.Compiled);
-
-        foreach (var file in files)
-        {
-            var allLines = this.fileExtractor.GetAllLinesFromFile(file);
-
-            foreach (var line in allLines)
-            {
-                var refMatches = regexRef.Matches(line.Content);
-                foreach (Match refMatch in refMatches)
-                {
-                    var refGroups = refMatch.Groups;
-
-                    if (refGroups.Count < 3) continue;
-
-                    var refType = string.IsNullOrEmpty(refGroups[1].Value) ? RefType.Normal : RefType.Auto;
-
-                    yield return (refGroups[2].Value, refType, file, line, refMatch.Index);
-                }
             }
         }
     }
