@@ -32,6 +32,7 @@ public class GlsError
             return split?.ElementAt(0) ?? this.WordContent;
         }
     }
+    public string? FullLine { get; set; }
 
     public string? SuroundingsAfter
     {
@@ -52,6 +53,7 @@ public class GlsError
 
         if (glsError.ErrorType is ErrorType.MissingRef or ErrorType.LabelNaming or ErrorType.MissingCitation) return true;
 
+        if (this.FullLine != glsError.FullLine) return false;
         if (this.DirectSuroundings != glsError.DirectSuroundings) return false;
         if (this.Line != glsError.Line) return false;
         if (this.LinePosition != glsError.LinePosition) return false;

@@ -56,7 +56,8 @@ public class FileParser
                                          Line = line.Number,
                                          LinePosition = match.Index,
                                          ErrorStatus = ErrorStatus.NotIgnored,
-                                         DirectSuroundings = this.GetDirectSuroundings(line.Content, match.Value)
+                                         DirectSuroundings = this.GetDirectSuroundings(line.Content, match.Value),
+                                         FullLine = line.Content
                                      };
                     }
                 }
@@ -110,7 +111,8 @@ public class FileParser
                              Line = entry.line,
                              LinePosition = entry.pos,
                              ErrorStatus = ErrorStatus.NotIgnored,
-                             DirectSuroundings = $"@{entry.type}{{{entry.label},"
+                             DirectSuroundings = $"@{entry.type}{{{entry.label},",
+                             FullLine = $"@{entry.type}{{{entry.label},"
             };
         }
     }
@@ -159,7 +161,8 @@ public class FileParser
                                       Line = line.number,
                                       LinePosition = match.Index,
                                       ErrorStatus = ErrorStatus.NotIgnored,
-                                      DirectSuroundings = this.GetDirectSuroundings(line.content, line.label)
+                                      DirectSuroundings = this.GetDirectSuroundings(line.content, line.label),
+                                      FullLine = line.content
                     });
                 }
             }
@@ -215,7 +218,8 @@ public class FileParser
                                       Line = line.Number,
                                       LinePosition = line.Content.IndexOf(element.word, StringComparison.Ordinal),
                                       ErrorStatus = ErrorStatus.NotIgnored,
-                                      DirectSuroundings = this.GetDirectSuroundings(line.Content, element.word)
+                                      DirectSuroundings = this.GetDirectSuroundings(line.Content, element.word),
+                                      FullLine = line.Content
                     });
                 }
             }
@@ -256,7 +260,8 @@ public class FileParser
                                   Line = line.number,
                                   LinePosition = line.fullLine.line.Content.IndexOf(line.containedLabel, StringComparison.Ordinal),
                                   ErrorStatus = ErrorStatus.NotIgnored,
-                                  DirectSuroundings = this.GetDirectSuroundings(line.fullLine.line.Content, line.containedLabel)
+                                  DirectSuroundings = this.GetDirectSuroundings(line.fullLine.line.Content, line.containedLabel),
+                                  FullLine = line.fullLine.line.Content
                 });
             }
         }
@@ -277,11 +282,11 @@ public class FileParser
 
         foreach (var element in notReferenced)
         {
-            if (labelsToIgnore.Contains(element.label)) continue;
+            if (labelsToIgnore.Contains(element.label ?? string.Empty)) continue;
 
             if (ignoreSections)
             {
-                if(element.label.Contains("sec:") || element.label.Contains("chap:") || element.label.Contains("subsec:")) continue;
+                if(element.label!.Contains("sec:") || element.label.Contains("chap:") || element.label.Contains("subsec:")) continue;
             }
 
             yield return (new GlsError
@@ -290,10 +295,11 @@ public class FileParser
                               ActualForm = GlsType.Label,
                               ErrorType = ErrorType.MissingRef,
                               File = element.file,
-                              Line = element.line.Number,
+                              Line = element.line!.Number,
                               LinePosition = element.pos,
                               ErrorStatus = ErrorStatus.NotIgnored,
-                              DirectSuroundings = this.GetDirectSuroundings(element.line.Content, element.label)
+                              DirectSuroundings = this.GetDirectSuroundings(element.line.Content, element.label ?? string.Empty),
+                              FullLine = element.line.Content
                           });
         }
     }
@@ -302,6 +308,7 @@ public class FileParser
     /// Findet alle Referenzierungen in denen \ref statt \autoref verwendet wurde
     /// </summary>
     /// <param name="files"></param>
+    /// <param name="allRefs"></param>
     /// <returns></returns>
     public IEnumerable<GlsError> FindWrongRefUsage(List<string> files, List<ReferenceUsage> allRefs)
     {
@@ -315,25 +322,27 @@ public class FileParser
                               ActualForm = GlsType.Label,
                               ErrorType = ErrorType.WrongRefType,
                               File = element.file,
-                              Line = element.line.Number,
+                              Line = element.line!.Number,
                               LinePosition = element.pos,
                               ErrorStatus = ErrorStatus.NotIgnored,
-                              DirectSuroundings = this.GetDirectSuroundings(element.line.Content, element.label)
+                              DirectSuroundings = this.GetDirectSuroundings(element.line.Content, element.label ?? string.Empty),
+                              FullLine = element.line.Content
             });
         }
     }
 
     /// <summary>
-        /// Prüft ob alle Labels richtig benannt wurden
-        /// </summary>
-        /// <param name="files"></param>
-        /// <returns></returns>
+    /// Prüft ob alle Labels richtig benannt wurden
+    /// </summary>
+    /// <param name="files"></param>
+    /// <param name="allLabels"></param>
+    /// <returns></returns>
     public IEnumerable<GlsError> FindLabelNamingErrors(List<string> files, List<LabelDefinition> allLabels)
     {
         var possiblePres = new List<string>() { "chap:", "sec:", "subsec:", "fig:", "table:", "lst:", "label" };
         var problematicLabels = allLabels
             .Where(label => possiblePres
-                       .All(pre => !label.label.Contains(pre)))
+                       .All(pre => !label.label!.Contains(pre)))
             .ToList();
 
         foreach (var problematicLabel in problematicLabels)
@@ -344,10 +353,11 @@ public class FileParser
                               ActualForm = GlsType.Label,
                               ErrorType = ErrorType.LabelNaming,
                               File = problematicLabel.file,
-                              Line = problematicLabel.line.Number,
+                              Line = problematicLabel.line!.Number,
                               LinePosition = problematicLabel.pos,
                               ErrorStatus = ErrorStatus.NotIgnored,
-                              DirectSuroundings = this.GetDirectSuroundings(problematicLabel.line.Content, problematicLabel.label)
+                              DirectSuroundings = this.GetDirectSuroundings(problematicLabel.line.Content, problematicLabel.label ?? string.Empty),
+                              FullLine = problematicLabel.line.Content
             });
         }
     }
@@ -382,10 +392,11 @@ public class FileParser
                              ActualForm = GlsType.CitationLabel,
                              ErrorType = ErrorType.WrongLabel,
                              File = citation.file,
-                             Line = citation.line.Number,
+                             Line = citation.line!.Number,
                              LinePosition = citation.pos,
                              ErrorStatus = ErrorStatus.NotIgnored,
-                             DirectSuroundings = this.GetDirectSuroundings(citation.line.Content, citation.label)
+                             DirectSuroundings = this.GetDirectSuroundings(citation.line.Content, citation.label ?? string.Empty),
+                             FullLine = citation.line.Content
                          };
         }
 
@@ -397,10 +408,11 @@ public class FileParser
                              ActualForm = GlsType.Label,
                              ErrorType = ErrorType.WrongLabel,
                              File = reference.file,
-                             Line = reference.line.Number,
+                             Line = reference.line!.Number,
                              LinePosition = reference.pos,
                              ErrorStatus = ErrorStatus.NotIgnored,
-                             DirectSuroundings = this.GetDirectSuroundings(reference.line.Content, reference.label)
+                             DirectSuroundings = this.GetDirectSuroundings(reference.line.Content, reference.label ?? string.Empty),
+                             FullLine = reference.line.Content
                          };
         }
     }

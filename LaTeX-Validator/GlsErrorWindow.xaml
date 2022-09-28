@@ -80,9 +80,21 @@
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
                                         <StackPanel Orientation="Horizontal">
-                                            <TextBlock FontWeight="Normal" Text="{Binding SuroundingsBefore}"></TextBlock>
-                                            <TextBlock FontWeight="Bold" Text="{Binding WordContent}"></TextBlock>
-                                            <TextBlock FontWeight="Normal" Text="{Binding SuroundingsAfter}"></TextBlock>
+                                            <TextBlock FontWeight="Normal" Text="{Binding SuroundingsBefore}">
+                                                <TextBlock.ToolTip>
+                                                    <TextBlock Text="{Binding FullLine}" TextWrapping="Wrap" MaxWidth="800"></TextBlock>
+                                                </TextBlock.ToolTip>
+                                            </TextBlock>
+                                            <TextBlock FontWeight="Bold" Text="{Binding WordContent}">
+                                                <TextBlock.ToolTip>
+                                                    <TextBlock Text="{Binding FullLine}" TextWrapping="Wrap" MaxWidth="800"></TextBlock>
+                                                </TextBlock.ToolTip>
+                                            </TextBlock>
+                                            <TextBlock FontWeight="Normal" Text="{Binding SuroundingsAfter}">
+                                                <TextBlock.ToolTip>
+                                                    <TextBlock Text="{Binding FullLine}" TextWrapping="Wrap" MaxWidth="800"></TextBlock>
+                                                </TextBlock.ToolTip>
+                                            </TextBlock>
                                         </StackPanel>
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>

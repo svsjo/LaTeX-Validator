@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
@@ -301,6 +302,9 @@ namespace LaTeX_Validator
 
         private void JumpToError(string path, int line, int pos)
         {
+            if (line == -1) line = 0;
+            if (pos == -1) pos = 0;
+
             var process = new Process
                           {
                               StartInfo = new ProcessStartInfo
@@ -314,6 +318,8 @@ namespace LaTeX_Validator
                           };
 
             process.Start();
+
+            // STRG SHIFT RECHTS
         }
 
         private void StartAnalysis()

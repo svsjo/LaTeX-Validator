@@ -195,26 +195,26 @@ public class FileExtractor
 
     public class ReferenceUsage
     {
-        public string label { get; set; }
-        public string file { get; set; }
-        public Line line { get; set; }
+        public string? label { get; set; }
+        public string? file { get; set; }
+        public Line? line { get; set; }
         public int pos { get; set; }
         public RefType RefType { get; set; }
     }
 
     public class LabelDefinition
     {
-        public string label { get; set; }
-        public string file { get; set; }
-        public Line line { get; set; }
+        public string? label { get; set; }
+        public string? file { get; set; }
+        public Line? line { get; set; }
         public int pos { get; set; }
     }
 
     public class CitationUsage
     {
-        public string label { get; set; }
-        public Line line { get; set; }
-        public string file { get; set; }
+        public string? label { get; set; }
+        public Line? line { get; set; }
+        public string? file { get; set; }
         public int pos { get; set; }
     }
 }
