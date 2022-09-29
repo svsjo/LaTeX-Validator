@@ -5,7 +5,6 @@
 // <author>Jonas Weis</author>
 // --------------------------------------------------------------------------------------------------------------------
 
-using System;
 using System.Linq;
 using LaTeX_Validator.Extensions;
 

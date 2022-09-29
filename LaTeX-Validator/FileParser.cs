@@ -1,13 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Linq;
-using System.Net.WebSockets;
-using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
-using System.Windows.Shapes;
 using static LaTeX_Validator.FileExtractor;
-using static Microsoft.WindowsAPICodePack.Shell.PropertySystem.SystemProperties.System;
 
 namespace LaTeX_Validator;
 

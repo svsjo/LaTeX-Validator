@@ -7,7 +7,6 @@
 
 using System.Collections.Specialized;
 using System.Linq;
-using System.Xaml;
 
 namespace LaTeX_Validator.Extensions;
 

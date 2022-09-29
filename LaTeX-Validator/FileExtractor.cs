@@ -6,13 +6,9 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 using System.Collections.Generic;
-using System.Formats.Asn1;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
-using System.Windows.Controls.Primitives;
-using System.Windows.Documents;
-using System.Windows.Shapes;
 
 namespace LaTeX_Validator;
 

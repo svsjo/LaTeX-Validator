@@ -1,22 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
-using System.Transactions;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Data;
-using System.Windows.Documents;
 using LaTeX_Validator.Extensions;
 using Microsoft.WindowsAPICodePack.Dialogs;
-using static LaTeX_Validator.Extensions.ObservableCollectionExtensions;
-using Path = System.IO.Path;
+using Microsoft.WindowsAPICodePack.Shell.PropertySystem;
+using WindowsInput;
+using WindowsInput.Native;
 
 namespace LaTeX_Validator
 {
@@ -33,6 +31,7 @@ namespace LaTeX_Validator
         private readonly FileParser fileParser;
         private GridViewColumnHeader? lastHeaderClicked = null;
         private ListSortDirection lastSortOrder = ListSortDirection.Ascending;
+        private readonly InputSimulator InputSimulator = new InputSimulator();
 
 
         #region Initialization
@@ -320,7 +319,20 @@ namespace LaTeX_Validator
 
             process.Start();
 
-            // STRG SHIFT RECHTS INPUT sobald VS Code offen ist
+            List<Process> vscList;
+            do
+            {
+                vscList = Process.GetProcessesByName("Code").ToList();
+            } while (!vscList.Any());
+
+            System.Threading.Thread.Sleep(1500);
+
+            this.InputSimulator.Keyboard.KeyPress(VirtualKeyCode.RIGHT);
+            this.InputSimulator.Keyboard.KeyDown(VirtualKeyCode.CONTROL);
+            this.InputSimulator.Keyboard.KeyDown(VirtualKeyCode.SHIFT);
+            this.InputSimulator.Keyboard.KeyPress(VirtualKeyCode.RIGHT);
+            this.InputSimulator.Keyboard.KeyUp(VirtualKeyCode.CONTROL);
+            this.InputSimulator.Keyboard.KeyUp(VirtualKeyCode.SHIFT);
         }
 
         private void StartAnalysis()
