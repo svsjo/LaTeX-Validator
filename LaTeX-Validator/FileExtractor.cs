@@ -5,9 +5,11 @@
 // <author>Jonas Weis</author>
 // --------------------------------------------------------------------------------------------------------------------
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 
 namespace LaTeX_Validator;
@@ -192,11 +194,6 @@ public class FileExtractor
         }
     }
 
-    /// <summary>
-    /// TODO ERROR FIXEn
-    /// </summary>
-    /// <param name="files"></param>
-    /// <returns></returns>
     public IEnumerable<Area> GetAllCriticalAreas(List<string> files)
     {
         const string regexBeginPattern = @"\\begin{(lstlisting|longtable|figure|tabular|table|tabularx)}(.*?)";
@@ -240,6 +237,65 @@ public class FileExtractor
                              };
             }
         }
+    }
+
+    public IEnumerable<Sentence> GetAllSentences(List<string> files)
+    {
+        var toIgnore = new List<string>
+                       {
+                           @"\label",
+                           @"\section",
+                           @"\chapter",
+                           @"\subsection",
+                           @"\centering",
+                           @"\includegraphics",
+                           @"\begin",
+                           @"\end",
+                           @"\small",
+                           @"\renewcommand",
+                           @"\setlength",
+                           @"\vspace",
+                           @"\cellcolor",
+                           @"\hline",
+                           @"\pagebreak",
+                           @"\newpage",
+                           @"\FloatBarrier"
+                       };
+
+        foreach (var file in files)
+        {
+            var allLines = this.GetAllLinesFromFile(file);
+
+            foreach (var line in allLines)
+            {
+                var allSentences = line.Content.Split(".").ToList();
+
+                foreach (var sentence in allSentences)
+                {
+                    if(string.IsNullOrWhiteSpace(sentence)) continue;
+                    if(string.IsNullOrEmpty(sentence)) continue;
+                    if(toIgnore.Any(x => sentence.Contains(x))) continue;
+                    var commentIndex = sentence.IndexOf("%", StringComparison.Ordinal);
+                    if (commentIndex is < 5 and >= 0) continue;
+                    if(!sentence.Contains(" ")) continue;
+
+                    yield return new Sentence
+                                 {
+                                     file = file,
+                                     line = line,
+                                     sentence = sentence
+                                 };
+                }
+            }
+        }
+    }
+
+
+    public class Sentence
+    {
+        public string? sentence { get; set; }
+        public Line? line { get; set; }
+        public string? file { get; set; }
     }
 
     public class ReferenceUsage

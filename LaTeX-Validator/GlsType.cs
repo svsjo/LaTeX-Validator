@@ -28,5 +28,7 @@ public enum GlsType
     [EnumExtension("Füllwort")]
     Fillword,
     [EnumExtension("Bereichsdefinition")]
-    Area
+    Area,
+    [EnumExtension("Satz")]
+    Sentences
 }

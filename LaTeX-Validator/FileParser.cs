@@ -167,7 +167,7 @@ public class FileParser
     /// <summary>
     /// Alle Kurz- und Langbezeichner aus dem Glossar sollten verwendet werden (\Gls oder eben \AcrLong \AcrShort)
     /// </summary>
-    public IEnumerable<GlsError> FindMissingGlsErrors(List<string> files, IReadOnlyCollection<AcronymEntry> allAcronymEntries,
+    public IEnumerable<GlsError> FindMissingGls(List<string> files, IReadOnlyCollection<AcronymEntry> allAcronymEntries,
                                                       IReadOnlyCollection<string> allGlossaryEntries)
     {
         foreach (var file in files)
@@ -224,7 +224,7 @@ public class FileParser
     /// <summary>
     /// In Abbildungen, Tabellen und Quellcode und Überschriften sollte nie \Gls sondern nur \AcrLong oder \AcrShort verwendet werden
     /// </summary>
-    public IEnumerable<GlsError> FindWrongGlossaryErrors(List<string> files, IEnumerable<AcronymEntry> allAcronymEntries)
+    public IEnumerable<GlsError> FindWrongGlossary(List<string> files, IEnumerable<AcronymEntry> allAcronymEntries)
     {
         foreach (var file in files)
         {
@@ -265,7 +265,7 @@ public class FileParser
     /// <summary>
     /// Wird auf alle Label von Tabellen, Quellcode und Bildern verwiesen?
     /// </summary>
-    public IEnumerable<GlsError> FindMissingReferencesErrors(List<string> files, bool ignoreSections, List<string> labelsToIgnore,
+    public IEnumerable<GlsError> FindMissingReferences(List<string> files, bool ignoreSections, List<string> labelsToIgnore,
                                                              List<LabelDefinition> allLabels, List<ReferenceUsage> allRefs)
     {
         var haveReference = allLabels
@@ -332,7 +332,7 @@ public class FileParser
     /// <param name="files"></param>
     /// <param name="allLabels"></param>
     /// <returns></returns>
-    public IEnumerable<GlsError> FindLabelNamingErrors(List<string> files, List<LabelDefinition> allLabels)
+    public IEnumerable<GlsError> FindWrongLabelNaming(List<string> files, List<LabelDefinition> allLabels)
     {
         var possiblePres = new List<string>() { "chap:", "sec:", "subsec:", "fig:", "table:", "lst:", "label" };
         var problematicLabels = allLabels
@@ -458,6 +458,30 @@ public class FileParser
             }
 
             it++;
+        }
+    }
+
+    public IEnumerable<GlsError> FindToLongSenetences(List<Sentence> allSenetences)
+    {
+        foreach (var sentence in allSenetences)
+        {
+            var words = sentence.sentence?.Split(" ").ToList() ?? new List<string>();
+
+            if (words.Count > 30)
+            {
+                yield return new GlsError
+                             {
+                                 WordContent = words.Take(2).Aggregate((x,y) => x + " " + y),
+                                 ActualForm = GlsType.Sentences,
+                                 ErrorType = ErrorType.LongSentence,
+                                 File = sentence.file,
+                                 Line = sentence.line?.Number ?? 0,
+                                 LinePosition = sentence.line?.Content.IndexOf(sentence.sentence ?? string.Empty, StringComparison.Ordinal) ?? 0,
+                                 ErrorStatus = ErrorStatus.NotIgnored,
+                                 DirectSuroundings = sentence.sentence,
+                                 FullLine = sentence.line?.Content
+                };
+            }
         }
     }
 

@@ -32,5 +32,7 @@ public enum ErrorType
     [EnumExtension("Label nicht definiert")]
     NoLabel,
     [EnumExtension("Caption nicht definiert")]
-    NoCaption
+    NoCaption,
+    [EnumExtension("Satz zu lange")]
+    LongSentence
 }

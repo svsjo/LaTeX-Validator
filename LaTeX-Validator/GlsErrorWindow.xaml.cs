@@ -347,6 +347,9 @@ namespace LaTeX_Validator
                 this.configuration.latexDirectoryPath!, "*.tex", SearchOption.AllDirectories).ToList();
             var beforeFiles = Directory.GetFiles(
                 this.configuration.preambleDirectoryPath!, "*.tex", SearchOption.AllDirectories).ToList();
+            var tempFiles = Directory.GetFiles(
+                this.configuration.latexDirectoryPath!, "*.tex", SearchOption.TopDirectoryOnly).ToList();
+            var contentFiles = allFiles.Except(tempFiles).ToList();
 
             var allAcronymEntries = this.fileExtractor.GetAcronymEntries(this.configuration.glossaryPath!).ToList();
             var allGlossaryEntries = this.fileExtractor.GetGlossaryEntries(this.configuration.glossaryPath!).ToList();
@@ -355,6 +358,7 @@ namespace LaTeX_Validator
             var allLabels = this.fileExtractor.GetAllLabels(allFiles).ToList();
             var allRefs = this.fileExtractor.GetAllRefs(allFiles).ToList();
             var allAreas = this.fileExtractor.GetAllCriticalAreas(allFiles).ToList();
+            var allSenetences = this.fileExtractor.GetAllSentences(contentFiles).ToList();
 
             allFiles.Remove(this.configuration.glossaryPath!);
             beforeFiles.Remove(this.configuration.glossaryPath!);
@@ -365,28 +369,29 @@ namespace LaTeX_Validator
                                                  .ToList();
 
             this.ActualisateErrors(this.fileParser.FindWrongGlossaryErrorsPreamble(beforeFiles, allAcronymEntries),
-                                   this.fileParser.FindMissingGlsErrors(missingGlsFiles, allAcronymEntries, allGlossaryEntries),
-                                   this.fileParser.FindWrongGlossaryErrors(allFiles, allAcronymEntries),
-                                   this.fileParser.FindMissingReferencesErrors(allFiles,
+                                   this.fileParser.FindMissingGls(missingGlsFiles, allAcronymEntries, allGlossaryEntries),
+                                   this.fileParser.FindWrongGlossary(allFiles, allAcronymEntries),
+                                   this.fileParser.FindMissingReferences(allFiles,
                                                                                this.configuration.ignoreSectionLabels,
                                                                                this.configuration.labelsToIgnore.ToList(),
                                                                                allLabels,
                                                                                allRefs),
-                                   this.fileParser.FindLabelNamingErrors(allFiles, allLabels),
+                                   this.fileParser.FindWrongLabelNaming(allFiles, allLabels),
                                    this.fileParser.FindWrongRefUsage(allFiles, allRefs),
                                    this.fileParser.FindMissingCitations(allFiles, allCitationEntries,
                                            this.configuration.labelsToIgnore.ToList()),
                                    this.fileParser.FindFillWords(allFiles, this.configuration.fillWords.ToList(),
                                                                  this.configuration.searchFillWords),
                                    this.fileParser.FindNotExistendLabels(allFiles, allCitationEntries, allCitations, allRefs, allLabels),
-                    this.fileParser.FindMissingCaptionOrLabel(allAreas));
+                    this.fileParser.FindMissingCaptionOrLabel(allAreas),
+                    this.fileParser.FindToLongSenetences(allSenetences));
         }
 
         private void ActualisateErrors(
             IEnumerable<GlsError> acrLongErrors, IEnumerable<GlsError> missingGlsErrors, IEnumerable<GlsError> tableErrors,
             IEnumerable<GlsError> missingReferenceErrors, IEnumerable<GlsError> labelNameErrors, IEnumerable<GlsError> refTypeErrors,
             IEnumerable<GlsError> missingCitationErrors, IEnumerable<GlsError> fillWordErrors, IEnumerable<GlsError> notExistantLabels,
-            IEnumerable<GlsError> missingCaptionOrLabels)
+            IEnumerable<GlsError> missingCaptionOrLabels, IEnumerable<GlsError> longSentencesErrors)
         {
             var isIgnored = this.allErrors
                                 .AddRangeIfPossibleAndReturnErrors(acrLongErrors, this.persistentIgnoredErrors);
@@ -408,6 +413,9 @@ namespace LaTeX_Validator
                                    .AddRangeIfPossibleAndReturnErrors(notExistantLabels, this.persistentIgnoredErrors));
             isIgnored.AddRange(this.allErrors
                                    .AddRangeIfPossibleAndReturnErrors(missingCaptionOrLabels, this.persistentIgnoredErrors));
+            isIgnored.AddRange(this.allErrors
+                                   .AddRangeIfPossibleAndReturnErrors(longSentencesErrors, this.persistentIgnoredErrors));
+
 
             this.transientIgnoredErrors = isIgnored;
             this.persistentIgnoredErrors.AddRange(isIgnored);
