@@ -1,6 +1,6 @@
 ﻿using System.Collections.Specialized;
 
-namespace LaTeX_Validator
+namespace LaTeX_Validator.DataClasses
 {
     internal class ConfigurationGlossary
     {
@@ -25,7 +25,7 @@ namespace LaTeX_Validator
 
         #endregion
 
-        public bool IsMissingSomething()
+        public bool IsPathMissing()
         {
             return string.IsNullOrEmpty(this.latexDirectoryPath) || string.IsNullOrEmpty(this.glossaryPath) ||
                    string.IsNullOrEmpty(this.preambleDirectoryPath) || string.IsNullOrEmpty(this.bibPath);

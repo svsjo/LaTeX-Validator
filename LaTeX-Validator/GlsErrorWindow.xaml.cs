@@ -3,16 +3,15 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Data;
+using LaTeX_Validator.DataClasses;
+using LaTeX_Validator.Enums;
 using LaTeX_Validator.Extensions;
 using Microsoft.WindowsAPICodePack.Dialogs;
-using Microsoft.WindowsAPICodePack.Shell.PropertySystem;
 using WindowsInput;
 using WindowsInput.Native;
 
@@ -23,6 +22,8 @@ namespace LaTeX_Validator
     /// </summary>
     partial class GlsErrorWindow : Window
     {
+        #region Attributes
+
         private readonly ObservableCollection<GlsError> allErrors;
         private List<GlsError> persistentIgnoredErrors;
         private List<GlsError> transientIgnoredErrors;
@@ -31,8 +32,9 @@ namespace LaTeX_Validator
         private readonly FileParser fileParser;
         private GridViewColumnHeader? lastHeaderClicked = null;
         private ListSortDirection lastSortOrder = ListSortDirection.Ascending;
-        private readonly InputSimulator InputSimulator = new InputSimulator();
+        private readonly InputSimulator InputSimulator = new();
 
+        #endregion
 
         #region Initialization
 
@@ -63,8 +65,7 @@ namespace LaTeX_Validator
             this.PopupDialog.LabelsBox.Text = this.configuration.labelsToIgnore?.AggregateToString();
 
             var text = this.configuration.ignoreFilesWithMissingGls.ToList();
-            if(!text.Any()) return;
-            this.IgnorableFilesMissingGlsBox.Text = text.Aggregate((x, y) => x + "\n" + y);
+            if(text.Any()) this.IgnorableFilesMissingGlsBox.Text = text.Aggregate((x, y) => x + "\n" + y);
         }
 
         private void InitializeFromPersistentData()
@@ -76,7 +77,7 @@ namespace LaTeX_Validator
             this.configuration.ignoreFilesWithMissingGls = Settings.Default.SettingsPaths;
             this.configuration.ignoreSettingsFile = Settings.Default.IgnoreSettingsFile;
             this.configuration.showIgnoredErrors = Settings.Default.ShowIgnoredErrors;
-            this.persistentIgnoredErrors = Settings.Default.SerialzedGlsErrors.Deserialize();
+            this.persistentIgnoredErrors = Settings.Default.SerialzedGlsErrors.ToGlsError();
             this.configuration.bibPath = Settings.Default.BibPath;
             this.configuration.labelsToIgnore = Settings.Default.LabelsToIgnore;
             this.configuration.fillWords = Settings.Default.FillWords;
@@ -96,13 +97,15 @@ namespace LaTeX_Validator
             Settings.Default.LabelsToIgnore = this.configuration.labelsToIgnore;
             Settings.Default.FillWords = this.configuration.fillWords;
             Settings.Default.SearchFillWords = this.configuration.searchFillWords;
-            Settings.Default.SerialzedGlsErrors = this.persistentIgnoredErrors.Serialize();
+            Settings.Default.SerialzedGlsErrors = this.persistentIgnoredErrors.ToStringCollection();
             Settings.Default.Save();
         }
 
         #endregion
 
         #region UiEvents
+
+        #region ButtonClicked
 
         private void ButtonStart_Click(object sender, RoutedEventArgs e)
         {
@@ -123,12 +126,138 @@ namespace LaTeX_Validator
             this.configuration.ignoreSectionLabels = checkBox?.IsChecked ?? false;
         }
 
+        private void PickerShowFillwords_Clicked(object sender, RoutedEventArgs e)
+        {
+            var checkBox = sender as CheckBox;
+            this.configuration.searchFillWords = checkBox?.IsChecked ?? false;
+        }
+
+        private void ButtonJump_Clicked(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            if (button?.DataContext is not GlsError data) return;
+            this.JumpToError(data.File!, data.Line, data.LinePosition);
+        }
+
+        private void ButtonIgnore_Clicked(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            if (button?.DataContext is not GlsError data) return;
+
+            if (data.ErrorStatus == ErrorStatus.NotIgnored)
+            {
+                this.allErrors.Remove(data);
+                data.ErrorStatus = ErrorStatus.Ignored;
+                this.persistentIgnoredErrors.Add(data);
+                this.transientIgnoredErrors.Add(data);
+                if (this.configuration.showIgnoredErrors) this.allErrors.Add(data);
+            }
+            else
+            {
+                this.allErrors.Remove(data);
+                data.ErrorStatus = ErrorStatus.NotIgnored;
+                this.transientIgnoredErrors.Remove(data);
+                this.persistentIgnoredErrors.Remove(data);
+                this.allErrors.Add(data);
+            }
+        }
+
+        private void SelectFillwordsAndLabels_Clicked(object sender, RoutedEventArgs e)
+        {
+            this.PopupDialog.Visibility = Visibility.Visible;
+        }
+
+        private void PickerShowIgnoredErrors_Clicked(object sender, RoutedEventArgs e)
+        {
+            var checkBox = sender as CheckBox;
+            this.configuration.showIgnoredErrors = checkBox?.IsChecked ?? false;
+            if (this.configuration.showIgnoredErrors)
+            {
+                this.allErrors.AddRange(this.transientIgnoredErrors);
+            }
+            else
+            {
+                this.allErrors.RemoveRange(this.transientIgnoredErrors);
+            }
+        }
+
+        private void JumpToError(string path, int line, int pos)
+        {
+            if (line == -1) line = 0;
+            if (pos == -1) pos = 0;
+
+            var process = new Process
+                          {
+                              StartInfo = new ProcessStartInfo
+                                          {
+                                              FileName = "code",
+                                              Arguments = $"--goto \"{path}\":{line}:{pos}",
+                                              UseShellExecute = true,
+                                              CreateNoWindow = true,
+                                              WindowStyle = ProcessWindowStyle.Hidden
+                                          }
+                          };
+
+            process.Start();
+
+            this.MarkWord();
+        }
+
+        private void PopupDialog_OnWindowIsClosing(string labelsToIgnore, string fillWords)
+        {
+            this.configuration.labelsToIgnore = labelsToIgnore.ToStringCollection();
+            this.configuration.fillWords = fillWords.ToStringCollection();
+        }
+
+        private void ShowMessageBox()
+        {
+            const string messageBoxText = "Definiere zuerst alle Pfade!";
+            const string caption = "Fehler!";
+            const MessageBoxButton button = MessageBoxButton.OK;
+            const MessageBoxImage icon = MessageBoxImage.Warning;
+            MessageBox.Show(messageBoxText, caption, button, icon, MessageBoxResult.Yes);
+        }
+
+        private void ResetLatexDirectory(object sender, RoutedEventArgs e)
+        {
+            this.LatexDirectoryBox.Text = string.Empty;
+            this.configuration.latexDirectoryPath = string.Empty;
+        }
+
+        private void ResetGlossaryPath(object sender, RoutedEventArgs e)
+        {
+            this.GlossaryPathBox.Text = string.Empty;
+            this.configuration.glossaryPath = string.Empty;
+        }
+
+        private void ResetBibPath(object sender, RoutedEventArgs e)
+        {
+            this.BibliographiePathBox.Text = string.Empty;
+            this.configuration.bibPath = string.Empty;
+        }
+
+        private void ResetIgnoredFiles(object sender, RoutedEventArgs e)
+        {
+            this.IgnorableFilesMissingGlsBox.Text = string.Empty;
+            this.configuration.ignoreFilesWithMissingGls?.Clear();
+        }
+
+        private void ResetPreambleDirectory(object sender, RoutedEventArgs e)
+        {
+            this.PreambleDirectoryBox.Text = string.Empty;
+            this.configuration.preambleDirectoryPath = string.Empty;
+        }
+
+        #endregion
+
+        #region Sorting
+
         private void ColumnClick(object sender, RoutedEventArgs e)
         {
             if (e.OriginalSource is not GridViewColumnHeader header) return;
 
             var sortOrder = header != this.lastHeaderClicked ? ListSortDirection.Ascending :
-                                this.lastSortOrder == ListSortDirection.Ascending ? ListSortDirection.Descending : ListSortDirection.Ascending;
+                            this.lastSortOrder == ListSortDirection.Ascending ? ListSortDirection.Descending : ListSortDirection.Ascending;
 
             var columnBinding = header.Column.DisplayMemberBinding as Binding;
             var sortBy = columnBinding?.Path.Path ?? header.Column.Header as string;
@@ -159,66 +288,7 @@ namespace LaTeX_Validator
             dataView.Refresh();
         }
 
-        private void PickerShowFillwords_Clicked(object sender, RoutedEventArgs e)
-        {
-            var checkBox = sender as CheckBox;
-            this.configuration.searchFillWords = checkBox?.IsChecked ?? false;
-        }
-
-        private void ButtonJump_Clicked(object sender, RoutedEventArgs e)
-        {
-            var button = sender as Button;
-            if (button?.DataContext is not GlsError data) return;
-            this.JumpToError(data.File!, data.Line, data.LinePosition);
-        }
-        
-        private void ButtonIgnore_Clicked(object sender, RoutedEventArgs e)
-        {
-            var button = sender as Button;
-            if (button?.DataContext is not GlsError data) return;
-
-            if (data.ErrorStatus == ErrorStatus.NotIgnored)
-            {
-                this.allErrors.Remove(data);
-                data.ErrorStatus = ErrorStatus.Ignored;
-                this.persistentIgnoredErrors.Add(data);
-                this.transientIgnoredErrors.Add(data);
-                if(this.configuration.showIgnoredErrors) this.allErrors.Add(data);
-            }
-            else
-            {
-                this.allErrors.Remove(data);
-                data.ErrorStatus = ErrorStatus.NotIgnored;
-                this.transientIgnoredErrors.Remove(data);
-                this.persistentIgnoredErrors.Remove(data);
-                this.allErrors.Add(data);
-            }
-        }
-
-        private void SelectFillwordsAndLabels_Clicked(object sender, RoutedEventArgs e)
-        {
-            this.PopupDialog.Visibility = Visibility.Visible;
-        }
-
-        private void PopupDialog_OnWindowIsClosing(string labelsToIgnore, string fillWords)
-        {
-            this.configuration.labelsToIgnore = labelsToIgnore.ToStringCollection();
-            this.configuration.fillWords = fillWords.ToStringCollection();
-        }
-
-        private void PickerShowIgnoredErrors_Clicked(object sender, RoutedEventArgs e)
-        {
-            var checkBox = sender as CheckBox;
-            this.configuration.showIgnoredErrors = checkBox?.IsChecked ?? false;
-            if (this.configuration.showIgnoredErrors)
-            {
-                this.allErrors.AddRange(this.transientIgnoredErrors);
-            }
-            else
-            {
-                this.allErrors.RemoveRange(this.transientIgnoredErrors);
-            }
-        }
+        #endregion
 
         #region SelectPaths
 
@@ -307,25 +377,10 @@ namespace LaTeX_Validator
 
         #endregion
 
-        private void JumpToError(string path, int line, int pos)
+        #region Logic
+
+        private void MarkWord()
         {
-            if (line == -1) line = 0;
-            if (pos == -1) pos = 0;
-
-            var process = new Process
-                          {
-                              StartInfo = new ProcessStartInfo
-                                          {
-                                              FileName = "code",
-                                              Arguments = $"--goto \"{path}\":{line}:{pos}",
-                                              UseShellExecute = true,
-                                              CreateNoWindow = true,
-                                              WindowStyle = ProcessWindowStyle.Hidden
-                                          }
-                          };
-
-            process.Start();
-
             List<Process> vscList;
             do
             {
@@ -344,128 +399,50 @@ namespace LaTeX_Validator
 
         private void StartAnalysis()
         {
-            if (this.configuration.IsMissingSomething())
+            if (this.configuration.IsPathMissing())
             {
                 this.ShowMessageBox();
                 return;
             }
 
-            var allFiles = Directory.GetFiles(
-                this.configuration.latexDirectoryPath!, "*.tex", SearchOption.AllDirectories).ToList();
-            var beforeFiles = Directory.GetFiles(
-                this.configuration.preambleDirectoryPath!, "*.tex", SearchOption.AllDirectories).ToList();
-            var tempFiles = Directory.GetFiles(
-                this.configuration.latexDirectoryPath!, "*.tex", SearchOption.TopDirectoryOnly).ToList();
-            var contentFiles = allFiles.Except(tempFiles).ToList();
+            var allExtractions = new AllExtractions(this.configuration, this.fileExtractor);
+            allExtractions.ExtractAll();
 
-            var allAcronymEntries = this.fileExtractor.GetAcronymEntries(this.configuration.glossaryPath!).ToList();
-            var allGlossaryEntries = this.fileExtractor.GetGlossaryEntries(this.configuration.glossaryPath!).ToList();
-            var allCitationEntries = this.fileExtractor.GetCitationEntries(this.configuration.bibPath!).ToList();
-            var allCitations = this.fileExtractor.GetAllCitations(allFiles).ToList();
-            var allLabels = this.fileExtractor.GetAllLabels(allFiles).ToList();
-            var allRefs = this.fileExtractor.GetAllRefs(allFiles).ToList();
-            var allAreas = this.fileExtractor.GetAllCriticalAreas(allFiles).ToList();
-            var allSenetences = this.fileExtractor.GetAllSentences(contentFiles).ToList();
+            var glsErrors = this.GetAllErrors(allExtractions);
 
-            allFiles.Remove(this.configuration.glossaryPath!);
-            beforeFiles.Remove(this.configuration.glossaryPath!);
-
-            var missingGlsFiles = this.configuration.ignoreFilesWithMissingGls == null ? allFiles :
-                                      allFiles
-                                                 .Except(this.configuration.ignoreFilesWithMissingGls.ToList())
-                                                 .ToList();
-
-            this.ActualisateErrors(this.fileParser.FindWrongGlossaryErrorsPreamble(beforeFiles, allAcronymEntries),
-                                   this.fileParser.FindMissingGls(missingGlsFiles, allAcronymEntries, allGlossaryEntries),
-                                   this.fileParser.FindWrongGlossary(allFiles, allAcronymEntries),
-                                   this.fileParser.FindMissingReferences(allFiles,
-                                                                               this.configuration.ignoreSectionLabels,
-                                                                               this.configuration.labelsToIgnore.ToList(),
-                                                                               allLabels,
-                                                                               allRefs),
-                                   this.fileParser.FindWrongLabelNaming(allFiles, allLabels),
-                                   this.fileParser.FindWrongRefUsage(allFiles, allRefs),
-                                   this.fileParser.FindMissingCitations(allFiles, allCitationEntries,
-                                           this.configuration.labelsToIgnore.ToList()),
-                                   this.fileParser.FindFillWords(allFiles, this.configuration.fillWords.ToList(),
-                                                                 this.configuration.searchFillWords),
-                                   this.fileParser.FindNotExistendLabels(allFiles, allCitationEntries, allCitations, allRefs, allLabels),
-                    this.fileParser.FindMissingCaptionOrLabel(allAreas),
-                    this.fileParser.FindToLongSenetences(allSenetences));
+            this.ActualisateErrors(glsErrors);
         }
 
-        private void ActualisateErrors(
-            IEnumerable<GlsError> acrLongErrors, IEnumerable<GlsError> missingGlsErrors, IEnumerable<GlsError> tableErrors,
-            IEnumerable<GlsError> missingReferenceErrors, IEnumerable<GlsError> labelNameErrors, IEnumerable<GlsError> refTypeErrors,
-            IEnumerable<GlsError> missingCitationErrors, IEnumerable<GlsError> fillWordErrors, IEnumerable<GlsError> notExistantLabels,
-            IEnumerable<GlsError> missingCaptionOrLabels, IEnumerable<GlsError> longSentencesErrors)
+        private IEnumerable<GlsError> GetAllErrors(AllExtractions allExtractions)
         {
-            var isIgnored = this.allErrors
-                                .AddRangeIfPossibleAndReturnErrors(acrLongErrors, this.persistentIgnoredErrors);
-            isIgnored.AddRange(this.allErrors
-                                   .AddRangeIfPossibleAndReturnErrors(missingGlsErrors, this.persistentIgnoredErrors));
-            isIgnored.AddRange(this.allErrors
-                                   .AddRangeIfPossibleAndReturnErrors(tableErrors, this.persistentIgnoredErrors));
-            isIgnored.AddRange(this.allErrors
-                                   .AddRangeIfPossibleAndReturnErrors(missingReferenceErrors, this.persistentIgnoredErrors));
-            isIgnored.AddRange(this.allErrors
-                                   .AddRangeIfPossibleAndReturnErrors(labelNameErrors, this.persistentIgnoredErrors));
-            isIgnored.AddRange(this.allErrors
-                                   .AddRangeIfPossibleAndReturnErrors(refTypeErrors, this.persistentIgnoredErrors));
-            isIgnored.AddRange(this.allErrors
-                                   .AddRangeIfPossibleAndReturnErrors(missingCitationErrors, this.persistentIgnoredErrors));
-            isIgnored.AddRange(this.allErrors
-                                   .AddRangeIfPossibleAndReturnErrors(fillWordErrors, this.persistentIgnoredErrors));
-            isIgnored.AddRange(this.allErrors
-                                   .AddRangeIfPossibleAndReturnErrors(notExistantLabels, this.persistentIgnoredErrors));
-            isIgnored.AddRange(this.allErrors
-                                   .AddRangeIfPossibleAndReturnErrors(missingCaptionOrLabels, this.persistentIgnoredErrors));
-            isIgnored.AddRange(this.allErrors
-                                   .AddRangeIfPossibleAndReturnErrors(longSentencesErrors, this.persistentIgnoredErrors));
+            var result = new List<GlsError>();
+            result.AddRange(this.fileParser.FindWrongGlossaryErrorsPreamble(allExtractions.beforeFiles, allExtractions.allAcronymEntries));
+            result.AddRange(this.fileParser.FindMissingGls(allExtractions.missingGlsFiles, allExtractions.allAcronymEntries, allExtractions.allGlossaryEntries));
+            result.AddRange(this.fileParser.FindWrongGlossary(allExtractions.allFiles, allExtractions.allAcronymEntries));
+            result.AddRange(this.fileParser.FindMissingReferences(allExtractions.allFiles, this.configuration.ignoreSectionLabels,
+                                                                  this.configuration.labelsToIgnore.ToList(), allExtractions.allLabelEntries, allExtractions.allRefs));
+            result.AddRange(this.fileParser.FindWrongLabelNaming(allExtractions.allFiles, allExtractions.allLabelEntries));
+            result.AddRange(this.fileParser.FindWrongRefUsage(allExtractions.allFiles, allExtractions.allRefs));
+            result.AddRange(this.fileParser.FindMissingCitations(allExtractions.allFiles, allExtractions.allCitationEntries,
+                                                                 this.configuration.labelsToIgnore.ToList()));
+            result.AddRange(this.fileParser.FindFillWords(allExtractions.allFiles, this.configuration.fillWords.ToList(), this.configuration.searchFillWords));
+            result.AddRange(this.fileParser.FindNotExistendLabels(allExtractions.allFiles, allExtractions.allCitationEntries, allExtractions.allCitations,
+                                                                  allExtractions.allRefs, allExtractions.allLabelEntries));
+            result.AddRange(this.fileParser.FindMissingCaptionOrLabel(allExtractions.allAreas));
+            result.AddRange(this.fileParser.FindToLongSenetences(allExtractions.allSenetences));
 
+            return result;
+        }
+
+        private void ActualisateErrors(IEnumerable<GlsError> newErrors)
+        {
+            var isIgnored = this.allErrors.AddRangeReturnErrors(newErrors, this.persistentIgnoredErrors);
 
             this.transientIgnoredErrors = isIgnored;
             this.persistentIgnoredErrors.AddRange(isIgnored);
-            this.persistentIgnoredErrors = this.transientIgnoredErrors.Distinct().ToList();
+            this.persistentIgnoredErrors = this.persistentIgnoredErrors.Distinct().ToList();
         }
 
-        private void ShowMessageBox()
-        {
-            const string messageBoxText = "Definiere zuerst alle Pfade!";
-            const string caption = "Fehler!";
-            const MessageBoxButton button = MessageBoxButton.OK;
-            const MessageBoxImage icon = MessageBoxImage.Warning;
-            MessageBox.Show(messageBoxText, caption, button, icon, MessageBoxResult.Yes);
-        }
-
-        private void ResetLatexDirectory(object sender, RoutedEventArgs e)
-        {
-            this.LatexDirectoryBox.Text = string.Empty;
-            this.configuration.latexDirectoryPath = string.Empty;
-        }
-
-        private void ResetGlossaryPath(object sender, RoutedEventArgs e)
-        {
-            this.GlossaryPathBox.Text = string.Empty;
-            this.configuration.glossaryPath = string.Empty;
-        }
-
-        private void ResetBibPath(object sender, RoutedEventArgs e)
-        {
-            this.BibliographiePathBox.Text = string.Empty;
-            this.configuration.bibPath = string.Empty;
-        }
-
-        private void ResetIgnoredFiles(object sender, RoutedEventArgs e)
-        {
-            this.IgnorableFilesMissingGlsBox.Text = string.Empty;
-            this.configuration.ignoreFilesWithMissingGls?.Clear();
-        }
-
-        private void ResetPreambleDirectory(object sender, RoutedEventArgs e)
-        {
-            this.PreambleDirectoryBox.Text = string.Empty;
-            this.configuration.preambleDirectoryPath = string.Empty;
-        }
+        #endregion
     }
 }

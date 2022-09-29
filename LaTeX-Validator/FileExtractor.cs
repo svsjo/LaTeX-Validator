@@ -9,8 +9,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
+using LaTeX_Validator.Enums;
+using static LaTeX_Validator.DataClasses.DataTemplates;
 
 namespace LaTeX_Validator;
 
@@ -288,46 +289,5 @@ public class FileExtractor
                 }
             }
         }
-    }
-
-
-    public class Sentence
-    {
-        public string? sentence { get; set; }
-        public Line? line { get; set; }
-        public string? file { get; set; }
-    }
-
-    public class ReferenceUsage
-    {
-        public string? label { get; set; }
-        public string? file { get; set; }
-        public Line? line { get; set; }
-        public int pos { get; set; }
-        public RefType RefType { get; set; }
-    }
-
-    public class LabelDefinition
-    {
-        public string? label { get; set; }
-        public string? file { get; set; }
-        public Line? line { get; set; }
-        public int pos { get; set; }
-    }
-
-    public class CitationUsage
-    {
-        public string? label { get; set; }
-        public Line? line { get; set; }
-        public string? file { get; set; }
-        public int pos { get; set; }
-    }
-
-    public class Area
-    {
-        public List<Line>? allLines { get; set; }
-        public string? label { get; set; }
-        public string? file { get; set; }
-        public int pos { get; set; }
     }
 }

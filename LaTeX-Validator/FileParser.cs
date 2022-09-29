@@ -2,18 +2,26 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using static LaTeX_Validator.FileExtractor;
+using LaTeX_Validator.DataClasses;
+using LaTeX_Validator.Enums;
+using static LaTeX_Validator.DataClasses.DataTemplates;
 
 namespace LaTeX_Validator;
 
 public class FileParser
 {
+    #region Init
+
     private readonly FileExtractor fileExtractor;
 
     public FileParser(FileExtractor fileExtractor1)
     {
         this.fileExtractor = fileExtractor1;
     }
+
+    #endregion
+
+    #region Public Methods
 
     /// <summary>
     /// Suche alle vorher definierten Füllworte im Text
@@ -412,7 +420,6 @@ public class FileParser
         }
     }
 
-
     /// <summary>
     /// ÜBerprüfe ob eine Tabelle, Code oder Bild ohne Label oder Caption genutzt wird.
     /// </summary>
@@ -461,6 +468,11 @@ public class FileParser
         }
     }
 
+    /// <summary>
+    /// Sätze mit >25 Wörtern als Warnung, >30 Wörtern als Error finden
+    /// </summary>
+    /// <param name="allSenetences"></param>
+    /// <returns></returns>
     public IEnumerable<GlsError> FindToLongSenetences(List<Sentence> allSenetences)
     {
         foreach (var sentence in allSenetences)
@@ -484,6 +496,8 @@ public class FileParser
             }
         }
     }
+
+    #endregion
 
     #region HelperMethods
 

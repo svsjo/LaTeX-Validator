@@ -6,23 +6,33 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 using System.Linq;
+using LaTeX_Validator.Enums;
 using LaTeX_Validator.Extensions;
 
-namespace LaTeX_Validator;
+namespace LaTeX_Validator.DataClasses;
 
 public class GlsError
 {
+    #region Attrbutes
+
     public string? WordContent { get; set; }
     public GlsType ActualForm { get; set; }
-    public string? FormText => this.ActualForm.GetStringValue();
     public ErrorType ErrorType { get; set; }
-    public string? ErrorText => this.ErrorType.GetStringValue();
     public string? File { get; set; }
     public int Line { get; set; }
-    public int LinePosition { get; set; } = 0;
+    public int LinePosition { get; set; }
     public ErrorStatus ErrorStatus { get; set; }
-    public string? ErrorStatusText => this.ErrorStatus.GetStringValue();
     public string? DirectSuroundings { get; set; }
+    public string? FullLine { get; set; }
+
+    #endregion
+
+
+    #region Transformers
+
+    public string? FormText => this.ActualForm.GetStringValue();
+    public string? ErrorText => this.ErrorType.GetStringValue();
+    public string? ErrorStatusText => this.ErrorStatus.GetStringValue();
     public string? SuroundingsBefore
     {
         get
@@ -31,8 +41,6 @@ public class GlsError
             return split?.ElementAt(0) ?? this.WordContent;
         }
     }
-    public string? FullLine { get; set; }
-
     public string? SuroundingsAfter
     {
         get
@@ -41,6 +49,8 @@ public class GlsError
             return split is { Count: > 1 } ? split.ElementAt(1) : this.WordContent;
         }
     }
+
+    #endregion
 
 
     public bool IsEqual(GlsError glsError)

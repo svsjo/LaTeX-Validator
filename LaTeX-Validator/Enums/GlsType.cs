@@ -7,7 +7,7 @@
 
 using LaTeX_Validator.Extensions;
 
-namespace LaTeX_Validator;
+namespace LaTeX_Validator.Enums;
 
 public enum GlsType
 {

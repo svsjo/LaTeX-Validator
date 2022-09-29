@@ -1,15 +1,14 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="AcronymEntry.cs" company="www.arburg.com">
+// <copyright file="RefType.cs" company="www.arburg.com">
 // Arburg GmbH + Co. KG all rights reserved.
 // </copyright>
 // <author>Jonas Weis</author>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace LaTeX_Validator;
+namespace LaTeX_Validator.Enums;
 
-public class AcronymEntry
+public enum RefType
 {
-    public string Label { get; set; }
-    public string Short { get; set; }
-    public string Long { get; set; }
+    Normal,
+    Auto
 }

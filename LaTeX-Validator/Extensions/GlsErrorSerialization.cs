@@ -7,33 +7,27 @@
 
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Linq;
 using System.Text.Json;
+using LaTeX_Validator.DataClasses;
 
 namespace LaTeX_Validator.Extensions;
 
 internal static class GlsErrorSerialization
 {
-    /// <summary>
-    /// Result-Strings Aufbau:
-    /// "string WordContent,GlsType ActualForm,ErrorType ErrorType,string File,int Line,int LinePosition"
-    /// ErrorStatus ist immer ErrorStatus.Ignored
-    /// </summary>
-    /// <param name="errorObjects"></param>
-    /// <returns></returns>
-    public static StringCollection Serialize(this List<GlsError> errorObjects)
+    public static StringCollection ToStringCollection(this IEnumerable<GlsError> errorObjects)
     {
         var stringCollection = new StringCollection();
 
-        foreach (var obj in errorObjects)
+        foreach (var resultString in errorObjects.Select(obj => JsonSerializer.Serialize(obj)))
         {
-            var resultString = JsonSerializer.Serialize(obj);
             stringCollection.Add(resultString);
         }
 
         return stringCollection;
     }
 
-    public static List<GlsError> Deserialize(this StringCollection? serializedObjects)
+    public static List<GlsError> ToGlsError(this StringCollection? serializedObjects)
     {
         var objectList = new List<GlsError>();
         if (serializedObjects == null) return objectList;

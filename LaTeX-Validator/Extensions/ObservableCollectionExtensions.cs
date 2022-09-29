@@ -8,12 +8,14 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using LaTeX_Validator.DataClasses;
+using LaTeX_Validator.Enums;
 
 namespace LaTeX_Validator.Extensions;
 
 internal static class ObservableCollectionExtensions
 {
-    public static List<GlsError> AddRangeIfPossibleAndReturnErrors(this ObservableCollection<GlsError> originalCollection,
+    public static List<GlsError> AddRangeReturnErrors(this ObservableCollection<GlsError> originalCollection,
                                                       IEnumerable<GlsError> collectionToAdd,
                                                       List<GlsError> collectionToIgnore)
     {
