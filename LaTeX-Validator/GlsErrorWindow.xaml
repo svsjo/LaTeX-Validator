@@ -6,77 +6,76 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:LaTeX_Validator"
         mc:Ignorable="d"
-        Title="GlsErrorWindow" Height="1080" Width="1980"
+        Title="Latex-Validator" Height="1080" Width="1980"
         WindowStartupLocation="CenterScreen" WindowState="Maximized"
-        Closing="OnWindowClosing">
-    <Grid>
+        Closing="OnWindowClosing" Icon="C:\Users\entep04\source\repos\LaTeX-Validator\LaTeX-Validator\Images\Tex.ico" >
+    <Grid Background="Gray">
         <local:PopupDialog Panel.ZIndex="1" Visibility="Hidden" x:Name="PopupDialog" WindowIsClosing="PopupDialog_OnWindowIsClosing"></local:PopupDialog>
         <StackPanel Orientation="Vertical">
             <StackPanel Orientation="Horizontal" Margin="10,10,10,10">
                 <StackPanel Orientation="Vertical" Margin="10,0,0,0">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Text="Latex-Verzeichnis" VerticalAlignment="Top" Width="120"/>
-                        <TextBox Focusable="False" HorizontalAlignment="Left" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="700" Name="LatexDirectoryBox"/>
-                        <Button Click="SelectRootDirectory" Margin="10,0,0,0" Width="130">Verzeichnis auswählen</Button>
-                        <Button Margin="2,0,0,0" Width="20" Click="ResetLatexDirectory">R</Button>
+                        <TextBox Background="LightGray"  Focusable="False" HorizontalAlignment="Left" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="700" Name="LatexDirectoryBox"/>
+                        <Button Click="SelectRootDirectory" Margin="10,0,0,0" Width="130" Background="LightGreen" >Verzeichnis auswählen</Button>
+                        <Button Margin="2,0,0,0" Width="20" Click="ResetLatexDirectory" Background="LightGreen">R</Button>
                     </StackPanel>
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Text="Glossary-Pfad" VerticalAlignment="Top" Width="120"/>
-                        <TextBox Focusable="False" HorizontalAlignment="Left" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="700" Name="GlossaryPathBox"/>
-                    <Button Click="SelectGlossaryPath" Margin="10,0,0,0" Width="130">Datei auswählen</Button>
-                    <Button Margin="2,0,0,0" Width="20" Click="ResetGlossaryPath">R</Button>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Text="Glossary-Pfad" VerticalAlignment="Top" Width="120"/>
+                        <TextBox Background="LightGray" Focusable="False" HorizontalAlignment="Left" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="700" Name="GlossaryPathBox"/>
+                        <Button Background="LightGreen" Click="SelectGlossaryPath" Margin="10,0,0,0" Width="130">Datei auswählen</Button>
+                        <Button Background="LightGreen" Margin="2,0,0,0" Width="20" Click="ResetGlossaryPath">R</Button>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal">
                         <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Text="Bibliografie-Pfad" VerticalAlignment="Top" Width="120"/>
-                        <TextBox Focusable="False" HorizontalAlignment="Left" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="700" Name="BibliographiePathBox"/>
-                        <Button Click="SelectBibliographiePath" Margin="10,0,0,0" Width="130">Datei auswählen</Button>
-                        <Button Margin="2,0,0,0" Width="20" Click="ResetBibPath">R</Button>
+                        <TextBox Background="LightGray" Focusable="False" HorizontalAlignment="Left" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="700" Name="BibliographiePathBox"/>
+                        <Button Background="LightGreen" Click="SelectBibliographiePath" Margin="10,0,0,0" Width="130">Datei auswählen</Button>
+                        <Button Background="LightGreen" Margin="2,0,0,0" Width="20" Click="ResetBibPath">R</Button>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal">
-                    <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Text="Preamble-Verzeichnis" VerticalAlignment="Top" Width="120"/>
-                        <TextBox Focusable="False" HorizontalAlignment="Left" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="700" Name="PreambleDirectoryBox"/>
-                    <Button Click="SelectPreambleDirectory" Margin="10,0,0,0" Width="130">Verzeichnis auswählen</Button>
-                    <Button Margin="2,0,0,0" Width="20" Click="ResetPreambleDirectory">R</Button>
+                        <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Text="Preamble-Verzeichnis" VerticalAlignment="Top" Width="120"/>
+                        <TextBox Background="LightGray" Focusable="False" HorizontalAlignment="Left" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="700" Name="PreambleDirectoryBox"/>
+                        <Button Background="LightGreen" Click="SelectPreambleDirectory" Margin="10,0,0,0" Width="130">Verzeichnis auswählen</Button>
+                        <Button Background="LightGreen" Margin="2,0,0,0" Width="20" Click="ResetPreambleDirectory">R</Button>
                     </StackPanel>
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Text="Ignoriere Dateien:  \gls fehlt  (Toggle)" VerticalAlignment="Top" Width="120" Height="52"/>
-                        <TextBox Focusable="False" HorizontalAlignment="Left" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="700" Height="52" Name="IgnorableFilesMissingGlsBox"/>
-                    <Button Click="SelectIgnorableFilesGls" Margin="10,0,0,0" Width="130">Dateien auswählen</Button>
-                    <Button Margin="2,0,0,0" Width="20" Click="ResetIgnoredFiles">R</Button>
-                    </StackPanel>
-            </StackPanel>
-            <Rectangle VerticalAlignment="Stretch" Width="2" Margin="40,0,40,0" Stroke="Black" />
-            <StackPanel Orientation="Vertical">
-                <StackPanel Orientation="Horizontal">
-                    <CheckBox Margin="0,0,5,0" Click="PickerRefOption_Clicked" Name="RefOptionPicker"></CheckBox>
-                    <TextBlock Text="Ignoriere nicht referenzierte Sektionen-Labels (chap:, sec:, subsec:)"></TextBlock>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal">
-                    <CheckBox Margin="0,0,5,0" Click="PickerShowIgnoredErrors_Clicked" Name="ShowIgnoredErrors"></CheckBox>
-                    <TextBlock Text="Ignorierte Fehler anzeigen"></TextBlock>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal">
-                    <CheckBox Margin="0,0,5,0" Click="PickerShowFillwords_Clicked" Name="IgnoreFillWords"></CheckBox>
-                    <TextBlock Text="Definierte Füllworte suchen"></TextBlock>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal">
-                    <Button Margin="1,0,5,0" Click="SelectFillwordsAndLabels_Clicked" Name="SelectFillwordsAndLabelsButton" Width="14"></Button>
-                    <StackPanel Orientation="Vertical">
-                        <TextBlock Text="Füllworte definieren (Popup)"></TextBlock>
-                        <TextBlock Text="Label definieren zum ignorieren (Popup)"></TextBlock>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Text="Ignoriere Dateien:  \gls fehlt  (Toggle)" VerticalAlignment="Top" Width="120" Height="52"/>
+                        <TextBox Background="LightGray" Focusable="False" HorizontalAlignment="Left" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="700" Height="52" Name="IgnorableFilesMissingGlsBox"/>
+                        <Button Background="LightGreen" Click="SelectIgnorableFilesGls" Margin="10,0,0,0" Width="130">Dateien auswählen</Button>
+                        <Button Background="LightGreen" Margin="2,0,0,0" Width="20" Click="ResetIgnoredFiles">R</Button>
                     </StackPanel>
                 </StackPanel>
+                <Rectangle VerticalAlignment="Stretch" Width="2" Margin="25,0,25,0" Stroke="Black" />
+                <StackPanel Orientation="Vertical" VerticalAlignment="Center">
+                    <StackPanel Orientation="Horizontal">
+                        <CheckBox Background="LightGreen" Margin="0,0,5,0" Click="PickerRefOption_Clicked" Name="RefOptionPicker"></CheckBox>
+                        <TextBlock Text="Ignoriere nicht referenzierte Sektionen-Labels (chap:, sec:, subsec:)"></TextBlock>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <CheckBox Background="LightGreen" Margin="0,0,5,0" Click="PickerShowIgnoredErrors_Clicked" Name="ShowIgnoredErrors"></CheckBox>
+                        <TextBlock Text="Ignorierte Fehler anzeigen"></TextBlock>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <CheckBox Background="LightGreen" Margin="0,0,5,0" Click="PickerShowFillwords_Clicked" Name="IgnoreFillWords"></CheckBox>
+                        <TextBlock Text="Definierte Füllworte suchen"></TextBlock>
+                    </StackPanel>
+                    <Button Click="SelectFillwordsAndLabels_Clicked" Content="Füllworte definieren (Popup) &#10; Label definieren zum ignorieren (Popup)" 
+                            HorizontalAlignment="Left" Width="370" Margin="0,5,0,0" Background="LightGreen" ></Button>
+                </StackPanel>
+                <Rectangle VerticalAlignment="Stretch" Width="2" Margin="25,0,25,0" Stroke="Black" />
+                <StackPanel Orientation="Horizontal">
+                    <StackPanel Orientation="Vertical" VerticalAlignment="Center">
+                        <Button Content="Starte Analyse" HorizontalAlignment="Center" VerticalAlignment="Center" RenderTransformOrigin="-0.058,0.063" Width="260" Height="40" 
+                            Click="ButtonStart_Click" Margin="0,0,0,5" Background="LightGreen"  />
+                        <Button Content="Reset" HorizontalAlignment="Center" VerticalAlignment="Center" RenderTransformOrigin="-0.058,0.063" Width="260" Height="40" 
+                            Click="ButtonReset_Click" Background="LightGreen"  />
+                    </StackPanel>
+                    <Image Width="128" Height="128" Source="C:\Users\entep04\source\repos\LaTeX-Validator\LaTeX-Validator\Images/tex.png" Margin="25,0,0,0"></Image>
+                </StackPanel>
             </StackPanel>
-            <Rectangle VerticalAlignment="Stretch" Width="2" Margin="40,0,40,0" Stroke="Black" />
-            <StackPanel Orientation="Vertical" VerticalAlignment="Center">
-                <Button Content="Starte Analyse" HorizontalAlignment="Center" VerticalAlignment="Center" RenderTransformOrigin="-0.058,0.063" Width="360" Height="40" 
-                        Click="ButtonStart_Click" Margin="0,0,0,5"/>
-                <Button Content="Reset" HorizontalAlignment="Center" VerticalAlignment="Center" RenderTransformOrigin="-0.058,0.063" Width="360" Height="40" 
-                        Click="ButtonReset_Click"/>
-            </StackPanel>
-            </StackPanel>
+            <Line StrokeThickness="10" Stroke="Black"></Line>
             <Grid Height="865">
-                <ListView Name="lvGlsError">
+                <ListView Name="lvGlsError" Background="LightGreen">
                     <ListView.View>
                         <GridView>
                             <GridViewColumn Header="Wort" Width="180" DisplayMemberBinding="{Binding WordContent}" />
@@ -111,14 +110,15 @@
                             <GridViewColumn Header="Auswahl" Width="100">
                                 <GridViewColumn.CellTemplate>
                                 <DataTemplate>
-                                    <Button Content="Springe zu" Width="88" Click="ButtonJump_Clicked" />
+                                    <Button Content="Springe zu" Width="88" Click="ButtonJump_Clicked" Background="DarkGray"/>
                                 </DataTemplate>
                                 </GridViewColumn.CellTemplate>
                             </GridViewColumn>
                             <GridViewColumn Header="Ignorieren" Width="100">
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
-                                        <Button Width="88" Click="ButtonIgnore_Clicked" Content="{Binding ErrorStatusText}"/>
+                                        <Button Width="88" Click="ButtonIgnore_Clicked" Content="{Binding ErrorStatusText}" 
+                                                Background="DarkGray"/>
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>
                             </GridViewColumn>
