@@ -342,6 +342,7 @@ namespace LaTeX_Validator
             var allCitations = this.fileExtractor.GetAllCitations(allFiles).ToList();
             var allLabels = this.fileExtractor.GetAllLabels(allFiles).ToList();
             var allRefs = this.fileExtractor.GetAllRefs(allFiles).ToList();
+            var allAreas = this.fileExtractor.GetAllCriticalAreas(allFiles).ToList();
 
             allFiles.Remove(this.configuration.glossaryPath!);
             beforeFiles.Remove(this.configuration.glossaryPath!);
@@ -365,13 +366,15 @@ namespace LaTeX_Validator
                                            this.configuration.labelsToIgnore.ToList()),
                                    this.fileParser.FindFillWords(allFiles, this.configuration.fillWords.ToList(),
                                                                  this.configuration.searchFillWords),
-                                   this.fileParser.FindNotExistendLabels(allFiles, allCitationEntries, allCitations, allRefs, allLabels));
+                                   this.fileParser.FindNotExistendLabels(allFiles, allCitationEntries, allCitations, allRefs, allLabels),
+                    this.fileParser.FindMissingCaptionOrLabel(allAreas));
         }
 
         private void ActualisateErrors(
             IEnumerable<GlsError> acrLongErrors, IEnumerable<GlsError> missingGlsErrors, IEnumerable<GlsError> tableErrors,
             IEnumerable<GlsError> missingReferenceErrors, IEnumerable<GlsError> labelNameErrors, IEnumerable<GlsError> refTypeErrors,
-            IEnumerable<GlsError> missingCitationErrors, IEnumerable<GlsError> fillWordErrors, IEnumerable<GlsError> notExistantLabels)
+            IEnumerable<GlsError> missingCitationErrors, IEnumerable<GlsError> fillWordErrors, IEnumerable<GlsError> notExistantLabels,
+            IEnumerable<GlsError> missingCaptionOrLabels)
         {
             var isIgnored = this.allErrors
                                 .AddRangeIfPossibleAndReturnErrors(acrLongErrors, this.persistentIgnoredErrors);
@@ -391,6 +394,8 @@ namespace LaTeX_Validator
                                    .AddRangeIfPossibleAndReturnErrors(fillWordErrors, this.persistentIgnoredErrors));
             isIgnored.AddRange(this.allErrors
                                    .AddRangeIfPossibleAndReturnErrors(notExistantLabels, this.persistentIgnoredErrors));
+            isIgnored.AddRange(this.allErrors
+                                   .AddRangeIfPossibleAndReturnErrors(missingCaptionOrLabels, this.persistentIgnoredErrors));
 
             this.transientIgnoredErrors = isIgnored;
             this.persistentIgnoredErrors.AddRange(isIgnored);

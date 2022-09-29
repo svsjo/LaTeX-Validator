@@ -6,10 +6,13 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 using System.Collections.Generic;
+using System.Formats.Asn1;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows.Controls.Primitives;
+using System.Windows.Documents;
+using System.Windows.Shapes;
 
 namespace LaTeX_Validator;
 
@@ -193,6 +196,56 @@ public class FileExtractor
         }
     }
 
+    /// <summary>
+    /// TODO ERROR FIXEn
+    /// </summary>
+    /// <param name="files"></param>
+    /// <returns></returns>
+    public IEnumerable<Area> GetAllCriticalAreas(List<string> files)
+    {
+        const string regexBeginPattern = @"\\begin{(lstlisting|longtable|figure|tabular|table|tabularx)}(.*?)";
+        var regexBegin = new Regex(regexBeginPattern, RegexOptions.Compiled);
+
+        foreach (var file in files)
+        {
+            var allLines = this.GetAllLinesFromFile(file).ToList();
+
+            for (var i = 0; i < allLines.Count(); i++)
+            {
+                var actualLine = allLines.ElementAt(i);
+
+                if (!regexBegin.IsMatch(actualLine.Content)) continue;
+
+
+                var allLinesFromArea = new List<Line> { actualLine };
+
+                var match = regexBegin.Match(allLines.ElementAt(i).Content);
+                var label = match.Groups[1].Value;
+
+                i++;
+
+                var regexEndPattern = @"\\end{" + label + "}";
+                var regexEnd = new Regex(regexEndPattern, RegexOptions.Compiled);
+
+                while (!regexEnd.IsMatch(allLines.ElementAt(i).Content))
+                {
+                    allLinesFromArea.Add(allLines.ElementAt(i));
+                    i++;
+                }
+
+                allLinesFromArea.Add(allLines.ElementAt(i));
+
+                yield return new Area()
+                             {
+                                 allLines = allLinesFromArea,
+                                 label = label,
+                                 pos = 0,
+                                 file = file
+                             };
+            }
+        }
+    }
+
     public class ReferenceUsage
     {
         public string? label { get; set; }
@@ -214,6 +267,14 @@ public class FileExtractor
     {
         public string? label { get; set; }
         public Line? line { get; set; }
+        public string? file { get; set; }
+        public int pos { get; set; }
+    }
+
+    public class Area
+    {
+        public List<Line>? allLines { get; set; }
+        public string? label { get; set; }
         public string? file { get; set; }
         public int pos { get; set; }
     }

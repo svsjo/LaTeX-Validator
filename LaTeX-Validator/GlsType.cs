@@ -26,5 +26,7 @@ public enum GlsType
     [EnumExtension("Quell-Label")]
     CitationLabel,
     [EnumExtension("Füllwort")]
-    Fillword
+    Fillword,
+    [EnumExtension("Bereichsdefinition")]
+    Area
 }

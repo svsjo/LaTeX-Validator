@@ -417,6 +417,55 @@ public class FileParser
         }
     }
 
+
+    /// <summary>
+    /// ÜBerprüfe ob eine Tabelle, Code oder Bild ohne Label oder Caption genutzt wird.
+    /// </summary>
+    /// <returns></returns>
+    public IEnumerable<GlsError> FindMissingCaptionOrLabel(List<Area> allCriticalAreas)
+    {
+        var it = 0;
+        foreach (var area in allCriticalAreas)
+        {
+            var lineWithCaption = area.allLines?.FirstOrDefault(line => line.Content.Contains("caption"));
+            var lineWithLabel = area.allLines?.FirstOrDefault(line => line.Content.Contains("label"));
+
+            if (lineWithCaption == default)
+            {
+                yield return new GlsError
+                             {
+                                 WordContent = area.label,
+                                 ActualForm = GlsType.Area,
+                                 ErrorType = ErrorType.NoCaption,
+                                 File = area.file,
+                                 Line = area.allLines?.FirstOrDefault()?.Number ?? 0,
+                                 LinePosition = area.pos,
+                                 ErrorStatus = ErrorStatus.NotIgnored,
+                                 DirectSuroundings = area.allLines?.FirstOrDefault()?.Content ?? string.Empty,
+                                 FullLine = string.Join(" ", area.allLines!)
+                };
+            }
+
+            if (lineWithLabel == default)
+            {
+                yield return new GlsError
+                             {
+                                 WordContent = area.label,
+                                 ActualForm = GlsType.Area,
+                                 ErrorType = ErrorType.NoLabel,
+                                 File = area.file,
+                                 Line = area.allLines?.FirstOrDefault()?.Number ?? 0,
+                                 LinePosition = area.pos,
+                                 ErrorStatus = ErrorStatus.NotIgnored,
+                                 DirectSuroundings = area.allLines?.FirstOrDefault()?.Content ?? string.Empty,
+                                 FullLine = string.Join(" ", area.allLines!)
+                };
+            }
+
+            it++;
+        }
+    }
+
     #region HelperMethods
 
     private string GetDirectSuroundings(string line, string word)

@@ -13,7 +13,7 @@ public enum ErrorType
 {
     [EnumExtension("GLS fehlt")]
     MissingGls,
-    [EnumExtension("Sollte AcrLong/Short sein")]
+    [EnumExtension("Sollte acrlong/short sein")]
     ShouldBeAcrLong,
     [EnumExtension("Referenzierung Fehlt")]
     MissingRef,
@@ -27,6 +27,10 @@ public enum ErrorType
     MissingCitation,
     [EnumExtension("Füllwort verwendet")]
     IsFillWord,
-    [EnumExtension("Label nicht vorhanden")]
-    WrongLabel
+    [EnumExtension("Genutztes Label existiert nicht")]
+    WrongLabel,
+    [EnumExtension("Label nicht definiert")]
+    NoLabel,
+    [EnumExtension("Caption nicht definiert")]
+    NoCaption
 }
