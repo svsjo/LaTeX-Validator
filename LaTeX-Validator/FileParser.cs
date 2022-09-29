@@ -467,11 +467,11 @@ public class FileParser
         {
             var words = sentence.sentence?.Split(" ").ToList() ?? new List<string>();
 
-            if (words.Count > 30)
+            if (words.Count > 25)
             {
                 yield return new GlsError
                              {
-                                 WordContent = words.Take(2).Aggregate((x,y) => x + " " + y),
+                                 WordContent = words.Count > 30 ? $"Fehler: Länge {words.Count}" : $"Warnung: Länge {words.Count}",
                                  ActualForm = GlsType.Sentences,
                                  ErrorType = ErrorType.LongSentence,
                                  File = sentence.file,

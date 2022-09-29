@@ -149,6 +149,13 @@ namespace LaTeX_Validator
             dataView.SortDescriptions.Clear();
             var sd = new SortDescription(sortBy, sortOrder);
             dataView.SortDescriptions.Add(sd);
+            if (sortBy == "File")
+            {
+                var thenBy = new SortDescription("Line", sortOrder);
+                var thenthenBy = new SortDescription("LinePosition", sortOrder);
+                dataView.SortDescriptions.Add(thenBy);
+                dataView.SortDescriptions.Add(thenthenBy);
+            }
             dataView.Refresh();
         }
 
