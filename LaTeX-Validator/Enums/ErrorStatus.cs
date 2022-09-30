@@ -11,8 +11,8 @@ namespace LaTeX_Validator.Enums;
 
 public enum ErrorStatus
 {
-    [EnumExtension("Nicht ignorieren")]
+    [EnumExtension("+")]
     Ignored,
-    [EnumExtension("Ignorieren")]
+    [EnumExtension("-")]
     NotIgnored
 }

@@ -226,9 +226,9 @@
                                 </Style>
                             </GridView.ColumnHeaderContainerStyle>
                             <GridViewColumn Header="Wort" Width="180" DisplayMemberBinding="{Binding WordContent}" />
-                            <GridViewColumn Header="Aktuelle Form" Width="120" DisplayMemberBinding="{Binding FormText}" />
-                            <GridViewColumn Header="Problem" Width="160" DisplayMemberBinding="{Binding ErrorText}" />
-                            <GridViewColumn Header="Umgebung" Width="480">
+                            <GridViewColumn Header="Aktuelle Form" Width="130" DisplayMemberBinding="{Binding FormText}" />
+                            <GridViewColumn Header="Problem" Width="180" DisplayMemberBinding="{Binding ErrorText}" />
+                            <GridViewColumn Header="Umgebung" Width="540">
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
                                         <StackPanel Orientation="Horizontal">
@@ -237,7 +237,7 @@
                                                     <TextBlock Text="{Binding FullLine}" TextWrapping="Wrap" MaxWidth="800"></TextBlock>
                                                 </TextBlock.ToolTip>
                                             </TextBlock>
-                                            <TextBlock FontWeight="Bold" Text="{Binding WordContent}">
+                                            <TextBlock FontWeight="Bold" Text="{Binding SuroundingsMiddle}">
                                                 <TextBlock.ToolTip>
                                                     <TextBlock Text="{Binding FullLine}" TextWrapping="Wrap" MaxWidth="800"></TextBlock>
                                                 </TextBlock.ToolTip>
@@ -251,13 +251,13 @@
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>
                             </GridViewColumn>
-                            <GridViewColumn Header="Datei" Width="670" DisplayMemberBinding="{Binding File}" />
+                            <GridViewColumn Header="Datei" Width="660" DisplayMemberBinding="{Binding File}" />
                             <GridViewColumn Header="Zeile" Width="40" DisplayMemberBinding="{Binding Line}" />
                             <GridViewColumn Header="Pos" Width="40" DisplayMemberBinding="{Binding LinePosition}" />
-                            <GridViewColumn Header="Auswahl" Width="100">
+                            <GridViewColumn Header="Sprung" Width="70">
                                 <GridViewColumn.CellTemplate>
                                 <DataTemplate>
-                                    <Button Content="Springe zu" Width="88" Click="ButtonJump_Clicked" Background="DarkGray">
+                                    <Button Content="Öffne" Width="50" Click="ButtonJump_Clicked" Background="DarkGray">
                                         <Button.Resources>
                                             <Style TargetType="Border">
                                                 <Setter Property="CornerRadius" Value="10"></Setter>
@@ -267,10 +267,10 @@
                                 </DataTemplate>
                                 </GridViewColumn.CellTemplate>
                             </GridViewColumn>
-                            <GridViewColumn Header="Ignorieren" Width="100">
+                            <GridViewColumn Header="+/-" Width="50">
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
-                                        <Button Width="88" Click="ButtonIgnore_Clicked" Content="{Binding ErrorStatusText}" 
+                                        <Button Width="38" Click="ButtonIgnore_Clicked" Content="{Binding ErrorStatusText}" 
                                                 Background="DarkGray">
                                             <Button.Resources>
                                                 <Style TargetType="Border">

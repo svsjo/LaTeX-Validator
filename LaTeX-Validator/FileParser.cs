@@ -487,7 +487,7 @@ public class FileParser
                                  Line = sentence.line?.Number ?? 0,
                                  LinePosition = sentence.line?.Content.IndexOf(sentence.sentence ?? string.Empty, StringComparison.Ordinal) ?? 0,
                                  ErrorStatus = ErrorStatus.NotIgnored,
-                                 DirectSuroundings = sentence.sentence,
+                                 DirectSuroundings = sentence.sentence?[..80],
                                  FullLine = sentence.line?.Content
                 };
             }
@@ -530,7 +530,7 @@ public class FileParser
     {
         var position = line.IndexOf(word, StringComparison.Ordinal);
 
-        var range = (80 - word.Length) / 2;
+        var range = (94 - word.Length) / 2;
 
         var min = position - range;
         if (min < 0) min = 0;

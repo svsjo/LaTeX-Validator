@@ -41,6 +41,14 @@ public class GlsError
             return split?.ElementAt(0) ?? this.WordContent;
         }
     }
+    public string? SuroundingsMiddle
+    {
+        get
+        {
+            if (this.ErrorType == ErrorType.LongSentence) return "";
+            else return this.WordContent;
+        }
+    }
     public string? SuroundingsAfter
     {
         get

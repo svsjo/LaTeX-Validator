@@ -11,19 +11,17 @@ namespace LaTeX_Validator.Enums;
 
 public enum ErrorType
 {
-    [EnumExtension("GLS fehlt")]
+    [EnumExtension("GLS-Befehl nicht verwendet")]
     MissingGls,
     [EnumExtension("Sollte acrlong/short sein")]
     ShouldBeAcrLong,
-    [EnumExtension("Referenzierung Fehlt")]
+    [EnumExtension("Referenzierung fehlt")]
     MissingRef,
     [EnumExtension("Label falsch benannt")]
     LabelNaming,
     [EnumExtension("Kein Autoref verwendet")]
     WrongRefType,
-    [EnumExtension("Serialisierungsfehler")]
-    Serialize,
-    [EnumExtension("Quelle nie angegeben")]
+    [EnumExtension("Quelle nie verwendet")]
     MissingCitation,
     [EnumExtension("Füllwort verwendet")]
     IsFillWord,
