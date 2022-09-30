@@ -209,11 +209,11 @@
                             </Button.Resources>
                         </Button>
                     </StackPanel>
-                    <Rectangle VerticalAlignment="Stretch" Width="2" Margin="25,0,20,0" Stroke="Black" />
+                    <Rectangle VerticalAlignment="Stretch" Width="2" Margin="25,0,15,0" Stroke="Black" />
                     <Image Width="128" Height="128" Source="C:\Users\entep04\source\repos\LaTeX-Validator\LaTeX-Validator\Images\tex.png" Margin="0,0,0,0"></Image>
                 </StackPanel>
             </StackPanel>
-            <Line StrokeThickness="10" Stroke="Black" X1="0" X2="1980"></Line>
+            <Line StrokeThickness="2" Stroke="Black" X1="5" X2="1915" Margin="0,0,0,5"></Line>
             <Grid Height="865">
                 <ListView Name="lvGlsError" Background="#3DE091">
                     <ListView.View>
