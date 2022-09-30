@@ -8,7 +8,7 @@ using static LaTeX_Validator.DataClasses.DataTemplates;
 
 namespace LaTeX_Validator;
 
-public class FileParser
+internal class FileParser
 {
     #region Init
 
@@ -50,7 +50,7 @@ public class FileParser
 
                     foreach (Match match in matches)
                     {
-                        yield return new GlsError()
+                        yield return new GlsError
                                      {
                                          WordContent = match.Value,
                                          ActualForm = GlsType.Fillword,
@@ -77,7 +77,7 @@ public class FileParser
     /// <returns></returns>
     public IEnumerable<GlsError> FindMissingCitations(List<string> files, List<CitationEntry> allCitationEntries, List<string> labelsToIgnore)
     {
-        var regexPattern = @"\\cite{(.*?)}";
+        const string regexPattern = @"\\cite{(.*?)}";
         var regex = new Regex(regexPattern, RegexOptions.Compiled);
         var allCitationEntriesCopy = allCitationEntries.GetRange(0, allCitationEntries.Count);
 
@@ -105,7 +105,7 @@ public class FileParser
 
         foreach (var entry in allCitationEntriesCopy)
         {
-            yield return new GlsError()
+            yield return new GlsError
                          {
                              WordContent = entry.label,
                              ActualForm = GlsType.CitationLabel,
@@ -155,18 +155,18 @@ public class FileParser
                     var type = groups[1].ToString();
                     if (type != "gls") continue;
 
-                    yield return (new GlsError
-                                  {
-                                      WordContent = line.label,
-                                      ActualForm = GlsType.Gls,
-                                      ErrorType = ErrorType.ShouldBeAcrLong,
-                                      File = file,
-                                      Line = line.number,
-                                      LinePosition = match.Index,
-                                      ErrorStatus = ErrorStatus.NotIgnored,
-                                      DirectSuroundings = this.GetDirectSuroundings(line.content, line.label),
-                                      FullLine = line.content
-                    });
+                    yield return new GlsError
+                                 {
+                                     WordContent = line.label,
+                                     ActualForm = GlsType.Gls,
+                                     ErrorType = ErrorType.ShouldBeAcrLong,
+                                     File = file,
+                                     Line = line.number,
+                                     LinePosition = match.Index,
+                                     ErrorStatus = ErrorStatus.NotIgnored,
+                                     DirectSuroundings = this.GetDirectSuroundings(line.content, line.label),
+                                     FullLine = line.content
+                                 };
                 }
             }
         }
@@ -212,18 +212,18 @@ public class FileParser
                                    GlsType.AcrShort : allAcronymEntries.Select(x => x.Long).Any(x => x == element.word) ?
                                        GlsType.AcrLong : GlsType.Gls;
 
-                    yield return (new GlsError
-                                  {
-                                      WordContent = element.word,
-                                      ActualForm = type,
-                                      ErrorType = ErrorType.MissingGls,
-                                      File = file,
-                                      Line = line.Number,
-                                      LinePosition = line.Content.IndexOf(element.word, StringComparison.Ordinal),
-                                      ErrorStatus = ErrorStatus.NotIgnored,
-                                      DirectSuroundings = this.GetDirectSuroundings(line.Content, element.word),
-                                      FullLine = line.Content
-                    });
+                    yield return new GlsError
+                                 {
+                                     WordContent = element.word,
+                                     ActualForm = type,
+                                     ErrorType = ErrorType.MissingGls,
+                                     File = file,
+                                     Line = line.Number,
+                                     LinePosition = line.Content.IndexOf(element.word, StringComparison.Ordinal),
+                                     ErrorStatus = ErrorStatus.NotIgnored,
+                                     DirectSuroundings = this.GetDirectSuroundings(line.Content, element.word),
+                                     FullLine = line.Content
+                                 };
                 }
             }
         }
@@ -254,18 +254,18 @@ public class FileParser
 
             foreach (var line in affectedLines)
             {
-                yield return (new GlsError
-                              {
-                                  WordContent = line.containedLabel,
-                                  ActualForm = line.type,
-                                  ErrorType = ErrorType.ShouldBeAcrLong,
-                                  File = file,
-                                  Line = line.number,
-                                  LinePosition = line.fullLine.line.Content.IndexOf(line.containedLabel, StringComparison.Ordinal),
-                                  ErrorStatus = ErrorStatus.NotIgnored,
-                                  DirectSuroundings = this.GetDirectSuroundings(line.fullLine.line.Content, line.containedLabel),
-                                  FullLine = line.fullLine.line.Content
-                });
+                yield return new GlsError
+                             {
+                                 WordContent = line.containedLabel,
+                                 ActualForm = line.type,
+                                 ErrorType = ErrorType.ShouldBeAcrLong,
+                                 File = file,
+                                 Line = line.number,
+                                 LinePosition = line.fullLine.line.Content.IndexOf(line.containedLabel, StringComparison.Ordinal),
+                                 ErrorStatus = ErrorStatus.NotIgnored,
+                                 DirectSuroundings = this.GetDirectSuroundings(line.fullLine.line.Content, line.containedLabel),
+                                 FullLine = line.fullLine.line.Content
+                             };
             }
         }
     }
@@ -273,8 +273,8 @@ public class FileParser
     /// <summary>
     /// Wird auf alle Label von Tabellen, Quellcode und Bildern verwiesen?
     /// </summary>
-    public IEnumerable<GlsError> FindMissingReferences(List<string> files, bool ignoreSections, List<string> labelsToIgnore,
-                                                             List<LabelDefinition> allLabels, List<ReferenceUsage> allRefs)
+    public IEnumerable<GlsError> FindMissingReferences(bool ignoreSections, List<string> labelsToIgnore,
+                                                       List<LabelDefinition> allLabels, List<ReferenceUsage> allRefs)
     {
         var haveReference = allLabels
                             .Where(entry => allRefs
@@ -292,55 +292,53 @@ public class FileParser
                 if(element.label!.Contains("sec:") || element.label.Contains("chap:") || element.label.Contains("subsec:")) continue;
             }
 
-            yield return (new GlsError
-                          {
-                              WordContent = element.label,
-                              ActualForm = GlsType.Label,
-                              ErrorType = ErrorType.MissingRef,
-                              File = element.file,
-                              Line = element.line!.Number,
-                              LinePosition = element.pos,
-                              ErrorStatus = ErrorStatus.NotIgnored,
-                              DirectSuroundings = this.GetDirectSuroundings(element.line.Content, element.label ?? string.Empty),
-                              FullLine = element.line.Content
-                          });
+            yield return new GlsError
+                         {
+                             WordContent = element.label,
+                             ActualForm = GlsType.Label,
+                             ErrorType = ErrorType.MissingRef,
+                             File = element.file,
+                             Line = element.line!.Number,
+                             LinePosition = element.pos,
+                             ErrorStatus = ErrorStatus.NotIgnored,
+                             DirectSuroundings = this.GetDirectSuroundings(element.line.Content, element.label ?? string.Empty),
+                             FullLine = element.line.Content
+                         };
         }
     }
 
     /// <summary>
     /// Findet alle Referenzierungen in denen \ref statt \autoref verwendet wurde
     /// </summary>
-    /// <param name="files"></param>
     /// <param name="allRefs"></param>
     /// <returns></returns>
-    public IEnumerable<GlsError> FindWrongRefUsage(List<string> files, List<ReferenceUsage> allRefs)
+    public IEnumerable<GlsError> FindWrongRefUsage(IEnumerable<ReferenceUsage> allRefs)
     {
         var problems = allRefs.Where(reference => reference.RefType == RefType.Normal);
 
         foreach (var element in problems)
         {
-            yield return (new GlsError()
-                          {
-                              WordContent = element.label,
-                              ActualForm = GlsType.Label,
-                              ErrorType = ErrorType.WrongRefType,
-                              File = element.file,
-                              Line = element.line!.Number,
-                              LinePosition = element.pos,
-                              ErrorStatus = ErrorStatus.NotIgnored,
-                              DirectSuroundings = this.GetDirectSuroundings(element.line.Content, element.label ?? string.Empty),
-                              FullLine = element.line.Content
-            });
+            yield return new GlsError
+                         {
+                             WordContent = element.label,
+                             ActualForm = GlsType.Label,
+                             ErrorType = ErrorType.WrongRefType,
+                             File = element.file,
+                             Line = element.line!.Number,
+                             LinePosition = element.pos,
+                             ErrorStatus = ErrorStatus.NotIgnored,
+                             DirectSuroundings = this.GetDirectSuroundings(element.line.Content, element.label ?? string.Empty),
+                             FullLine = element.line.Content
+                         };
         }
     }
 
     /// <summary>
     /// Prüft ob alle Labels richtig benannt wurden
     /// </summary>
-    /// <param name="files"></param>
     /// <param name="allLabels"></param>
     /// <returns></returns>
-    public IEnumerable<GlsError> FindWrongLabelNaming(List<string> files, List<LabelDefinition> allLabels)
+    public IEnumerable<GlsError> FindWrongLabelNaming(IEnumerable<LabelDefinition> allLabels)
     {
         var possiblePres = new List<string>() { "chap:", "sec:", "subsec:", "fig:", "table:", "lst:", "label" };
         var problematicLabels = allLabels
@@ -350,18 +348,18 @@ public class FileParser
 
         foreach (var problematicLabel in problematicLabels)
         {
-            yield return (new GlsError()
-                          {
-                              WordContent = problematicLabel.label,
-                              ActualForm = GlsType.Label,
-                              ErrorType = ErrorType.LabelNaming,
-                              File = problematicLabel.file,
-                              Line = problematicLabel.line!.Number,
-                              LinePosition = problematicLabel.pos,
-                              ErrorStatus = ErrorStatus.NotIgnored,
-                              DirectSuroundings = this.GetDirectSuroundings(problematicLabel.line.Content, problematicLabel.label ?? string.Empty),
-                              FullLine = problematicLabel.line.Content
-            });
+            yield return new GlsError
+                         {
+                             WordContent = problematicLabel.label,
+                             ActualForm = GlsType.Label,
+                             ErrorType = ErrorType.LabelNaming,
+                             File = problematicLabel.file,
+                             Line = problematicLabel.line!.Number,
+                             LinePosition = problematicLabel.pos,
+                             ErrorStatus = ErrorStatus.NotIgnored,
+                             DirectSuroundings = this.GetDirectSuroundings(problematicLabel.line.Content, problematicLabel.label ?? string.Empty),
+                             FullLine = problematicLabel.line.Content
+                         };
         }
     }
 
@@ -369,14 +367,13 @@ public class FileParser
     /// Finde bei Referenzierung und Zitation ob Label verwendet wurden, welches es nicht gibt.
     /// Bei Glossar erkennt es TexStudio selbst und wirft einen Fehler.
     /// </summary>
-    /// <param name="files"></param>
     /// <param name="allCitationLabels"></param>
     /// <param name="allCitations"></param>
     /// <param name="allRefUsages"></param>
     /// <param name="allRefLabels"></param>
     /// <returns></returns>
-    public IEnumerable<GlsError> FindNotExistendLabels(List<string> files, List<CitationEntry> allCitationLabels, List<CitationUsage> allCitations,
-                                                       List<ReferenceUsage> allRefUsages, List<LabelDefinition> allRefLabels)
+    public IEnumerable<GlsError> FindNotExistendLabels(List<CitationEntry> allCitationLabels, IEnumerable<CitationUsage> allCitations,
+                                                       IEnumerable<ReferenceUsage> allRefUsages, List<LabelDefinition> allRefLabels)
     {
         var wrongRefs = allRefUsages
                         .Where(usage => allRefLabels
@@ -389,7 +386,7 @@ public class FileParser
 
         foreach (var citation in wrongCitations)
         {
-            yield return new GlsError()
+            yield return new GlsError
                          {
                              WordContent = citation.label,
                              ActualForm = GlsType.CitationLabel,
@@ -405,7 +402,7 @@ public class FileParser
 
         foreach (var reference in wrongRefs)
         {
-            yield return new GlsError()
+            yield return new GlsError
                          {
                              WordContent = reference.label,
                              ActualForm = GlsType.Label,
@@ -545,7 +542,7 @@ public class FileParser
 
     private IEnumerable<(FullLine line, string contentCaption)> GetAllLinesWithCaption(List<FullLine> allLines)
     {
-        const string regexPattern = @".*caption({|=)(.*)(}|,)";
+        const string regexPattern = ".*caption({|=)(.*)(}|,)";
         var regex = new Regex(regexPattern, RegexOptions.Compiled);
 
         foreach (var actualLine in allLines)
@@ -565,8 +562,6 @@ public class FileParser
     {
         const string regexPattern = @"\\(section|chapter|subsection){(.*?)}";
         var regex = new Regex(regexPattern, RegexOptions.Compiled);
-
-        var linesWithCaption = new List<FullLine>();
 
         foreach (var actualLine in allLines)
         {

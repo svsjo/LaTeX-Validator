@@ -7,7 +7,7 @@
 
 namespace LaTeX_Validator.Enums;
 
-public enum RefType
+internal enum RefType
 {
     Normal,
     Auto

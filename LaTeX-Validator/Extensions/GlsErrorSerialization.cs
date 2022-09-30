@@ -19,10 +19,7 @@ internal static class GlsErrorSerialization
     {
         var stringCollection = new StringCollection();
 
-        foreach (var resultString in errorObjects.Select(obj => JsonSerializer.Serialize(obj)))
-        {
-            stringCollection.Add(resultString);
-        }
+        foreach (var resultString in errorObjects.Select(obj => JsonSerializer.Serialize(obj))) stringCollection.Add(resultString);
 
         return stringCollection;
     }

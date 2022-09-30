@@ -19,12 +19,4 @@ internal static class StringCollectionExtensions
 
         return list;
     }
-
-    public static StringCollection ToStringCollection(this List<string> list)
-    {
-        var stringCollection = new StringCollection();
-        stringCollection.AddRange(list.ToArray());
-
-        return stringCollection;
-    }
 }

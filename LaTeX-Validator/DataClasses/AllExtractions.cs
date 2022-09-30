@@ -36,7 +36,6 @@ internal class AllExtractions
     public List<Sentence> allSenetences { get; private set; } = new();
     public List<string> missingGlsFiles { get; private set; } = new();
     public List<string> allIncludes { get; private set; } = new();
-    public string mainPath { get; private set; }
 
     public void ExtractAll()
     {
@@ -57,7 +56,7 @@ internal class AllExtractions
         this.missingGlsFiles = this.configuration.ignoreFilesWithMissingGls == null ? this.allFiles : this.allFiles
                                    .Except(this.configuration.ignoreFilesWithMissingGls.ToList())
                                    .ToList();
-        this.mainPath = Path.Combine(this.configuration.latexDirectoryPath!, "main.tex");
+        Path.Combine(this.configuration.latexDirectoryPath!, "main.tex");
     }
 
     private void ExtractEntries()

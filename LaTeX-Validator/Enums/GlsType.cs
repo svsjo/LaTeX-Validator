@@ -17,12 +17,8 @@ public enum GlsType
     AcrLong,
     [EnumExtension("Glossareintrag")]
     Gls,
-    [EnumExtension("Temp")]
-    None,
     [EnumExtension("Label")]
     Label,
-    [EnumExtension("Serialisierungsfehler")]
-    Serialize,
     [EnumExtension("Quell-Label")]
     CitationLabel,
     [EnumExtension("Füllwort")]

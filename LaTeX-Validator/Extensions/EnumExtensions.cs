@@ -2,13 +2,12 @@
 using System.Linq;
 using System.Reflection;
 
-namespace LaTeX_Validator.Extensions
+namespace LaTeX_Validator.Extensions;
+
+internal static class EnumExtensions
 {
-    internal static class EnumExtensions
+    public static string? GetStringValue(this Enum actualEnum)
     {
-        public static string? GetStringValue(this Enum abc)
-        {
-            return abc?.GetType()?.GetMember(abc.ToString())?.FirstOrDefault()?.GetCustomAttribute<EnumExtensionAttribute>()?.Value;
-        }
+        return actualEnum.GetType().GetMember(actualEnum.ToString()).FirstOrDefault()?.GetCustomAttribute<EnumExtensionAttribute>()?.Value;
     }
 }

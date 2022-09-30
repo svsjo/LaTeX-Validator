@@ -161,7 +161,7 @@
                         <TextBlock Text="Ignoriere nicht referenzierte Sektionen-Labels (chap:, sec:, subsec:)"></TextBlock>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal">
-                        <CheckBox Background="#20ca78" Margin="0,0,5,0" Click="PickerShowIgnoredErrors_Clicked" Name="ShowIgnoredErrors">
+                        <CheckBox Background="#20ca78" Margin="0,0,5,0" Click="PickerShowIgnoredErrors_Clicked">
                             <CheckBox.Resources>
                                 <Style TargetType="Border">
                                     <Setter Property="CornerRadius" Value="20"></Setter>
@@ -171,7 +171,7 @@
                         <TextBlock Text="Ignorierte Fehler anzeigen"></TextBlock>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal">
-                        <CheckBox Background="#20ca78" Margin="0,0,5,0" Click="PickerShowFillwords_Clicked" Name="IgnoreFillWords">
+                        <CheckBox Background="#20ca78" Margin="0,0,5,0" Click="PickerShowFillwords_Clicked">
                             <CheckBox.Resources>
                                 <Style TargetType="Border">
                                     <Setter Property="CornerRadius" Value="20"></Setter>

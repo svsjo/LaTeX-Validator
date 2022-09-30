@@ -37,19 +37,13 @@ internal static class ObservableCollectionExtensions
     public static void AddRange(this ObservableCollection<GlsError> originalCollection,
                                                       IEnumerable<GlsError> collectionToAdd)
     {
-        foreach (var glsError in collectionToAdd)
-        {
-           originalCollection.Add(glsError);
-        }
+        foreach (var glsError in collectionToAdd) originalCollection.Add(glsError);
     }
 
     public static void RemoveRange(this ObservableCollection<GlsError> originalCollection,
                                 IEnumerable<GlsError> collectionToRemove)
     {
-        foreach (var glsError in collectionToRemove)
-        {
-            originalCollection.Remove(glsError);
-        }
+        foreach (var glsError in collectionToRemove) originalCollection.Remove(glsError);
     }
 
 }

@@ -10,7 +10,7 @@ using LaTeX_Validator.Enums;
 
 namespace LaTeX_Validator.DataClasses;
 
-public class DataTemplates
+internal class DataTemplates
 {
     public class Sentence
     {

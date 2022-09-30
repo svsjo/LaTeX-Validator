@@ -41,15 +41,9 @@ public class GlsError
             return split?.ElementAt(0) ?? this.WordContent;
         }
     }
-    public string? SuroundingsMiddle
-    {
-        get
-        {
-            if (this.ErrorType == ErrorType.LongSentence) return "";
-            else return this.WordContent;
-        }
-    }
-    public string? SuroundingsAfter
+    public string? SuroundingsMiddle => this.ErrorType == ErrorType.LongSentence ? "" : this.WordContent;
+
+    public string SuroundingsAfter
     {
         get
         {
@@ -58,10 +52,7 @@ public class GlsError
         }
     }
 
-    public string ButtonColor
-    {
-        get { return this.ErrorStatus == ErrorStatus.Ignored ? "#1aa763" : "#20ca78"; }
-    }
+    public string ButtonColor => this.ErrorStatus == ErrorStatus.Ignored ? "#1aa763" : "#20ca78";
 
     #endregion
 

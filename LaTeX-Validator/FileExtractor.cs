@@ -7,22 +7,20 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
-using System.Windows.Shapes;
 using LaTeX_Validator.Enums;
 using static LaTeX_Validator.DataClasses.DataTemplates;
 
 namespace LaTeX_Validator;
 
-public class FileExtractor
+internal class FileExtractor
 {
     public IEnumerable<AcronymEntry> GetAcronymEntries(string path)
     {
         var allLines = this.GetAllLinesFromFile(path);
-        const string regexAcronymPattern = @"newacronym{(.*)}{(.*)}{(.*)}"; // Group 0=all, 1=Label, 2=short, 3=long
+        const string regexAcronymPattern = "newacronym{(.*)}{(.*)}{(.*)}"; // Group 0=all, 1=Label, 2=short, 3=long
         var regex = new Regex(regexAcronymPattern, RegexOptions.Compiled);
 
         foreach (var line in allLines)
@@ -47,7 +45,7 @@ public class FileExtractor
     public IEnumerable<string> GetGlossaryEntries(string path)
     {
         var allLines = this.GetAllLinesFromFile(path);
-        const string regexGlossaryPattern = @"newglossaryentry{.*}{name={(.*)},.*}}"; // Group 1 = name
+        const string regexGlossaryPattern = "newglossaryentry{.*}{name={(.*)},.*}}"; // Group 1 = name
         var regex = new Regex(regexGlossaryPattern, RegexOptions.Compiled);
 
         foreach (var line in allLines)
@@ -79,7 +77,7 @@ public class FileExtractor
     public IEnumerable<CitationEntry> GetCitationEntries(string path)
     {
         var allLines = this.GetAllLinesFromFile(path);
-        const string regexBibPattern = @"@(.*?){(.*?),";
+        const string regexBibPattern = "@(.*?){(.*?),";
         var regex = new Regex(regexBibPattern, RegexOptions.Compiled);
 
         foreach (var line in allLines)
@@ -91,7 +89,7 @@ public class FileExtractor
                 var groups = match.Groups;
                 if (groups.Count < 3) continue;
 
-                yield return new CitationEntry()
+                yield return new CitationEntry
                              {
                                  label = groups[2].ToString(),
                                  file = path,
@@ -121,7 +119,7 @@ public class FileExtractor
                     var groups = match.Groups;
                     if (groups.Count < 2) continue;
 
-                    yield return new CitationUsage()
+                    yield return new CitationUsage
                                  {
                                      label = groups[1].Value,
                                      line = line,
@@ -135,7 +133,7 @@ public class FileExtractor
 
     public IEnumerable<LabelDefinition> GetAllLabels(List<string> files)
     {
-        const string regexPatternLabel = @"label({|=)(.*?)(}|])";
+        const string regexPatternLabel = "label({|=)(.*?)(}|])";
         var regexLabel = new Regex(regexPatternLabel, RegexOptions.Compiled);
 
         foreach (var file in files)
@@ -206,7 +204,7 @@ public class FileExtractor
         {
             var allLines = this.GetAllLinesFromFile(file).ToList();
 
-            for (var i = 0; i < allLines.Count(); i++)
+            for (var i = 0; i < allLines.Count; i++)
             {
                 var actualLine = allLines.ElementAt(i);
 
@@ -231,7 +229,7 @@ public class FileExtractor
 
                 allLinesFromArea.Add(allLines.ElementAt(i));
 
-                yield return new Area()
+                yield return new Area
                              {
                                  allLines = allLinesFromArea,
                                  label = label,
@@ -314,10 +312,7 @@ public class FileExtractor
 
                     var val = match.Groups[1].Value;
 
-                    if (val.Contains("/"))
-                    {
-                        val = val.Replace("/", @"\");
-                    }
+                    if (val.Contains("/")) val = val.Replace("/", @"\");
 
                     yield return val;
                 }
