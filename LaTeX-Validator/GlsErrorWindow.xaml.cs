@@ -51,11 +51,6 @@ namespace LaTeX_Validator
             this.lvGlsError.AddHandler(ButtonBase.ClickEvent, new RoutedEventHandler(this.ColumnClick));
         }
 
-        public string TransformAttribute(string str)
-        {
-            return str + "123123";
-        }
-
         private void InitializeUiData()
         {
             this.InitializeFromPersistentData();
@@ -422,19 +417,24 @@ namespace LaTeX_Validator
         {
             var result = new List<GlsError>();
             result.AddRange(this.fileParser.FindWrongGlossaryErrorsPreamble(allExtractions.beforeFiles, allExtractions.allAcronymEntries));
-            result.AddRange(this.fileParser.FindMissingGls(allExtractions.missingGlsFiles, allExtractions.allAcronymEntries, allExtractions.allGlossaryEntries));
+            result.AddRange(this.fileParser.FindMissingGls(allExtractions.missingGlsFiles, allExtractions.allAcronymEntries,
+                                                           allExtractions.allGlossaryEntries));
             result.AddRange(this.fileParser.FindWrongGlossary(allExtractions.allFiles, allExtractions.allAcronymEntries));
             result.AddRange(this.fileParser.FindMissingReferences(allExtractions.allFiles, this.configuration.ignoreSectionLabels,
-                                                                  this.configuration.labelsToIgnore.ToList(), allExtractions.allLabelEntries, allExtractions.allRefs));
+                                                                  this.configuration.labelsToIgnore.ToList(), allExtractions.allLabelEntries,
+                                                                  allExtractions.allRefs));
             result.AddRange(this.fileParser.FindWrongLabelNaming(allExtractions.allFiles, allExtractions.allLabelEntries));
             result.AddRange(this.fileParser.FindWrongRefUsage(allExtractions.allFiles, allExtractions.allRefs));
             result.AddRange(this.fileParser.FindMissingCitations(allExtractions.allFiles, allExtractions.allCitationEntries,
                                                                  this.configuration.labelsToIgnore.ToList()));
-            result.AddRange(this.fileParser.FindFillWords(allExtractions.allFiles, this.configuration.fillWords.ToList(), this.configuration.searchFillWords));
-            result.AddRange(this.fileParser.FindNotExistendLabels(allExtractions.allFiles, allExtractions.allCitationEntries, allExtractions.allCitations,
+            result.AddRange(this.fileParser.FindFillWords(allExtractions.allFiles, this.configuration.fillWords.ToList(),
+                                                          this.configuration.searchFillWords));
+            result.AddRange(this.fileParser.FindNotExistendLabels(allExtractions.allFiles, allExtractions.allCitationEntries,
+                                                                  allExtractions.allCitations,
                                                                   allExtractions.allRefs, allExtractions.allLabelEntries));
             result.AddRange(this.fileParser.FindMissingCaptionOrLabel(allExtractions.allAreas));
             result.AddRange(this.fileParser.FindToLongSenetences(allExtractions.allSenetences));
+            result.AddRange(this.fileParser.FindMissingIncludes(allExtractions.allFiles, allExtractions.allIncludes));
 
             return result;
         }

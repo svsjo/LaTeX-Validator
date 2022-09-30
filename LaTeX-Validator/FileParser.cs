@@ -494,6 +494,34 @@ public class FileParser
         }
     }
 
+    /// <summary>
+    /// Prüfe ob alle Dateien auch eingebunden wurden
+    /// </summary>
+    /// <param name="allFiles"></param>
+    /// <param name="allIncludes"></param>
+    /// <returns></returns>
+    public IEnumerable<GlsError> FindMissingIncludes(List<string> allFiles, List<string> allIncludes)
+    {
+        foreach (var file in allFiles)
+        {
+            if(file.Contains("main.tex") || file.Contains("einstellungen.tex")) continue;
+            if(allIncludes.Any(fileName => file.Contains(fileName))) continue;
+
+            yield return new GlsError
+                         {
+                             WordContent = file.Split(@"\").Last(),
+                             ActualForm = GlsType.File,
+                             ErrorType = ErrorType.NoInclude,
+                             File = file,
+                             Line = 0,
+                             LinePosition = 0,
+                             ErrorStatus = ErrorStatus.NotIgnored,
+                             DirectSuroundings = "",
+                             FullLine = ""
+                         };
+        }
+    }
+
     #endregion
 
     #region HelperMethods
@@ -515,7 +543,7 @@ public class FileParser
         return line.Substring(min, length);
     }
 
-    private IEnumerable<(Line line, string contentCaption)> GetAllLinesWithCaption(List<Line> allLines)
+    private IEnumerable<(FullLine line, string contentCaption)> GetAllLinesWithCaption(List<FullLine> allLines)
     {
         const string regexPattern = @".*caption({|=)(.*)(}|,)";
         var regex = new Regex(regexPattern, RegexOptions.Compiled);
@@ -533,12 +561,12 @@ public class FileParser
         }
     }
 
-    private IEnumerable<(Line line, string contentCaption)> GetAllLinesWithHeadlines(List<Line> allLines)
+    private IEnumerable<(FullLine line, string contentCaption)> GetAllLinesWithHeadlines(List<FullLine> allLines)
     {
         const string regexPattern = @"\\(section|chapter|subsection){(.*?)}";
         var regex = new Regex(regexPattern, RegexOptions.Compiled);
 
-        var linesWithCaption = new List<Line>();
+        var linesWithCaption = new List<FullLine>();
 
         foreach (var actualLine in allLines)
         {

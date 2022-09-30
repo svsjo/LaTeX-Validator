@@ -7,9 +7,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Windows.Shapes;
 using LaTeX_Validator.Enums;
 using static LaTeX_Validator.DataClasses.DataTemplates;
 
@@ -62,13 +64,13 @@ public class FileExtractor
         }
     }
 
-    public IEnumerable<Line> GetAllLinesFromFile(string path)
+    public IEnumerable<FullLine> GetAllLinesFromFile(string path)
     {
         var fileReader = new StreamReader(path);
         var counter = 1;
         while (fileReader.ReadLine() is { } actualLine)
         {
-            yield return new Line { Content = actualLine, Number = counter };
+            yield return new FullLine { Content = actualLine, Number = counter };
             counter++;
         }
 
@@ -94,7 +96,7 @@ public class FileExtractor
                                  label = groups[2].ToString(),
                                  file = path,
                                  line = line.Number,
-                                 pos = match.Index,
+                                 pos = match.Groups[2].Index,
                                  type = groups[1].ToString()
                              };
             }
@@ -211,7 +213,7 @@ public class FileExtractor
                 if (!regexBegin.IsMatch(actualLine.Content)) continue;
 
 
-                var allLinesFromArea = new List<Line> { actualLine };
+                var allLinesFromArea = new List<FullLine> { actualLine };
 
                 var match = regexBegin.Match(allLines.ElementAt(i).Content);
                 var label = match.Groups[1].Value;
@@ -286,6 +288,38 @@ public class FileExtractor
                                      line = line,
                                      sentence = sentence
                                  };
+                }
+            }
+        }
+    }
+
+    public IEnumerable<string> GetAllIncludes(List<string> files)
+    {
+        const string regexPattern = @"\\include{(.*?)}";
+        var regex = new Regex(regexPattern, RegexOptions.Compiled);
+
+        foreach (var file in files)
+        {
+            var allLines = this.GetAllLinesFromFile(file);
+
+            foreach (var line in allLines)
+            {
+                var matches = regex.Matches(line.Content);
+                foreach (Match match in matches)
+                {
+                    var matchStartIndex = match.Index;
+                    var commentIndex = line.Content.IndexOf("%", StringComparison.Ordinal);
+
+                    if (commentIndex != -1 && commentIndex < matchStartIndex) continue;
+
+                    var val = match.Groups[1].Value;
+
+                    if (val.Contains("/"))
+                    {
+                        val = val.Replace("/", @"\");
+                    }
+
+                    yield return val;
                 }
             }
         }

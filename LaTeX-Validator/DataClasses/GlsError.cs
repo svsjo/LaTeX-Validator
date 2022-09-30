@@ -46,7 +46,7 @@ public class GlsError
         get
         {
             var split = this.DirectSuroundings?.Split(this.WordContent).ToList();
-            return split is { Count: > 1 } ? split.ElementAt(1) : this.WordContent;
+            return split is { Count: > 1 } ? split.ElementAt(1) : "";
         }
     }
 

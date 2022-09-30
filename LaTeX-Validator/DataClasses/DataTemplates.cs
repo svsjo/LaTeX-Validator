@@ -15,7 +15,7 @@ public class DataTemplates
     public class Sentence
     {
         internal string? sentence { get; init; }
-        internal Line? line { get; init; }
+        internal FullLine? line { get; init; }
         internal string? file { get; init; }
     }
 
@@ -23,7 +23,7 @@ public class DataTemplates
     {
         internal string? label { get; init; }
         internal string? file { get; init; }
-        internal Line? line { get; init; }
+        internal FullLine? line { get; init; }
         internal int pos { get; init; }
         internal RefType RefType { get; init; }
     }
@@ -32,21 +32,21 @@ public class DataTemplates
     {
         internal string? label { get; init; }
         internal string? file { get; init; }
-        internal Line? line { get; init; }
+        internal FullLine? line { get; init; }
         internal int pos { get; init; }
     }
 
     public class CitationUsage
     {
         internal string? label { get; init; }
-        internal Line? line { get; init; }
+        internal FullLine? line { get; init; }
         internal string? file { get; init; }
         internal int pos { get; init; }
     }
 
     public class Area
     {
-        internal List<Line>? allLines { get; init; }
+        internal List<FullLine>? allLines { get; init; }
         internal string? label { get; init; }
         internal string? file { get; init; }
         internal int pos { get; init; }
@@ -61,7 +61,7 @@ public class DataTemplates
         internal string? type { get; init; }
     }
 
-    public class Line
+    public class FullLine
     {
         internal string Content { get; init; } = string.Empty;
         internal int Number { get; init; }

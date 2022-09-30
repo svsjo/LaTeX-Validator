@@ -30,5 +30,7 @@ public enum GlsType
     [EnumExtension("Bereichsdefinition")]
     Area,
     [EnumExtension("Satz")]
-    Sentences
+    Sentences,
+    [EnumExtension("Datei")]
+    File
 }
