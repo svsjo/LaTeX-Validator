@@ -181,7 +181,7 @@
                         <TextBlock Text="Definierte Füllworte suchen"></TextBlock>
                     </StackPanel>
                     <Button Click="SelectFillwordsAndLabels_Clicked" Content="   Füllworte definieren (Popup) &#10;   Label definieren zum ignorieren (Popup)" 
-                            HorizontalAlignment="Left" Width="370" Margin="0,5,0,0" Background="#20ca78" HorizontalContentAlignment="Left">
+                            HorizontalAlignment="Left" Width="370" Margin="0,15,0,0" Background="#20ca78" HorizontalContentAlignment="Left">
                         <Button.Resources>
                             <Style TargetType="Border">
                                 <Setter Property="CornerRadius" Value="15"></Setter>
@@ -253,11 +253,11 @@
                             </GridViewColumn>
                             <GridViewColumn Header="Datei" Width="660" DisplayMemberBinding="{Binding File}" />
                             <GridViewColumn Header="Zeile" Width="40" DisplayMemberBinding="{Binding Line}" />
-                            <GridViewColumn Header="Pos" Width="40" DisplayMemberBinding="{Binding LinePosition}" />
+                            <GridViewColumn Header="Pos" Width="40" DisplayMemberBinding="{Binding LinePosition}"/>
                             <GridViewColumn Header="Sprung" Width="70">
                                 <GridViewColumn.CellTemplate>
                                 <DataTemplate>
-                                    <Button Content="Öffne" Width="50" Click="ButtonJump_Clicked" Background="DarkGray">
+                                        <Button Content="Öffne" Width="50" Click="ButtonJump_Clicked" Background="#20ca78">
                                         <Button.Resources>
                                             <Style TargetType="Border">
                                                 <Setter Property="CornerRadius" Value="10"></Setter>
@@ -271,7 +271,7 @@
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
                                         <Button Width="38" Click="ButtonIgnore_Clicked" Content="{Binding ErrorStatusText}" 
-                                                Background="DarkGray">
+                                                Background="{Binding ButtonColor}" FontWeight="Bold">
                                             <Button.Resources>
                                                 <Style TargetType="Border">
                                                     <Setter Property="CornerRadius" Value="10"></Setter>

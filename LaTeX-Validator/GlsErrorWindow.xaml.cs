@@ -276,8 +276,8 @@ namespace LaTeX_Validator
             var dataView = CollectionViewSource.GetDefaultView(this.lvGlsError.ItemsSource);
 
             dataView.SortDescriptions.Clear();
-            var sd = new SortDescription(sortBy, sortOrder);
-            dataView.SortDescriptions.Add(sd);
+            var sortDescription = new SortDescription(sortBy, sortOrder);
+            dataView.SortDescriptions.Add(sortDescription);
             if (sortBy == "File")
             {
                 var thenBy = new SortDescription("Line", sortOrder);

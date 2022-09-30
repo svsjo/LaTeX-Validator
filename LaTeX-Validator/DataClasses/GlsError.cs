@@ -58,6 +58,11 @@ public class GlsError
         }
     }
 
+    public string ButtonColor
+    {
+        get { return this.ErrorStatus == ErrorStatus.Ignored ? "#1aa763" : "#20ca78"; }
+    }
+
     #endregion
 
 
