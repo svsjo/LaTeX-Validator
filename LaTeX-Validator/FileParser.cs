@@ -426,7 +426,6 @@ public class FileParser
     /// <returns></returns>
     public IEnumerable<GlsError> FindMissingCaptionOrLabel(List<Area> allCriticalAreas)
     {
-        var it = 0;
         foreach (var area in allCriticalAreas)
         {
             var lineWithCaption = area.allLines?.FirstOrDefault(line => line.Content.Contains("caption"));
@@ -444,7 +443,7 @@ public class FileParser
                                  LinePosition = area.pos,
                                  ErrorStatus = ErrorStatus.NotIgnored,
                                  DirectSuroundings = area.allLines?.FirstOrDefault()?.Content ?? string.Empty,
-                                 FullLine = string.Join(" ", area.allLines!)
+                                 FullLine = string.Join("\n", area.allLines!.Select(x => x.Content))
                 };
             }
 
@@ -460,11 +459,9 @@ public class FileParser
                                  LinePosition = area.pos,
                                  ErrorStatus = ErrorStatus.NotIgnored,
                                  DirectSuroundings = area.allLines?.FirstOrDefault()?.Content ?? string.Empty,
-                                 FullLine = string.Join(" ", area.allLines!)
+                                 FullLine = string.Join("\n", area.allLines!.Select(x => x.Content))
                 };
             }
-
-            it++;
         }
     }
 

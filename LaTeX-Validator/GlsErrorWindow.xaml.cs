@@ -51,6 +51,11 @@ namespace LaTeX_Validator
             this.lvGlsError.AddHandler(ButtonBase.ClickEvent, new RoutedEventHandler(this.ColumnClick));
         }
 
+        public string TransformAttribute(string str)
+        {
+            return str + "123123";
+        }
+
         private void InitializeUiData()
         {
             this.InitializeFromPersistentData();
