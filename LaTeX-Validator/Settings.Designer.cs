@@ -12,7 +12,7 @@ namespace LaTeX_Validator {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "17.3.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "17.1.0.0")]
     internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
         
         private static Settings defaultInstance = ((Settings)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Settings())));
@@ -25,7 +25,7 @@ namespace LaTeX_Validator {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("C:\\Users\\entep04\\Desktop\\Infos\\EigeneProjektarbeiten\\T2000\\T2000_Latex")]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
         public string RootDirectoryPath {
             get {
                 return ((string)(this["RootDirectoryPath"]));
@@ -37,8 +37,7 @@ namespace LaTeX_Validator {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("C:\\Users\\entep04\\Desktop\\Infos\\EigeneProjektarbeiten\\T2000\\T2000_Latex\\03_Preambl" +
-            "e\\glossaries.tex")]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
         public string GlossaryPath {
             get {
                 return ((string)(this["GlossaryPath"]));
@@ -50,8 +49,7 @@ namespace LaTeX_Validator {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("C:\\Users\\entep04\\Desktop\\Infos\\EigeneProjektarbeiten\\T2000\\T2000_Latex\\03_Preambl" +
-            "e")]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
         public string PreambleDirectoryPath {
             get {
                 return ((string)(this["PreambleDirectoryPath"]));

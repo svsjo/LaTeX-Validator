@@ -3,13 +3,13 @@
   <Profiles />
   <Settings>
     <Setting Name="RootDirectoryPath" Type="System.String" Scope="User">
-      <Value Profile="(Default)">C:\Users\entep04\Desktop\Infos\EigeneProjektarbeiten\T2000\T2000_Latex</Value>
+      <Value Profile="(Default)" />
     </Setting>
     <Setting Name="GlossaryPath" Type="System.String" Scope="User">
-      <Value Profile="(Default)">C:\Users\entep04\Desktop\Infos\EigeneProjektarbeiten\T2000\T2000_Latex\03_Preamble\glossaries.tex</Value>
+      <Value Profile="(Default)" />
     </Setting>
     <Setting Name="PreambleDirectoryPath" Type="System.String" Scope="User">
-      <Value Profile="(Default)">C:\Users\entep04\Desktop\Infos\EigeneProjektarbeiten\T2000\T2000_Latex\03_Preamble</Value>
+      <Value Profile="(Default)" />
     </Setting>
     <Setting Name="IgnoreSectionLabels" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>

@@ -16,8 +16,8 @@ namespace LaTeX_Validator.Extensions;
 internal static class ObservableCollectionExtensions
 {
     public static List<GlsError> AddRangeReturnErrors(this ObservableCollection<GlsError> originalCollection,
-                                                      IEnumerable<GlsError> collectionToAdd,
-                                                      List<GlsError> collectionToIgnore)
+        IEnumerable<GlsError> collectionToAdd,
+        List<GlsError> collectionToIgnore)
     {
         var ignore = new List<GlsError>();
 
