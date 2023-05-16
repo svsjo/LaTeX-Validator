@@ -10,8 +10,7 @@
         Height="1080" Width="1980"
         WindowStartupLocation="CenterScreen" 
         WindowState="Maximized"
-        Closing="OnWindowClosing"
-        Icon="C:\Users\weis_\source\repos\svsjo\LaTeX-Validator\LaTeX-Validator\Images\Tex.ico">
+        Closing="OnWindowClosing">
     <Grid Background="Gray">
         <local:PopupDialog Panel.ZIndex="1" Visibility="Hidden" x:Name="PopupDialog" WindowIsClosing="PopupDialog_OnWindowIsClosing"></local:PopupDialog>
         <StackPanel Orientation="Vertical">
@@ -210,7 +209,6 @@
                         </Button>
                     </StackPanel>
                     <Rectangle VerticalAlignment="Stretch" Width="2" Margin="25,0,15,0" Stroke="Black" />
-                    <Image Width="128" Height="128" Source="C:\Users\weis_\source\repos\svsjo\LaTeX-Validator\LaTeX-Validator\Images\tex.png" Margin="0,0,0,0"></Image>
                 </StackPanel>
             </StackPanel>
             <Line StrokeThickness="2" Stroke="Black" X1="5" X2="1915" Margin="0,0,0,5"></Line>
