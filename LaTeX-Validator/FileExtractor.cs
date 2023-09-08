@@ -33,11 +33,11 @@ internal class FileExtractor
                 if (groups.Count < 4) continue;
 
                 yield return new AcronymEntry
-                             {
-                                 Label = groups[1].ToString(),
-                                 Short = groups[2].ToString(),
-                                 Long = groups[3].ToString()
-                             };
+                {
+                    Label = groups[1].ToString(),
+                    Short = groups[2].ToString(),
+                    Long = groups[3].ToString()
+                };
             }
         }
     }
@@ -90,13 +90,13 @@ internal class FileExtractor
                 if (groups.Count < 3) continue;
 
                 yield return new CitationEntry
-                             {
-                                 label = groups[2].ToString(),
-                                 file = path,
-                                 line = line.Number,
-                                 pos = match.Groups[2].Index,
-                                 type = groups[1].ToString()
-                             };
+                {
+                    label = groups[2].ToString(),
+                    file = path,
+                    line = line.Number,
+                    pos = match.Groups[2].Index,
+                    type = groups[1].ToString()
+                };
             }
         }
     }
@@ -120,12 +120,12 @@ internal class FileExtractor
                     if (groups.Count < 2) continue;
 
                     yield return new CitationUsage
-                                 {
-                                     label = groups[1].Value,
-                                     line = line,
-                                     file = file,
-                                     pos = match.Index
-                                 };
+                    {
+                        label = groups[1].Value,
+                        line = line,
+                        file = file,
+                        pos = match.Index
+                    };
                 }
             }
         }
@@ -150,12 +150,12 @@ internal class FileExtractor
                     if (labelGroups is { Count: > 2 })
                     {
                         yield return new LabelDefinition
-                                     {
-                                         label = labelGroups[2].Value,
-                                         file = file,
-                                         line = line,
-                                         pos = labelMatch.Index
-                                     };
+                        {
+                            label = labelGroups[2].Value,
+                            file = file,
+                            line = line,
+                            pos = labelMatch.Index
+                        };
                     }
                 }
             }
@@ -183,13 +183,13 @@ internal class FileExtractor
                     var refType = string.IsNullOrEmpty(refGroups[1].Value) ? RefType.Normal : RefType.Auto;
 
                     yield return new ReferenceUsage
-                                 {
-                                     label = refGroups[2].Value,
-                                     RefType = refType,
-                                     file = file,
-                                     line = line,
-                                     pos = refMatch.Index
-                                 };
+                    {
+                        label = refGroups[2].Value,
+                        RefType = refType,
+                        file = file,
+                        line = line,
+                        pos = refMatch.Index
+                    };
                 }
             }
         }
@@ -230,12 +230,12 @@ internal class FileExtractor
                 allLinesFromArea.Add(allLines.ElementAt(i));
 
                 yield return new Area
-                             {
-                                 allLines = allLinesFromArea,
-                                 label = label,
-                                 pos = 0,
-                                 file = file
-                             };
+                {
+                    allLines = allLinesFromArea,
+                    label = label,
+                    pos = 0,
+                    file = file
+                };
             }
         }
     }
@@ -243,25 +243,25 @@ internal class FileExtractor
     public IEnumerable<Sentence> GetAllSentences(List<string> files)
     {
         var toIgnore = new List<string>
-                       {
-                           @"\label",
-                           @"\section",
-                           @"\chapter",
-                           @"\subsection",
-                           @"\centering",
-                           @"\includegraphics",
-                           @"\begin",
-                           @"\end",
-                           @"\small",
-                           @"\renewcommand",
-                           @"\setlength",
-                           @"\vspace",
-                           @"\cellcolor",
-                           @"\hline",
-                           @"\pagebreak",
-                           @"\newpage",
-                           @"\FloatBarrier"
-                       };
+        {
+            @"\label",
+            @"\section",
+            @"\chapter",
+            @"\subsection",
+            @"\centering",
+            @"\includegraphics",
+            @"\begin",
+            @"\end",
+            @"\small",
+            @"\renewcommand",
+            @"\setlength",
+            @"\vspace",
+            @"\cellcolor",
+            @"\hline",
+            @"\pagebreak",
+            @"\newpage",
+            @"\FloatBarrier"
+        };
 
         foreach (var file in files)
         {
