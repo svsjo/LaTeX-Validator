@@ -43,7 +43,7 @@ partial class GlsErrorWindow : Window
 
     #region Initialization
 
-    internal GlsErrorWindow()
+    public GlsErrorWindow()
     {
         configuration = new ConfigurationGlossary();
         fileExtractor = new FileExtractor();

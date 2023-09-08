@@ -484,7 +484,7 @@ internal class FileParser
                                  Line = sentence.line?.Number ?? 0,
                                  LinePosition = sentence.line?.Content.IndexOf(sentence.sentence ?? string.Empty, StringComparison.Ordinal) ?? 0,
                                  ErrorStatus = ErrorStatus.NotIgnored,
-                                 DirectSuroundings = sentence.sentence?[..80],
+                                 DirectSuroundings = sentence.sentence?[..Math.Min(80, sentence.sentence.Length)],
                                  FullLine = sentence.line?.Content
                 };
             }
